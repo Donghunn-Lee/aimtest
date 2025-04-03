@@ -1,5 +1,11 @@
-import HomePage from './pages/Home';
+import { Game } from './components/Game/Game';
 
-export default function App() {
-  return <HomePage />;
+function App() {
+  return (
+    <div className="h-screen w-screen">
+      <Game />
+    </div>
+  );
 }
+
+export default App;
