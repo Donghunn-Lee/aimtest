@@ -1,0 +1,107 @@
+<svg width="6440" height="3801" viewBox="0 0 6440 3801" fill="none" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" style="stop-color:#4a4a4a;stop-opacity:0.5" />
+    <stop offset="100%" style="stop-color:#2a2a2a;stop-opacity:1" />
+  </linearGradient>
+  <radialGradient id="bgGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+    <stop offset="0%" style="stop-color:#c3c3d0;stop-opacity:1" />
+    <stop offset="50%" style="stop-color:#b3b3c0;stop-opacity:1" />
+    <stop offset="100%" style="stop-color:#737383;stop-opacity:1" />
+  </radialGradient>
+  <radialGradient id="boxGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+    <stop offset="0%" style="stop-color:#d8d8e5;stop-opacity:1" />
+    <stop offset="50%" style="stop-color:#c8c8d5;stop-opacity:1" />
+    <stop offset="100%" style="stop-color:#b8b8c5;stop-opacity:1" />
+  </radialGradient>
+</defs>
+<rect width="6440" height="3800" fill="url(#bgGradient)"/>
+<g clip-path="url(#clip0_2_2)">
+<foreignObject x="-35.6326" y="560.102" width="6510.63" height="2177.9"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="-31.3163" y1="2733.05" x2="6470.68" y2="565.051" stroke="url(#lineGradient)" stroke-width="2"/>
+<foreignObject x="-39" y="556.102" width="6487.63" height="2171.9"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="-30.6842" y1="565.051" x2="6440.32" y2="2719.05" stroke="url(#lineGradient)" stroke-width="2"/>
+<rect x="2089" y="1271" width="2270" height="755" stroke="url(#lineGradient)" stroke-width="2"/>
+<rect x="2224" y="1317" width="1991" height="663" stroke="url(#lineGradient)" stroke-width="2"/>
+<rect x="2342" y="1356" width="1760" height="584" stroke="url(#lineGradient)" stroke-width="2"/>
+<rect x="2445" y="1389" width="1557" height="518" stroke="url(#lineGradient)" stroke-width="2"/>
+<rect x="2529" y="1418" width="1382" height="460" fill="url(#boxGradient)" stroke="url(#lineGradient)" stroke-width="2"/>
+<foreignObject x="3906.97" y="1106" width="2537.36" height="433.809"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="6440.17" y1="1110.99" x2="3911.14" y2="1534.82" stroke="url(#lineGradient)" stroke-width="2"/>
+<foreignObject x="3908" y="1647" width="2536" height="10.0002"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="6440" y1="1652" x2="3912" y2="1652" stroke="url(#lineGradient)" stroke-width="2"/>
+<foreignObject x="3907.67" y="1757" width="2536.33" height="438.972"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="6439.83" y1="2190.99" x2="3911.83" y2="1761.99" stroke="url(#lineGradient)" stroke-width="2"/>
+<foreignObject x="4656" y="1165" width="10" height="968"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="4661" y1="2129" x2="4661" y2="1169" stroke="url(#lineGradient)" stroke-width="2"/>
+<foreignObject x="4496" y="1218" width="10" height="861"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="4501" y1="2075" x2="4501" y2="1222" stroke="url(#lineGradient)" stroke-width="2"/>
+<foreignObject x="4856" y="1099" width="10" height="1101"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="4861" y1="2196" x2="4861" y2="1103" stroke="url(#lineGradient)" stroke-width="2"/>
+<foreignObject x="5096" y="1018" width="10" height="1260"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="5101" y1="2274" x2="5101" y2="1022" stroke="url(#lineGradient)" stroke-width="2"/>
+<foreignObject x="5376" y="925" width="10" height="1447"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="5381" y1="2368" x2="5381" y2="929" stroke="url(#lineGradient)" stroke-width="2"/>
+<foreignObject x="5696" y="818" width="10" height="1661"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="5701" y1="2475" x2="5701" y2="822" stroke="url(#lineGradient)" stroke-width="2"/>
+<foreignObject x="6056" y="697" width="10" height="1902"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="6061" y1="2595" x2="6061" y2="701" stroke="url(#lineGradient)" stroke-width="2"/>
+<foreignObject x="1778" y="1165" width="10" height="968"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="1783" y1="1169" x2="1783" y2="2129" stroke="url(#lineGradient)" stroke-width="2"/>
+<foreignObject x="1938" y="1219" width="10" height="861"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="1943" y1="1223" x2="1943" y2="2076" stroke="url(#lineGradient)" stroke-width="2"/>
+<foreignObject x="1578" y="1099" width="10" height="1101"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="1583" y1="1103" x2="1583" y2="2196" stroke="url(#lineGradient)" stroke-width="2"/>
+<foreignObject x="1338" y="1019" width="10" height="1261"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="1343" y1="1023" x2="1343" y2="2276" stroke="url(#lineGradient)" stroke-width="2"/>
+<foreignObject x="1058" y="925" width="10.0001" height="1448"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="1063" y1="929" x2="1063" y2="2369" stroke="url(#lineGradient)" stroke-width="2"/>
+<foreignObject x="738" y="819" width="10.0001" height="1662"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="743" y1="823" x2="743" y2="2477" stroke="url(#lineGradient)" stroke-width="2"/>
+<foreignObject x="378" y="699" width="10.0001" height="1900"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="383" y1="703" x2="383" y2="2595" stroke="url(#lineGradient)" stroke-width="2"/>
+<foreignObject x="-3.33551" y="1760.03" width="2535.34" height="439.972"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="0.832249" y1="2195.01" x2="2527.83" y2="1765.01" stroke="url(#lineGradient)" stroke-width="2"/>
+<foreignObject x="-3" y="1642" width="2535" height="10"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="1" y1="1647" x2="2528" y2="1647" stroke="url(#lineGradient)" stroke-width="2"/>
+<foreignObject x="-35.6326" y="560.102" width="6510.63" height="2177.9"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="-31.3163" y1="2733.05" x2="6470.68" y2="565.051" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="-39" y="556.102" width="6487.63" height="2171.9"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="-30.6842" y1="565.051" x2="6440.32" y2="2719.05" stroke="#4a4a4a" stroke-width="2"/>
+<rect x="2089" y="1271" width="2270" height="755" stroke="#4a4a4a" stroke-width="2"/>
+<rect x="2224" y="1317" width="1991" height="663" stroke="#4a4a4a" stroke-width="2"/>
+<rect x="2342" y="1356" width="1760" height="584" stroke="#4a4a4a" stroke-width="2"/>
+<rect x="2445" y="1389" width="1557" height="518" stroke="#4a4a4a" stroke-width="2"/>
+<rect x="2529" y="1418" width="1382" height="460" fill="url(#boxGradient)" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="3906.97" y="1106" width="2537.36" height="433.809"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="6440.17" y1="1110.99" x2="3911.14" y2="1534.82" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="3908" y="1647" width="2536" height="10.0002"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="6440" y1="1652" x2="3912" y2="1652" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="3907.67" y="1757" width="2536.33" height="438.972"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="6439.83" y1="2190.99" x2="3911.83" y2="1761.99" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="4656" y="1165" width="10" height="968"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="4661" y1="2129" x2="4661" y2="1169" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="4496" y="1218" width="10" height="861"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="4501" y1="2075" x2="4501" y2="1222" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="4856" y="1099" width="10" height="1101"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="4861" y1="2196" x2="4861" y2="1103" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="5096" y="1018" width="10" height="1260"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="5101" y1="2274" x2="5101" y2="1022" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="5376" y="925" width="10" height="1447"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="5381" y1="2368" x2="5381" y2="929" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="5696" y="818" width="10" height="1661"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="5701" y1="2475" x2="5701" y2="822" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="6056" y="697" width="10" height="1902"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="6061" y1="2595" x2="6061" y2="701" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="1778" y="1165" width="10" height="968"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="1783" y1="1169" x2="1783" y2="2129" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="1938" y="1219" width="10" height="861"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="1943" y1="1223" x2="1943" y2="2076" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="1578" y="1099" width="10" height="1101"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="1583" y1="1103" x2="1583" y2="2196" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="1338" y="1019" width="10" height="1261"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="1343" y1="1023" x2="1343" y2="2276" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="1058" y="925" width="10.0001" height="1448"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="1063" y1="929" x2="1063" y2="2369" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="738" y="819" width="10.0001" height="1662"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="743" y1="823" x2="743" y2="2477" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="378" y="699" width="10.0001" height="1900"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="383" y1="703" x2="383" y2="2595" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="-3.33551" y="1760.03" width="2535.34" height="439.972"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="0.832249" y1="2195.01" x2="2527.83" y2="1765.01" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="-3" y="1642" width="2535" height="10"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="1" y1="1647" x2="2528" y2="1647" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="-3" y="1097.03" width="2535.34" height="446.971"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="1.1704" y1="1102.01" x2="2528.17" y2="1539.01" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="1939" y="1217" width="2566" height="10.0002"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="1943" y1="1222" x2="4501" y2="1222" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="1780" y="1164" width="2886" height="10.0002"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="1784" y1="1169" x2="4662" y2="1169" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="1580.26" y="1097" width="3286.47" height="10.0002"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="1584.26" y1="1102" x2="4862.73" y2="1102" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="1340.37" y="1017" width="3764.25" height="10.0004"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="1344.37" y1="1022" x2="5100.62" y2="1022" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="1059.5" y="924" width="4323.99" height="10.0004"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="1063.5" y1="929" x2="5379.49" y2="929" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="738.654" y="817" width="4965.69" height="10.0004"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="742.654" y1="822" x2="5700.34" y2="822" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="378.822" y="697" width="5686.35" height="10.0005"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="382.822" y1="702" x2="6061.18" y2="702" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="-4" y="559.999" width="6448" height="10.0005"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="-8.74228e-08" y1="565" x2="6440" y2="564.999" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="-4" y="413" width="6448" height="10.0005"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="8.74228e-08" y1="418" x2="6440" y2="418.001" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="-4" y="211.999" width="6448" height="10.0006"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="-8.74228e-08" y1="217" x2="6440" y2="216.999" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="3216.5" y="-2" width="10" height="1423"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line x1="3221.5" y1="1417" x2="3221.5" y2="2" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="3562.65" y="-4" width="2121.29" height="1427.12"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line data-figma-bg-blur-radius="4" y1="-1" x2="2543.72" y2="-1" transform="matrix(-0.830351 0.557241 -0.556883 -0.830591 5678.83 0)" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="3424.4" y="-4" width="1487.74" height="1426.44"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line data-figma-bg-blur-radius="4" y1="-1" x2="2047.79" y2="-1" transform="matrix(-0.72193 0.691966 -0.69163 -0.722252 4906.76 0)" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="3311.46" y="-4" width="759.725" height="1425.94"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line data-figma-bg-blur-radius="4" y1="-1" x2="1603.22" y2="-1" transform="matrix(-0.467781 0.883844 -0.883664 -0.468122 4065.41 0)" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="3675.29" y="38" width="2769.6" height="1384.79"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line data-figma-bg-blur-radius="4" y1="-1" x2="3084.18" y2="-1" transform="matrix(-0.895121 0.445824 -0.445491 -0.895287 6440 42)" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="3793.23" y="344" width="2651.52" height="1078.85"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line data-figma-bg-blur-radius="4" y1="-1" x2="2850.79" y2="-1" transform="matrix(-0.927031 0.374984 -0.374684 -0.927153 6440 348)" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="749.465" y="-5.67132" width="2124.35" height="1428.67"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line data-figma-bg-blur-radius="4" y1="-1" x2="2547.13" y2="-1" transform="matrix(0.830447 0.557098 -0.549245 0.835662 753.465 0)" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="1521.53" y="-5.45853" width="1491.13" height="1428.46"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line data-figma-bg-blur-radius="4" y1="-1" x2="2051.63" y2="-1" transform="matrix(0.722238 0.691645 -0.684232 0.729264 1525.53 0)" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="2362.88" y="-4.95082" width="761.036" height="1427.95"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line data-figma-bg-blur-radius="4" y1="-1" x2="1605.61" y2="-1" transform="matrix(0.467908 0.883777 -0.879764 0.47541 2366.88 0)" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="-4" y="40.2095" width="2766.92" height="1382.45"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line data-figma-bg-blur-radius="4" x1="0.445562" y1="45.1047" x2="2758.47" y2="1417.76" stroke="#4a4a4a" stroke-width="2"/>
+<foreignObject x="-4" y="344.147" width="2644.92" height="1078.71"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;width:100%"></div></foreignObject><line data-figma-bg-blur-radius="4" x1="0.375748" y1="349.073" x2="2636.54" y2="1417.93" stroke="#4a4a4a" stroke-width="2"/>
+<path d="M1782 2128H4662" stroke="#4a4a4a" stroke-width="2"/>
+<line x1="1342" y1="2275" x2="5102" y2="2275" stroke="#4a4a4a" stroke-width="2"/>
+<line x1="742" y1="2476" x2="5702" y2="2476" stroke="#4a4a4a" stroke-width="2"/>
+<line x1="-20" y1="2729" x2="6440" y2="2729" stroke="#4a4a4a" stroke-width="2"/>
+</g>
+<path d="M3220 1879L3220 3800" stroke="#4a4a4a" stroke-width="2"/>
+<path d="M3567 1878L6404 3800" stroke="#4a4a4a" stroke-width="2"/>
+<path d="M2860 1878L22.0001 3800" stroke="#4a4a4a" stroke-width="2"/>
+<defs>
+<clipPath id="clip0_2_2">
+<rect width="6440" height="2734" fill="white"/>
+</clipPath>
+</defs>
+</svg>
