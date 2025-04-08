@@ -1,13 +1,25 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { Crosshair } from './Crosshair';
+import { TargetManager } from './Target/TargetManager';
+import { TargetRenderer } from './Target/TargetRenderer';
+import { Target, TargetConfig } from './Target/types';
 
 export const GameWorld = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isPointerLocked = useRef(false);
   const mouseMovement = useRef({ x: 0, y: 0 });
-  const position = useRef({ x: 0, y: 0 });
+  const position = useRef({ x: 0, y: 100 });
   const imageRef = useRef<HTMLImageElement | null>(null);
   const drawSizeRef = useRef({ width: 0, height: 0 });
+  const [targets, setTargets] = useState<Target[]>([]);
+  const targetManagerRef = useRef<TargetManager | null>(null);
+
+  const targetConfig: TargetConfig = {
+    size: 50,
+    margin: 10,
+    maxTargets: 200,
+    spawnInterval: 1000
+  };
 
   // 캔버스 크기 설정
   useEffect(() => {
@@ -17,6 +29,10 @@ export const GameWorld = () => {
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+
+      if (targetManagerRef.current) {
+        targetManagerRef.current.updateGameArea(canvas.width, canvas.height);
+      }
     };
 
     resizeCanvas();
@@ -24,6 +40,55 @@ export const GameWorld = () => {
 
     return () => {
       window.removeEventListener('resize', resizeCanvas);
+    };
+  }, []);
+
+  // 타겟 매니저 초기화
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    targetManagerRef.current = new TargetManager(targetConfig, {
+      width: canvas.width,
+      height: canvas.height
+    });
+
+    // 주기적으로 타겟 생성
+    const spawnInterval = setInterval(() => {
+      if (targetManagerRef.current) {
+        const newTarget = targetManagerRef.current.createTarget();
+        if (newTarget) {
+          setTargets(prev => [...prev, newTarget]);
+        }
+      }
+    }, targetConfig.spawnInterval);
+
+    return () => {
+      clearInterval(spawnInterval);
+      if (targetManagerRef.current) {
+        targetManagerRef.current.clearTargets();
+      }
+    };
+  }, []);
+
+  // 타겟 상태 동기화
+  useEffect(() => {
+    if (!targetManagerRef.current) return;
+
+    // TargetManager의 내부 타겟 배열과 GameWorld의 상태를 동기화
+    const syncTargets = () => {
+      const managerTargets = targetManagerRef.current?.getTargets() || [];
+      setTargets(managerTargets);
+    };
+
+    // 초기 동기화
+    syncTargets();
+
+    // 주기적으로 동기화 (타겟 생성 간격보다 짧게)
+    const syncInterval = setInterval(syncTargets, targetConfig.spawnInterval / 2);
+
+    return () => {
+      clearInterval(syncInterval);
     };
   }, []);
 
@@ -55,9 +120,9 @@ export const GameWorld = () => {
         drawWidth = canvas.height * imageAspect;
       }
 
-      // 이미지를 배율 (3배)
-      drawWidth *= 3;
-      drawHeight *= 3;
+      // 이미지를 배율
+      drawWidth *= 2;
+      drawHeight *= 2;
       drawSizeRef.current = { width: drawWidth, height: drawHeight };
     };
     image.onerror = (error) => {
@@ -129,9 +194,21 @@ export const GameWorld = () => {
       }
     };
 
-    const handleClick = () => {
+    const handleClick = (event: MouseEvent) => {
       if (!isPointerLocked.current) {
         canvas.requestPointerLock();
+      } else if (targetManagerRef.current) {
+        // 항상 화면 중앙(크로스헤어 위치)에서 클릭 처리
+        const screenX = -position.current.x;  // 화면 중앙 x 좌표
+        const screenY = -position.current.y;  // 화면 중앙 y 좌표
+
+        const hitTarget = targetManagerRef.current.checkHit(screenX, screenY);
+        if (hitTarget) {
+          // 타겟 매니저의 내부 상태가 변경되었으므로 타겟 목록을 다시 가져옴
+          const updatedTargets = targetManagerRef.current.getTargets();
+          setTargets(updatedTargets);
+          // 여기에 점수 계산 로직 추가
+        }
       }
     };
 
@@ -149,6 +226,13 @@ export const GameWorld = () => {
   return (
     <div className="game-world">
       <canvas ref={canvasRef} className="w-full h-full" style={{ background: '#000' }} />
+      {canvasRef.current && (
+        <TargetRenderer
+          targets={targets}
+          canvas={canvasRef.current}
+          position={position.current}
+        />
+      )}
       <Crosshair />
     </div>
   );
