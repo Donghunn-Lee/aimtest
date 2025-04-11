@@ -4,8 +4,14 @@ import { TargetManager } from './Target/TargetManager';
 import { TargetRenderer } from './Target/TargetRenderer';
 import { Target, TargetConfig } from './Target/types';
 
-export const GameWorld = () => {
+interface GameWorldProps {
+  gameMode: 'fullscreen' | 'windowed';
+  onGameModeChange?: (mode: 'fullscreen' | 'windowed') => void;
+}
+
+export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const isPointerLocked = useRef(false);
   const mouseMovement = useRef({ x: 0, y: 0 });
   const position = useRef({ x: 0, y: 100 });
@@ -21,14 +27,52 @@ export const GameWorld = () => {
     spawnInterval: 1000
   };
 
+  // 전체화면 모드 처리
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement && gameMode === 'fullscreen') {
+        onGameModeChange?.('windowed');
+      }
+    };
+
+    const handleClick = () => {
+      if (gameMode === 'fullscreen' && containerRef.current && !document.fullscreenElement) {
+        // 사용자 상호작용 직후에 전체화면 요청
+        requestAnimationFrame(() => {
+          try {
+            containerRef.current?.requestFullscreen();
+          } catch (error) {
+            // 오류 무시
+          }
+        });
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('click', handleClick);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('click', handleClick);
+    };
+  }, [gameMode, onGameModeChange]);
+
   // 캔버스 크기 설정
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      if (gameMode === 'fullscreen') {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      } else {
+        // 창 모드일 때는 화면의 80% 크기로 설정
+        canvas.width = window.innerWidth * 0.8;
+        canvas.height = window.innerHeight * 0.8;
+      }
 
       if (targetManagerRef.current) {
         targetManagerRef.current.updateGameArea(canvas.width, canvas.height);
@@ -41,7 +85,7 @@ export const GameWorld = () => {
     return () => {
       window.removeEventListener('resize', resizeCanvas);
     };
-  }, []);
+  }, [gameMode]);
 
   // 타겟 매니저 초기화
   useEffect(() => {
@@ -224,8 +268,14 @@ export const GameWorld = () => {
   }, []);
 
   return (
-    <div className="game-world">
-      <canvas ref={canvasRef} className="w-full h-full" style={{ background: '#000' }} />
+    <div
+      ref={containerRef}
+      className={`relative w-full h-full overflow-hidden`}
+    >
+      <canvas
+        ref={canvasRef}
+        className={`block mx-auto bg-black ${gameMode === 'fullscreen' ? 'w-screen h-screen' : 'w-[80vw] h-[80vh]'}`}
+      />
       {canvasRef.current && (
         <TargetRenderer
           targets={targets}

@@ -5,6 +5,7 @@ export class TargetManager {
   private config: TargetConfig;
   private gameArea: { width: number; height: number };
   private nextId: number = 1;
+  private mapBounds: { x: number; y: number; width: number; height: number };
 
   constructor(
     config: TargetConfig,
@@ -12,6 +13,15 @@ export class TargetManager {
   ) {
     this.config = config;
     this.gameArea = gameArea;
+    this.targets = [];
+
+    // 맵에 그려진 직사각형 영역 정의
+    this.mapBounds = {
+      x: -this.gameArea.width / 2, // 직사각형의 왼쪽 경계
+      y: -this.gameArea.height / 2, // 직사각형의 위쪽 경계
+      width: this.gameArea.width, // 직사각형의 너비
+      height: this.gameArea.height, // 직사각형의 높이
+    };
   }
 
   createTarget(): Target | null {
@@ -29,18 +39,15 @@ export class TargetManager {
   }
 
   private generateTarget(): Target {
-    const maxX = (this.gameArea.width - this.config.size) * 0.75;
-    const maxY = (this.gameArea.height - this.config.size) * 0.5;
-
-    // 맵 좌표계에서의 위치 (중앙이 0,0인 좌표계)
+    // 맵 직사각형 영역 내에서 랜덤 위치 생성
     const mapX =
+      this.mapBounds.x +
       this.config.margin +
-      Math.random() * (maxX - 2 * this.config.margin) -
-      maxX / 2;
+      Math.random() * (this.mapBounds.width - 2 * this.config.margin);
     const mapY =
+      this.mapBounds.y +
       this.config.margin +
-      Math.random() * (maxY - 2 * this.config.margin) -
-      maxY / 2;
+      Math.random() * (this.mapBounds.height - 2 * this.config.margin);
 
     const id = this.nextId++;
 
@@ -57,6 +64,16 @@ export class TargetManager {
   }
 
   private isValidPosition(target: Target): boolean {
+    // 맵 직사각형 영역 내에 있는지 확인
+    if (
+      target.x < this.mapBounds.x + this.config.margin ||
+      target.x > this.mapBounds.x + this.mapBounds.width - this.config.margin ||
+      target.y < this.mapBounds.y + this.config.margin ||
+      target.y > this.mapBounds.y + this.mapBounds.height - this.config.margin
+    ) {
+      return false;
+    }
+
     // 다른 타겟과의 거리 체크
     return !this.targets.some((existingTarget) => {
       const distance = Math.sqrt(
@@ -101,11 +118,10 @@ export class TargetManager {
         target.hit = true;
         target.score = score;
 
-        console.log(score);
-
         return target;
       }
     }
+
     return null;
   }
 
@@ -123,5 +139,9 @@ export class TargetManager {
 
   updateGameArea(width: number, height: number): void {
     this.gameArea = { width, height };
+  }
+
+  getMapBounds(): { x: number; y: number; width: number; height: number } {
+    return this.mapBounds;
   }
 }
