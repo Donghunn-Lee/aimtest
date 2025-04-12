@@ -212,6 +212,17 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         drawSizeRef.current.height
       );
 
+      // 타겟 컨테이너 영역 테두리 그리기
+      if (targetManagerRef.current) {
+        const bounds = targetManagerRef.current.getMapBounds();
+        ctx.strokeStyle = 'rgba(255, 0, 0, 0.7)'; // 빨간색 테두리 (반투명)
+        ctx.lineWidth = 3; // 테두리 두께
+        ctx.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
+
+        // 디버깅용 정보 표시
+        console.log('Target container bounds:', bounds);
+      }
+
       ctx.restore();
 
       requestAnimationFrame(render);
@@ -266,6 +277,22 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       document.removeEventListener('click', handleClick);
     };
   }, []);
+
+  // 게임 영역 크기 업데이트
+  const updateGameArea = () => {
+    if (!canvasRef.current) return;
+
+    const canvas = canvasRef.current;
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+
+    // 캔버스 크기 설정
+    canvas.width = width;
+    canvas.height = height;
+
+    // 게임 영역 크기 업데이트
+    targetManagerRef.current?.updateGameArea(width, height);
+  };
 
   return (
     <div

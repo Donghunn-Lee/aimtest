@@ -139,6 +139,47 @@ export class TargetManager {
 
   updateGameArea(width: number, height: number): void {
     this.gameArea = { width, height };
+
+    // 맵 이미지의 비율 계산 (예: 16:9)
+    const mapAspectRatio = 16 / 9;
+
+    // 맵의 실제 크기 계산 (게임 영역에 맞게 조정)
+    let mapWidth, mapHeight;
+
+    // 게임 영역의 비율과 맵 비율 비교
+    const gameAspectRatio = this.gameArea.width / this.gameArea.height;
+
+    if (gameAspectRatio > mapAspectRatio) {
+      // 게임 영역이 맵보다 더 넓은 경우 (세로로 꽉 차게)
+      mapHeight = this.gameArea.height;
+      mapWidth = mapHeight * mapAspectRatio;
+    } else {
+      // 게임 영역이 맵보다 더 좁은 경우 (가로로 꽉 차게)
+      mapWidth = this.gameArea.width;
+      mapHeight = mapWidth / mapAspectRatio;
+    }
+
+    // 타겟 컨테이너의 크기 계산 (맵 이미지의 80%)
+    const targetAreaRatio = 1;
+    const targetAreaWidth = mapWidth * targetAreaRatio;
+    const targetAreaHeight = targetAreaWidth / mapAspectRatio;
+
+    // 맵의 사각형이 중앙보다 위로 이동한 비율 계산 (예: 10%)
+    const verticalOffsetRatio = 0.246;
+    const widthScaleRatio = 2.44; // 너비 조절 비율
+    const heightScaleRatio = 4.14; // 높이 조절 비율
+
+    // 타겟 컨테이너의 위치 계산 (중앙 정렬)
+    const targetX = -(targetAreaWidth / 2) / widthScaleRatio; // 너비 조절 비율을 적용하여 중앙 정렬
+    const targetY = -targetAreaHeight / 2 + mapHeight * verticalOffsetRatio;
+
+    // 맵 경계 업데이트
+    this.mapBounds = {
+      x: targetX,
+      y: targetY,
+      width: targetAreaWidth / widthScaleRatio, // 너비 조절 비율 적용
+      height: targetAreaHeight / heightScaleRatio, // 높이 조절 비율 적용
+    };
   }
 
   getMapBounds(): { x: number; y: number; width: number; height: number } {
