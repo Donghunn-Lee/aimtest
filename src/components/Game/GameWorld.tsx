@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import { Crosshair } from './Crosshair';
 import { TargetManager } from './Target/TargetManager';
 import { TargetRenderer } from './Target/TargetRenderer';
@@ -19,6 +19,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const drawSizeRef = useRef({ width: 0, height: 0 });
   const [targets, setTargets] = useState<Target[]>([]);
   const targetManagerRef = useRef<TargetManager | null>(null);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const targetConfig: TargetConfig = {
     size: 50,
@@ -26,6 +27,57 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     maxTargets: 200,
     spawnInterval: 1000
   };
+
+  // 이미지 크기 계산 함수
+  const calculateImageSize = useCallback((canvas: HTMLCanvasElement, image: HTMLImageElement) => {
+    const imageAspect = image.width / image.height;
+    const canvasAspect = canvas.width / canvas.height;
+    let drawWidth = canvas.width;
+    let drawHeight = canvas.height;
+
+    if (imageAspect > canvasAspect) {
+      // 이미지가 더 넓은 경우
+      drawHeight = canvas.width / imageAspect;
+    } else {
+      // 이미지가 더 좁은 경우
+      drawWidth = canvas.height * imageAspect;
+    }
+
+    // 이미지를 배율
+    drawWidth *= 2;
+    drawHeight *= 2;
+    drawSizeRef.current = { width: drawWidth, height: drawHeight };
+
+    console.log('Canvas size:', { width: canvas.width, height: canvas.height });
+    console.log('Image size calculated:', drawSizeRef.current);
+  }, []);
+
+  // 이미지 로드 함수
+  const loadImage = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    // 이미지가 이미 로드되어 있으면 크기만 재계산
+    if (imageRef.current && imageRef.current.complete) {
+      calculateImageSize(canvas, imageRef.current);
+      return;
+    }
+
+    // 새 이미지 로드
+    const image = new Image();
+    imageRef.current = image;
+
+    image.onload = () => {
+      calculateImageSize(canvas, image);
+      setImageLoaded(true);
+    };
+
+    image.onerror = (error) => {
+      console.error('Failed to load image:', error);
+    };
+
+    image.src = '/map.svg';
+  }, [calculateImageSize]);
 
   // 전체화면 모드 처리
   useEffect(() => {
@@ -74,6 +126,11 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         canvas.height = window.innerHeight * 0.8;
       }
 
+      // 이미지 크기 재계산
+      if (imageRef.current && imageRef.current.complete) {
+        calculateImageSize(canvas, imageRef.current);
+      }
+
       if (targetManagerRef.current) {
         targetManagerRef.current.updateGameArea(canvas.width, canvas.height);
       }
@@ -85,7 +142,12 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     return () => {
       window.removeEventListener('resize', resizeCanvas);
     };
-  }, [gameMode]);
+  }, [gameMode, calculateImageSize]);
+
+  // 이미지 로드 (한 번만 실행)
+  useEffect(() => {
+    loadImage();
+  }, [loadImage]);
 
   // 타겟 매니저 초기화
   useEffect(() => {
@@ -146,33 +208,6 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       console.error('Canvas context not available');
       return;
     }
-
-    const image = new Image();
-    imageRef.current = image;
-    image.onload = () => {
-      // 이미지 크기 계산 (전체 화면)
-      const imageAspect = image.width / image.height;
-      const canvasAspect = canvas.width / canvas.height;
-      let drawWidth = canvas.width;
-      let drawHeight = canvas.height;
-
-      if (imageAspect > canvasAspect) {
-        // 이미지가 더 넓은 경우
-        drawHeight = canvas.width / imageAspect;
-      } else {
-        // 이미지가 더 좁은 경우
-        drawWidth = canvas.height * imageAspect;
-      }
-
-      // 이미지를 배율
-      drawWidth *= 2;
-      drawHeight *= 2;
-      drawSizeRef.current = { width: drawWidth, height: drawHeight };
-    };
-    image.onerror = (error) => {
-      console.error('Failed to load image:', error);
-    };
-    image.src = '/map.svg';
 
     const render = () => {
       // 화면 지우기
@@ -277,22 +312,6 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       document.removeEventListener('click', handleClick);
     };
   }, []);
-
-  // 게임 영역 크기 업데이트
-  const updateGameArea = () => {
-    if (!canvasRef.current) return;
-
-    const canvas = canvasRef.current;
-    const width = canvas.clientWidth;
-    const height = canvas.clientHeight;
-
-    // 캔버스 크기 설정
-    canvas.width = width;
-    canvas.height = height;
-
-    // 게임 영역 크기 업데이트
-    targetManagerRef.current?.updateGameArea(width, height);
-  };
 
   return (
     <div
