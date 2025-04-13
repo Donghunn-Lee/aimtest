@@ -23,7 +23,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
   const targetConfig: TargetConfig = {
     size: 50,
-    margin: 10,
+    margin: 0,
     maxTargets: 200,
     spawnInterval: 1000
   };

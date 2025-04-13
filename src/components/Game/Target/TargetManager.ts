@@ -80,7 +80,7 @@ export class TargetManager {
         Math.pow(target.x - existingTarget.x, 2) +
           Math.pow(target.y - existingTarget.y, 2)
       );
-      return distance < target.size + existingTarget.size;
+      return distance < target.size;
     });
   }
 
