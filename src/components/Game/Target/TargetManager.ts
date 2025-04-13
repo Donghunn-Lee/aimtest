@@ -2,7 +2,7 @@ import { Target, TargetConfig } from './types';
 import {
   calculateMapBounds,
   getDefaultConfig,
-} from './utils/CalculateTargetContainer';
+} from './utils/TargetContainerUtills';
 
 export class TargetManager {
   private targets: Target[] = [];
