@@ -29,11 +29,22 @@ export class TargetManager {
       return null;
     }
 
-    const target = this.generateTarget();
-    if (this.isValidPosition(target)) {
-      this.targets.push(target);
-      return target;
+    const loopCount = 100;
+    let i = 0;
+
+    while (i < loopCount) {
+      const target = this.generateTarget();
+
+      if (this.isValidPosition(target)) {
+        this.targets.push(target);
+        console.log('target created', i);
+        return target;
+      }
+
+      i++;
     }
+
+    console.log('target not created', i);
 
     return null;
   }
@@ -64,28 +75,19 @@ export class TargetManager {
   }
 
   private isValidPosition(target: Target): boolean {
-    // 맵 직사각형 영역 내에 있는지 확인
-    if (
-      target.x < this.mapBounds.x + this.config.margin ||
-      target.x > this.mapBounds.x + this.mapBounds.width - this.config.margin ||
-      target.y < this.mapBounds.y + this.config.margin ||
-      target.y > this.mapBounds.y + this.mapBounds.height - this.config.margin
-    ) {
-      return false;
-    }
-
     // 다른 타겟과의 거리 체크
     return !this.targets.some((existingTarget) => {
       const distance = Math.sqrt(
         Math.pow(target.x - existingTarget.x, 2) +
           Math.pow(target.y - existingTarget.y, 2)
       );
-      return distance < target.size;
+      return distance < target.size / 2;
     });
   }
 
   checkHit(x: number, y: number): Target | null {
-    for (const target of this.targets) {
+    for (let i = 0; i < this.targets.length; i++) {
+      const target = this.targets[i];
       if (target.hit) continue;
 
       // 타겟 중심과 클릭 위치 사이의 거리 계산
@@ -114,9 +116,10 @@ export class TargetManager {
           score = 1;
         }
 
-        // 타겟을 맞췄으므로 hit 상태로 변경
+        // 타겟을 맞췄으므로 hit 상태로 변경하고 배열에서 제거
         target.hit = true;
         target.score = score;
+        this.targets.splice(i, 1); // 배열에서 제거
 
         return target;
       }

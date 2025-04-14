@@ -20,13 +20,14 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const [targets, setTargets] = useState<Target[]>([]);
   const targetManagerRef = useRef<TargetManager | null>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
-
-  const targetConfig: TargetConfig = {
+  const gameStartTimeRef = useRef(Date.now()); // 게임 시작 시간
+  const initialSpawnIntervalRef = useRef(1000); // 초기 생성 간격 저장
+  const [targetConfig, setTargetConfig] = useState<TargetConfig>({
     size: 50,
     margin: 0,
     maxTargets: 200,
     spawnInterval: 1000
-  };
+  });
 
   // 이미지 크기 계산 함수
   const calculateImageSize = useCallback((canvas: HTMLCanvasElement, image: HTMLImageElement) => {
@@ -149,7 +150,25 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     loadImage();
   }, [loadImage]);
 
-  // 타겟 매니저 초기화
+  // 1초마다 생성 간격을 2%씩 감소
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      const elapsedSeconds = (Date.now() - gameStartTimeRef.current) / 1000;
+      const newInterval = Math.max(
+        300, // 최소 간격 100ms
+        1000 * Math.pow(0.98, elapsedSeconds) // 매초 5%씩 감소
+      );
+
+      setTargetConfig(prev => ({
+        ...prev,
+        spawnInterval: newInterval
+      }));
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
+  // 타겟 매니저 초기화 (한 번만)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -159,43 +178,41 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       height: canvas.height
     });
 
-    // 주기적으로 타겟 생성
-    const spawnInterval = setInterval(() => {
-      if (targetManagerRef.current) {
-        const newTarget = targetManagerRef.current.createTarget();
-        if (newTarget) {
-          setTargets(prev => [...prev, newTarget]);
-        }
-      }
-    }, targetConfig.spawnInterval);
-
     return () => {
-      clearInterval(spawnInterval);
       if (targetManagerRef.current) {
         targetManagerRef.current.clearTargets();
       }
     };
-  }, []);
+  }, []); // 의존성 배열을 비워서 한 번만 실행
 
-  // 타겟 상태 동기화
+  // 타겟 생성 간격 업데이트
   useEffect(() => {
     if (!targetManagerRef.current) return;
 
-    // TargetManager의 내부 타겟 배열과 GameWorld의 상태를 동기화
-    const syncTargets = () => {
-      const managerTargets = targetManagerRef.current?.getTargets() || [];
-      setTargets(managerTargets);
-    };
+    const spawnInterval = setInterval(() => {
+      if (targetManagerRef.current) {
+        const newTarget = targetManagerRef.current.createTarget();
+        if (newTarget) {
+          // TargetManager의 내부 상태를 기준으로 React 상태 업데이트
+          const updatedTargets = targetManagerRef.current.getTargets();
+          setTargets(updatedTargets);
+        }
+      }
+    }, targetConfig.spawnInterval);
 
-    // 초기 동기화
-    syncTargets();
+    return () => clearInterval(spawnInterval);
+  }, [targetConfig.spawnInterval]);
 
-    // 주기적으로 동기화 (타겟 생성 간격보다 짧게)
-    const syncInterval = setInterval(syncTargets, targetConfig.spawnInterval / 2);
+  // 타겟 상태 동기화 (16ms마다)
+  useEffect(() => {
+    if (!targetManagerRef.current) return;
 
-    return () => {
-      clearInterval(syncInterval);
-    };
+    const syncInterval = setInterval(() => {
+      const updatedTargets = targetManagerRef.current?.getTargets() || [];
+      setTargets(updatedTargets);
+    }, 16); // 약 60fps
+
+    return () => clearInterval(syncInterval);
   }, []);
 
   // 렌더링
@@ -253,9 +270,6 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         ctx.strokeStyle = 'rgba(255, 0, 0, 0.7)'; // 빨간색 테두리 (반투명)
         ctx.lineWidth = 3; // 테두리 두께
         ctx.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
-
-        // 디버깅용 정보 표시
-        console.log('Target container bounds:', bounds);
       }
 
       ctx.restore();
@@ -294,10 +308,9 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
         const hitTarget = targetManagerRef.current.checkHit(screenX, screenY);
         if (hitTarget) {
-          // 타겟 매니저의 내부 상태가 변경되었으므로 타겟 목록을 다시 가져옴
+          // TargetManager의 내부 상태가 변경되었으므로 타겟 목록을 다시 가져옴
           const updatedTargets = targetManagerRef.current.getTargets();
           setTargets(updatedTargets);
-          // 여기에 점수 계산 로직 추가
         }
       }
     };
@@ -330,6 +343,9 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         />
       )}
       <Crosshair />
+      <div className="absolute top-4 right-4 text-white bg-black bg-opacity-50 p-2 rounded">
+        생성 간격: {targetConfig.spawnInterval.toFixed(0)}ms
+      </div>
     </div>
   );
 }; 
