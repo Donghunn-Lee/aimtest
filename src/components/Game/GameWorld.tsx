@@ -150,23 +150,23 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     loadImage();
   }, [loadImage]);
 
-  // 1초마다 생성 간격을 2%씩 감소
+  // 타겟 생성 시마다 2%씩 간격 축소
   useEffect(() => {
     const intervalId = setInterval(() => {
       const elapsedSeconds = (Date.now() - gameStartTimeRef.current) / 1000;
       const newInterval = Math.max(
-        300, // 최소 간격 100ms
-        1000 * Math.pow(0.98, elapsedSeconds) // 매초 5%씩 감소
+        300, // 최소 간격 300ms
+        1000 * Math.pow(0.98, elapsedSeconds) // 매초 2%씩 감소
       );
 
       setTargetConfig(prev => ({
         ...prev,
         spawnInterval: newInterval
       }));
-    }, 1000);
+    }, targetConfig.spawnInterval);
 
     return () => clearInterval(intervalId);
-  }, []);
+  }, [targetConfig.spawnInterval]);
 
   // 타겟 매니저 초기화 (한 번만)
   useEffect(() => {
@@ -197,8 +197,11 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
           const updatedTargets = targetManagerRef.current.getTargets();
           setTargets(updatedTargets);
         }
+        console.log('spawnInterval', targetConfig.spawnInterval);
       }
     }, targetConfig.spawnInterval);
+
+
 
     return () => clearInterval(spawnInterval);
   }, [targetConfig.spawnInterval]);
@@ -298,7 +301,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       }
     };
 
-    const handleClick = (event: MouseEvent) => {
+    const handleMouseDown = (event: MouseEvent) => {
       if (!isPointerLocked.current) {
         canvas.requestPointerLock();
       } else if (targetManagerRef.current) {
@@ -316,13 +319,13 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     };
 
     document.addEventListener('pointerlockchange', handlePointerLockChange);
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('click', handleClick);
+    canvas.addEventListener('mousemove', handleMouseMove);
+    canvas.addEventListener('mousedown', handleMouseDown);
 
     return () => {
       document.removeEventListener('pointerlockchange', handlePointerLockChange);
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('click', handleClick);
+      canvas.removeEventListener('mousemove', handleMouseMove);
+      canvas.removeEventListener('mousedown', handleMouseDown);
     };
   }, []);
 
