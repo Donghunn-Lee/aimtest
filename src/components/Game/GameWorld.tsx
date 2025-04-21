@@ -20,15 +20,28 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const [targets, setTargets] = useState<Target[]>([]);
   const targetManagerRef = useRef<TargetManager | null>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const gameStartTimeRef = useRef(Date.now()); // 게임 시작 시간
-  const initialSpawnIntervalRef = useRef(1000); // 초기 생성 간격 저장
+  const gameStartTimeRef = useRef(Date.now());
+  const initialSpawnIntervalRef = useRef(1000);
   const [targetConfig, setTargetConfig] = useState<TargetConfig>({
     size: 50,
     margin: 0,
     maxTargets: 200,
-    spawnInterval: 800
+    spawnInterval: 1000
   });
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [isGameStarted, setIsGameStarted] = useState(false);
+
+  // 게임 시작 핸들러
+  const handleGameStart = () => {
+    setIsGameStarted(true);
+    gameStartTimeRef.current = Date.now();
+    setElapsedTime(0);
+
+    // 게임 시작 시 포인터 락 활성화
+    if (canvasRef.current) {
+      canvasRef.current.requestPointerLock();
+    }
+  };
 
   // 이미지 크기 계산 함수
   const calculateImageSize = useCallback((canvas: HTMLCanvasElement, image: HTMLImageElement) => {
@@ -151,13 +164,13 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     loadImage();
   }, [loadImage]);
 
-  // 타겟 생성 시마다 2%씩 간격 축소
+  // 타겟 생성 시마다 1.2%씩 간격 축소
   useEffect(() => {
     const intervalId = setInterval(() => {
       const elapsedSeconds = (Date.now() - gameStartTimeRef.current) / 1000;
       const newInterval = Math.max(
         300, // 최소 간격 300ms
-        800 * Math.pow(0.985, elapsedSeconds) // 매초 2%씩 감소
+        800 * Math.pow(0.988, elapsedSeconds) // 매초 1.2%씩 감소
       );
 
       setTargetConfig(prev => ({
@@ -188,34 +201,32 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
   // 타겟 생성 간격 업데이트
   useEffect(() => {
-    if (!targetManagerRef.current) return;
+    if (!targetManagerRef.current || !isGameStarted) return;
 
     const spawnInterval = setInterval(() => {
       if (targetManagerRef.current) {
         const newTarget = targetManagerRef.current.createTarget();
         if (newTarget) {
-          // TargetManager의 내부 상태를 기준으로 React 상태 업데이트
           const updatedTargets = targetManagerRef.current.getTargets();
           setTargets(updatedTargets);
         }
-        console.log('spawnInterval', targetConfig.spawnInterval);
       }
     }, targetConfig.spawnInterval);
 
     return () => clearInterval(spawnInterval);
-  }, [targetConfig.spawnInterval]);
+  }, [targetConfig.spawnInterval, isGameStarted]);
 
   // 타겟 상태 동기화 (16ms마다)
   useEffect(() => {
-    if (!targetManagerRef.current) return;
+    if (!targetManagerRef.current || !isGameStarted) return;
 
     const syncInterval = setInterval(() => {
       const updatedTargets = targetManagerRef.current?.getTargets() || [];
       setTargets(updatedTargets);
-    }, 16); // 약 60fps
+    }, 16);
 
     return () => clearInterval(syncInterval);
-  }, []);
+  }, [isGameStarted]);
 
   // 경과 시간 업데이트
   useEffect(() => {
@@ -295,7 +306,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   // 마우스 이벤트 처리
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || !isGameStarted) return;
 
     const handlePointerLockChange = () => {
       isPointerLocked.current = document.pointerLockElement === canvas;
@@ -314,13 +325,11 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       if (!isPointerLocked.current) {
         canvas.requestPointerLock();
       } else if (targetManagerRef.current) {
-        // 항상 화면 중앙(크로스헤어 위치)에서 클릭 처리
-        const screenX = -position.current.x;  // 화면 중앙 x 좌표
-        const screenY = -position.current.y;  // 화면 중앙 y 좌표
+        const screenX = -position.current.x;
+        const screenY = -position.current.y;
 
         const hitTarget = targetManagerRef.current.checkHit(screenX, screenY);
         if (hitTarget) {
-          // TargetManager의 내부 상태가 변경되었으므로 타겟 목록을 다시 가져옴
           const updatedTargets = targetManagerRef.current.getTargets();
           setTargets(updatedTargets);
         }
@@ -336,7 +345,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       canvas.removeEventListener('mousemove', handleMouseMove);
       canvas.removeEventListener('mousedown', handleMouseDown);
     };
-  }, []);
+  }, [isGameStarted]);
 
   return (
     <div
@@ -355,11 +364,22 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         />
       )}
       <Crosshair />
-      <div className="absolute top-4 right-4 text-white bg-black bg-opacity-50 p-2 rounded">
-        생성 간격: {targetConfig.spawnInterval.toFixed(0)}ms
-        <br />
-        경과 시간: {elapsedTime}초
-      </div>
+      {isGameStarted ? (
+        <div className="absolute top-4 right-4 text-white bg-black bg-opacity-50 p-2 rounded">
+          생성 간격: {targetConfig.spawnInterval.toFixed(0)}ms
+          <br />
+          경과 시간: {elapsedTime}초
+        </div>
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <button
+            onClick={handleGameStart}
+            className="px-6 py-3 text-xl font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            게임 시작
+          </button>
+        </div>
+      )}
     </div>
   );
 }; 
