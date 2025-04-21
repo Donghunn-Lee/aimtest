@@ -26,8 +26,9 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     size: 50,
     margin: 0,
     maxTargets: 200,
-    spawnInterval: 1000
+    spawnInterval: 800
   });
+  const [elapsedTime, setElapsedTime] = useState(0);
 
   // 이미지 크기 계산 함수
   const calculateImageSize = useCallback((canvas: HTMLCanvasElement, image: HTMLImageElement) => {
@@ -156,7 +157,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       const elapsedSeconds = (Date.now() - gameStartTimeRef.current) / 1000;
       const newInterval = Math.max(
         300, // 최소 간격 300ms
-        1000 * Math.pow(0.98, elapsedSeconds) // 매초 2%씩 감소
+        800 * Math.pow(0.985, elapsedSeconds) // 매초 2%씩 감소
       );
 
       setTargetConfig(prev => ({
@@ -201,8 +202,6 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       }
     }, targetConfig.spawnInterval);
 
-
-
     return () => clearInterval(spawnInterval);
   }, [targetConfig.spawnInterval]);
 
@@ -216,6 +215,16 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     }, 16); // 약 60fps
 
     return () => clearInterval(syncInterval);
+  }, []);
+
+  // 경과 시간 업데이트
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - gameStartTimeRef.current) / 1000);
+      setElapsedTime(elapsed);
+    }, 1000);
+
+    return () => clearInterval(timer);
   }, []);
 
   // 렌더링
@@ -348,6 +357,8 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       <Crosshair />
       <div className="absolute top-4 right-4 text-white bg-black bg-opacity-50 p-2 rounded">
         생성 간격: {targetConfig.spawnInterval.toFixed(0)}ms
+        <br />
+        경과 시간: {elapsedTime}초
       </div>
     </div>
   );
