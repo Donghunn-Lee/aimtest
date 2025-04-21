@@ -5,9 +5,10 @@ interface TargetRendererProps {
   targets: Target[];
   canvas: HTMLCanvasElement;
   position: { x: number; y: number };
+  isGameStarted: boolean;
 }
 
-export const TargetRenderer = ({ targets, canvas, position }: TargetRendererProps) => {
+export const TargetRenderer = ({ targets, canvas, position, isGameStarted }: TargetRendererProps) => {
   const ctx = useRef<CanvasRenderingContext2D | null>(null);
 
   useEffect(() => {
@@ -26,31 +27,31 @@ export const TargetRenderer = ({ targets, canvas, position }: TargetRendererProp
     // 바깥쪽 원 (1점)
     ctx.current.beginPath();
     ctx.current.arc(screenX, screenY, size / 2, 0, Math.PI * 2);
-    ctx.current.fillStyle = 'white'; // 흰색으로 변경
+    ctx.current.fillStyle = isGameStarted ? 'white' : 'rgba(255, 0, 0, 1)';  // 게임 종료 시 빨간색
     ctx.current.fill();
-    ctx.current.strokeStyle = '#333333'; // 짙은 회색 선
+    ctx.current.strokeStyle = '#333333';
     ctx.current.lineWidth = 2;
     ctx.current.stroke();
 
     // 중간 원 (2점)
     ctx.current.beginPath();
     ctx.current.arc(screenX, screenY, size / 3, 0, Math.PI * 2);
-    ctx.current.fillStyle = 'white'; // 노란색 (투명도 제거)
+    ctx.current.fillStyle = isGameStarted ? 'white' : 'rgba(255, 0, 0, 1)';  // 게임 종료 시 빨간색
     ctx.current.fill();
-    ctx.current.strokeStyle = '#333333'; // 짙은 회색 선
+    ctx.current.strokeStyle = '#333333';
     ctx.current.lineWidth = 2;
     ctx.current.stroke();
 
-    // 안쪽 원 (3점)
+    // 안쪽 원 (3점) - 항상 그리기
     ctx.current.beginPath();
     ctx.current.arc(screenX, screenY, size / 6, 0, Math.PI * 2);
-    ctx.current.fillStyle = 'rgba(255, 0, 0, 1)'; // 빨간색으로 변경
+    ctx.current.fillStyle = 'rgba(255, 0, 0, 1)';  // 항상 빨간색
     ctx.current.fill();
-    ctx.current.strokeStyle = '#333333'; // 짙은 회색 선
+    ctx.current.strokeStyle = '#333333';
     ctx.current.lineWidth = 2;
     ctx.current.stroke();
 
-    // 정중앙 점
+    // 정중앙 점 - 항상 그리기
     ctx.current.beginPath();
     ctx.current.arc(screenX, screenY, 1, 0, Math.PI * 2);
     ctx.current.fillStyle = 'white';
@@ -61,7 +62,6 @@ export const TargetRenderer = ({ targets, canvas, position }: TargetRendererProp
     ctx.current.fillStyle = 'white';
     ctx.current.textAlign = 'center';
     ctx.current.textBaseline = 'middle';
-
   };
 
   const render = () => {
@@ -82,7 +82,7 @@ export const TargetRenderer = ({ targets, canvas, position }: TargetRendererProp
   useEffect(() => {
     const animationFrame = requestAnimationFrame(render);
     return () => cancelAnimationFrame(animationFrame);
-  }, [targets, position]);
+  }, [targets, position, isGameStarted]);
 
   return null;
 }; 

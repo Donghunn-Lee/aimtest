@@ -223,6 +223,13 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     const syncInterval = setInterval(() => {
       const updatedTargets = targetManagerRef.current?.getTargets() || [];
       setTargets(updatedTargets);
+
+      // 타겟이 10개가 되면 게임 종료
+      if (updatedTargets.length >= 10) {
+        setIsGameStarted(false);
+        targetManagerRef.current?.clearTargets();
+        document.exitPointerLock();
+      }
     }, 16);
 
     return () => clearInterval(syncInterval);
@@ -361,6 +368,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
           targets={targets}
           canvas={canvasRef.current}
           position={position.current}
+          isGameStarted={isGameStarted}
         />
       )}
       <Crosshair />
