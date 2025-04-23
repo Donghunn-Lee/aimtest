@@ -137,7 +137,13 @@ export class TargetManager {
   }
 
   clearTargets(): void {
-    this.targets = [];
+    if (this.targets.length > 0) {
+      this.targets.forEach((target) => {
+        target.hit = true;
+      });
+
+      this.targets = [];
+    }
   }
 
   updateGameArea(width: number, height: number): void {

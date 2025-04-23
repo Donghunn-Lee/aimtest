@@ -3,11 +3,20 @@ import { Crosshair } from './Crosshair';
 import { TargetManager } from './Target/TargetManager';
 import { TargetRenderer } from './Target/TargetRenderer';
 import { Target, TargetConfig } from './Target/types';
+import { StartMenu } from './Menu/StartMenu';
+import { ResultMenu } from './Menu/ResultMenu';
 
 interface GameWorldProps {
   gameMode: 'fullscreen' | 'windowed';
   onGameModeChange?: (mode: 'fullscreen' | 'windowed') => void;
 }
+
+const initialTargetConfig: TargetConfig = {
+  size: 50,
+  margin: 0,
+  maxTargets: 200,
+  spawnInterval: 1000,
+};
 
 export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -22,25 +31,45 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const gameStartTimeRef = useRef(Date.now());
   const initialSpawnIntervalRef = useRef(1000);
-  const [targetConfig, setTargetConfig] = useState<TargetConfig>({
-    size: 50,
-    margin: 0,
-    maxTargets: 200,
-    spawnInterval: 1000
-  });
+  const [targetConfig, setTargetConfig] = useState<TargetConfig>(initialTargetConfig);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isGameStarted, setIsGameStarted] = useState(false);
+  const [isGameOver, setIsGameOver] = useState(false);
+  const [score, setScore] = useState(0);
+  const [startTime, setStartTime] = useState<number | null>(null);
+
+  const initTargetManager = () => {
+    targetManagerRef.current = new TargetManager(targetConfig, {
+      width: canvasRef.current?.width || 0,
+      height: canvasRef.current?.height || 0
+    });
+  };
 
   // 게임 시작 핸들러
   const handleGameStart = () => {
     setIsGameStarted(true);
-    gameStartTimeRef.current = Date.now();
+    setStartTime(Date.now());
     setElapsedTime(0);
+    setScore(0);
+    setStartTime(Date.now());
 
     // 게임 시작 시 포인터 락 활성화
     if (canvasRef.current) {
       canvasRef.current.requestPointerLock();
     }
+  };
+
+  // 게임 재시작 핸들러
+  const handleRestart = () => {
+    setIsGameStarted(true);
+    setIsGameOver(false);
+    setStartTime(Date.now());
+    setElapsedTime(0);
+    setScore(0);
+    setTargetConfig(initialTargetConfig);
+    targetManagerRef.current?.clearTargets();
+    initTargetManager();
+    document.exitPointerLock();
   };
 
   // 이미지 크기 계산 함수
@@ -164,13 +193,16 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     loadImage();
   }, [loadImage]);
 
-  // 타겟 생성 시마다 1.2%씩 간격 축소
+  // 타겟 생성 간격 점진적 감소
   useEffect(() => {
+    if (!isGameStarted) return;
+
     const intervalId = setInterval(() => {
-      const elapsedSeconds = (Date.now() - gameStartTimeRef.current) / 1000;
+      const elapsedSeconds = (Date.now() - startTime!) / 1000;
+      console.log('elapsedSeconds', elapsedSeconds);
       const newInterval = Math.max(
-        300, // 최소 간격 300ms
-        800 * Math.pow(0.988, elapsedSeconds) // 매초 1.2%씩 감소
+        250, // 최소 간격 250ms
+        1000 * Math.pow(0.98, elapsedSeconds) // 매초 2%씩 감소
       );
 
       setTargetConfig(prev => ({
@@ -180,17 +212,14 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     }, targetConfig.spawnInterval);
 
     return () => clearInterval(intervalId);
-  }, [targetConfig.spawnInterval]);
+  }, [targetConfig.spawnInterval, isGameStarted]);
 
   // 타겟 매니저 초기화 (한 번만)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    targetManagerRef.current = new TargetManager(targetConfig, {
-      width: canvas.width,
-      height: canvas.height
-    });
+    initTargetManager();
 
     return () => {
       if (targetManagerRef.current) {
@@ -226,24 +255,38 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
       // 타겟이 10개가 되면 게임 종료
       if (updatedTargets.length >= 10) {
+        const endTime = Date.now();
+        const finalTime = (endTime - startTime!) / 1000;
+        setElapsedTime(finalTime);
         setIsGameStarted(false);
-        targetManagerRef.current?.clearTargets();
+        setIsGameOver(true);
+        // targetManagerRef.current?.clearTargets();
         document.exitPointerLock();
       }
     }, 16);
 
     return () => clearInterval(syncInterval);
-  }, [isGameStarted]);
+  }, [isGameStarted, startTime]);
 
-  // 경과 시간 업데이트
+  // 경과 시간 업데이트 (1초 간격)
   useEffect(() => {
+    if (!isGameStarted || isGameOver) return;
+
     const timer = setInterval(() => {
-      const elapsed = Math.floor((Date.now() - gameStartTimeRef.current) / 1000);
-      setElapsedTime(elapsed);
+      const elapsed = (Date.now() - startTime!) / 1000;
+      setElapsedTime(Math.floor(elapsed));
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [isGameStarted, isGameOver, startTime]);
+
+  useEffect(() => {
+    console.log('elapsedTime', elapsedTime);
+  }, [elapsedTime]);
+
+  useEffect(() => {
+    console.log('startTime', startTime);
+  }, [startTime]);
 
   // 렌더링
   useEffect(() => {
@@ -337,6 +380,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
         const hitTarget = targetManagerRef.current.checkHit(screenX, screenY);
         if (hitTarget) {
+          setScore(prevScore => prevScore + (hitTarget.score || 0));
           const updatedTargets = targetManagerRef.current.getTargets();
           setTargets(updatedTargets);
         }
@@ -353,6 +397,10 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       canvas.removeEventListener('mousedown', handleMouseDown);
     };
   }, [isGameStarted]);
+
+  useEffect(() => {
+    console.log('game over', isGameStarted && !isGameOver);
+  }, [isGameOver]);
 
   return (
     <div
@@ -372,21 +420,31 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         />
       )}
       <Crosshair />
-      {isGameStarted ? (
-        <div className="absolute top-4 right-4 text-white bg-black bg-opacity-50 p-2 rounded">
-          생성 간격: {targetConfig.spawnInterval.toFixed(0)}ms
-          <br />
-          경과 시간: {elapsedTime}초
+      {isGameStarted && !isGameOver ? (
+        <div className="absolute top-4 right-4 text-white bg-black bg-opacity-50 p-2 rounded min-w-[200px]">
+          <div className="flex justify-between">
+            <span>생성 간격:</span>
+            <span>{targetConfig.spawnInterval.toFixed(0)}ms</span>
+          </div>
+          <div className="flex justify-between">
+            <span>경과 시간:</span>
+            <span>{elapsedTime}초</span>
+          </div>
+          <div className="flex justify-between">
+            <span>점수:</span>
+            <span>{score}</span>
+          </div>
         </div>
-      ) : (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <button
-            onClick={handleGameStart}
-            className="px-6 py-3 text-xl font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            게임 시작
-          </button>
-        </div>
+      ) : null}
+      {!isGameStarted && !isGameOver && (
+        <StartMenu onStart={handleGameStart} />
+      )}
+      {isGameOver && (
+        <ResultMenu
+          score={score}
+          elapsedTime={elapsedTime}
+          onRestart={handleRestart}
+        />
       )}
     </div>
   );
