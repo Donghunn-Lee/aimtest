@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
+import type { MouseEvent } from 'react';
 import { Crosshair } from './Crosshair';
 import { TargetManager } from './Target/TargetManager';
 import { TargetRenderer } from './Target/TargetRenderer';
@@ -29,14 +30,15 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const [targets, setTargets] = useState<Target[]>([]);
   const targetManagerRef = useRef<TargetManager | null>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const gameStartTimeRef = useRef(Date.now());
-  const initialSpawnIntervalRef = useRef(1000);
   const [targetConfig, setTargetConfig] = useState<TargetConfig>(initialTargetConfig);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
   const [score, setScore] = useState(0);
   const [startTime, setStartTime] = useState<number | null>(null);
+  const [accuracy, setAccuracy] = useState(0);
+  const [hitCount, setHitCount] = useState(0);
+  const [totalClick, setTotalClick] = useState(0);
 
   const initTargetManager = () => {
     targetManagerRef.current = new TargetManager(targetConfig, {
@@ -93,7 +95,6 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     drawSizeRef.current = { width: drawWidth, height: drawHeight };
 
     console.log('Canvas size:', { width: canvas.width, height: canvas.height });
-    console.log('Image size calculated:', drawSizeRef.current);
   }, []);
 
   // 이미지 로드 함수
@@ -122,6 +123,43 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
     image.src = '/map.svg';
   }, [calculateImageSize]);
+
+  const handlePointerLockChange = () => {
+    if (!canvasRef.current) return;
+    isPointerLocked.current = document.pointerLockElement === canvasRef.current;
+  };
+
+  const handleMouseMove = (event: MouseEvent) => {
+    if (!isGameStarted) return;
+    if (isPointerLocked.current) {
+      mouseMovement.current = {
+        x: event.movementX,
+        y: event.movementY
+      };
+    }
+  };
+
+  const handleMouseDown = (event: MouseEvent) => {
+    if (!isGameStarted) return;
+    if (!canvasRef.current) return;
+
+    if (!isPointerLocked.current) {
+      canvasRef.current.requestPointerLock();
+    } else if (targetManagerRef.current) {
+      const screenX = -position.current.x;
+      const screenY = -position.current.y;
+
+      const hitTarget = targetManagerRef.current.checkHit(screenX, screenY);
+      if (hitTarget) {
+        setHitCount(prev => prev + 1);
+        setScore(prevScore => prevScore + (hitTarget.score || 0));
+        const updatedTargets = targetManagerRef.current.getTargets();
+        setTargets(updatedTargets);
+      }
+
+      setTotalClick(prevCount => prevCount + 1);
+    }
+  };
 
   // 전체화면 모드 처리
   useEffect(() => {
@@ -199,7 +237,6 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
     const intervalId = setInterval(() => {
       const elapsedSeconds = (Date.now() - startTime!) / 1000;
-      console.log('elapsedSeconds', elapsedSeconds);
       const newInterval = Math.max(
         250, // 최소 간격 250ms
         1000 * Math.pow(0.98, elapsedSeconds) // 매초 2%씩 감소
@@ -260,7 +297,6 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         setElapsedTime(finalTime);
         setIsGameStarted(false);
         setIsGameOver(true);
-        // targetManagerRef.current?.clearTargets();
         document.exitPointerLock();
       }
     }, 16);
@@ -279,14 +315,6 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
     return () => clearInterval(timer);
   }, [isGameStarted, isGameOver, startTime]);
-
-  useEffect(() => {
-    console.log('elapsedTime', elapsedTime);
-  }, [elapsedTime]);
-
-  useEffect(() => {
-    console.log('startTime', startTime);
-  }, [startTime]);
 
   // 렌더링
   useEffect(() => {
@@ -355,52 +383,20 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
   // 마우스 이벤트 처리
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || !isGameStarted) return;
-
-    const handlePointerLockChange = () => {
-      isPointerLocked.current = document.pointerLockElement === canvas;
-    };
-
-    const handleMouseMove = (event: MouseEvent) => {
-      if (isPointerLocked.current) {
-        mouseMovement.current = {
-          x: event.movementX,
-          y: event.movementY
-        };
-      }
-    };
-
-    const handleMouseDown = (event: MouseEvent) => {
-      if (!isPointerLocked.current) {
-        canvas.requestPointerLock();
-      } else if (targetManagerRef.current) {
-        const screenX = -position.current.x;
-        const screenY = -position.current.y;
-
-        const hitTarget = targetManagerRef.current.checkHit(screenX, screenY);
-        if (hitTarget) {
-          setScore(prevScore => prevScore + (hitTarget.score || 0));
-          const updatedTargets = targetManagerRef.current.getTargets();
-          setTargets(updatedTargets);
-        }
-      }
-    };
-
+    if (!isGameStarted) return;
     document.addEventListener('pointerlockchange', handlePointerLockChange);
-    canvas.addEventListener('mousemove', handleMouseMove);
-    canvas.addEventListener('mousedown', handleMouseDown);
 
     return () => {
       document.removeEventListener('pointerlockchange', handlePointerLockChange);
-      canvas.removeEventListener('mousemove', handleMouseMove);
-      canvas.removeEventListener('mousedown', handleMouseDown);
     };
   }, [isGameStarted]);
 
   useEffect(() => {
-    console.log('game over', isGameStarted && !isGameOver);
-  }, [isGameOver]);
+    if (totalClick === 0) return;
+
+    setAccuracy(hitCount / totalClick * 100);
+  }, [totalClick])
+
 
   return (
     <div
@@ -410,6 +406,8 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       <canvas
         ref={canvasRef}
         className={`block mx-auto bg-black ${gameMode === 'fullscreen' ? 'w-screen h-screen' : 'w-[80vw] h-[80vh]'}`}
+        onMouseMove={handleMouseMove}
+        onMouseDown={handleMouseDown}
       />
       {canvasRef.current && (
         <TargetRenderer
@@ -433,6 +431,10 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
           <div className="flex justify-between">
             <span>점수:</span>
             <span>{score}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>정확도:</span>
+            <span>{accuracy?.toFixed(2) || 0}%</span>
           </div>
         </div>
       ) : null}
