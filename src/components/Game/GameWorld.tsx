@@ -1,11 +1,11 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
 import type { MouseEvent } from 'react';
 import { Crosshair } from './Crosshair';
-import { TargetManager } from './Target/TargetManager';
-import { TargetRenderer } from './Target/TargetRenderer';
-import { Target, TargetConfig } from './Target/types';
-import { StartMenu } from './Menu/StartMenu';
-import { ResultMenu } from './Menu/ResultMenu';
+import { TargetManager } from './target/TargetManager';
+import { TargetRenderer } from './target/TargetRenderer';
+import { Target, TargetConfig } from './target/types';
+import { StartMenu } from './menu/StartMenu';
+import { ResultMenu } from './menu/ResultMenu';
 
 interface GameWorldProps {
   gameMode: 'fullscreen' | 'windowed';
