@@ -1,4 +1,4 @@
-import { MenuWindow } from './MenuWindow';
+import { PanelOverlay } from "../../common/PanelOverlay";
 
 interface StartMenuProps {
   onStart: () => void;
@@ -6,7 +6,7 @@ interface StartMenuProps {
 
 export const StartMenu = ({ onStart }: StartMenuProps) => {
   return (
-    <MenuWindow>
+    <PanelOverlay>
       <h2 className="text-2xl font-bold mb-4 text-white text-center">Aim Test</h2>
       <button
         onClick={onStart}
@@ -14,6 +14,6 @@ export const StartMenu = ({ onStart }: StartMenuProps) => {
       >
         START
       </button>
-    </MenuWindow>
+    </PanelOverlay>
   );
 }; 
