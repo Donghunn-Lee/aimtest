@@ -10,6 +10,7 @@ export interface RankingData {
 }
 
 export interface RankingResponse {
+  id: number;
   user_name: string;
   score: number;
   accuracy: number;
