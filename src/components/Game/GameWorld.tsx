@@ -438,7 +438,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
           </div>
         </div>
       ) : null}
-      {!isGameStarted && !isGameOver && (
+      {!isGameStarted && !isGameOver && !isRankingOpen && (
         <StartMenu onStart={handleGameStart} onRanking={() => setIsRankingOpen(true)} />
       )}
       {isGameOver && (
@@ -449,7 +449,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         />
       )}
       {isRankingOpen && (
-        <RankingBoard />
+        <RankingBoard onClose={() => setIsRankingOpen(false)} />
       )}
     </div>
   );
