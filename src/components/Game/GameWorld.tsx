@@ -6,7 +6,7 @@ import { TargetRenderer } from './target/TargetRenderer';
 import { Target, TargetConfig } from './target/types';
 import { StartMenu } from './menu/StartMenu';
 import { ResultMenu } from './menu/ResultMenu';
-
+import RankingBoard from '../game/ranking/RankingBoard';
 interface GameWorldProps {
   gameMode: 'fullscreen' | 'windowed';
   onGameModeChange?: (mode: 'fullscreen' | 'windowed') => void;
@@ -39,7 +39,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const [accuracy, setAccuracy] = useState(0);
   const [hitCount, setHitCount] = useState(0);
   const [totalClick, setTotalClick] = useState(0);
-
+  const [isRankingOpen, setIsRankingOpen] = useState(false);
   const initTargetManager = () => {
     targetManagerRef.current = new TargetManager(targetConfig, {
       width: canvasRef.current?.width || 0,
@@ -439,7 +439,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         </div>
       ) : null}
       {!isGameStarted && !isGameOver && (
-        <StartMenu onStart={handleGameStart} />
+        <StartMenu onStart={handleGameStart} onRanking={() => setIsRankingOpen(true)} />
       )}
       {isGameOver && (
         <ResultMenu
@@ -447,6 +447,9 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
           elapsedTime={elapsedTime}
           onRestart={handleRestart}
         />
+      )}
+      {isRankingOpen && (
+        <RankingBoard />
       )}
     </div>
   );
