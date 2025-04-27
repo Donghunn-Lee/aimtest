@@ -56,13 +56,14 @@ export const formatRankingScore = (score: number): string => {
 };
 
 export const formatAccuracy = (accuracy: number): string => {
-  return `${(accuracy * 100).toFixed(1)}%`;
+  return `${accuracy.toFixed(2)}%`;
 };
 
 export const formatPlayTime = (seconds: number): string => {
   const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
-  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  const remainingSeconds = Math.floor(seconds % 60);
+  const milliseconds = Math.floor((seconds % 1) * 100);
+  return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
 };
 
 export const sortRankings = (

@@ -5,7 +5,7 @@ import { TargetManager } from './target/TargetManager';
 import { TargetRenderer } from './target/TargetRenderer';
 import { Target, TargetConfig } from './target/types';
 import { StartMenu } from './menu/StartMenu';
-import { ResultMenu } from './menu/ResultMenu';
+import ResultMenu from './menu/ResultMenu';
 import RankingBoard from '../game/ranking/RankingBoard';
 interface GameWorldProps {
   gameMode: 'fullscreen' | 'windowed';
@@ -304,14 +304,14 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     return () => clearInterval(syncInterval);
   }, [isGameStarted, startTime]);
 
-  // 경과 시간 업데이트 (1초 간격)
+  // 경과 시간 업데이트 (100ms 간격)
   useEffect(() => {
     if (!isGameStarted || isGameOver) return;
 
     const timer = setInterval(() => {
       const elapsed = (Date.now() - startTime!) / 1000;
-      setElapsedTime(Math.floor(elapsed));
-    }, 1000);
+      setElapsedTime(elapsed);  // 소수점 유지
+    }, 100);  // 더 자주 업데이트
 
     return () => clearInterval(timer);
   }, [isGameStarted, isGameOver, startTime]);
@@ -426,7 +426,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
           </div>
           <div className="flex justify-between">
             <span>경과 시간:</span>
-            <span>{elapsedTime}초</span>
+            <span>{elapsedTime.toFixed(0)}초</span>
           </div>
           <div className="flex justify-between">
             <span>점수:</span>
@@ -445,7 +445,9 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         <ResultMenu
           score={score}
           elapsedTime={elapsedTime}
+          accuracy={accuracy}
           onRestart={handleRestart}
+          onMenu={() => setIsRankingOpen(true)}
         />
       )}
       {isRankingOpen && (

@@ -17,6 +17,7 @@ const RankingBoard = ({ onClose }: RankingBoardProps) => {
   useEffect(() => {
     const fetchRanking = async () => {
       const ranking = await getRankings();
+      console.log(ranking);
       setRanking(ranking);
     };
 
