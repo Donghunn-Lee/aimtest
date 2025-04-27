@@ -200,12 +200,27 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
     const resizeCanvas = () => {
       if (gameMode === 'fullscreen') {
+        // 전체화면 모드에서는 여백 없이 전체 크기 사용
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
       } else {
-        // 창 모드일 때는 화면의 80% 크기로 설정
-        canvas.width = window.innerWidth * 0.8;
-        canvas.height = window.innerHeight * 0.8;
+        // 창 모드에서는 16:9 비율과 24px 여백 고려
+        const maxWidth = window.innerWidth - 48; // 양쪽 24px씩 여백
+        const maxHeight = window.innerHeight - 48; // 상하 24px씩 여백
+
+        // 16:9 비율 계산
+        const targetRatio = 16 / 9;
+        let width = maxWidth;
+        let height = width / targetRatio;
+
+        // 높이가 너무 크면 높이 기준으로 재계산
+        if (height > maxHeight) {
+          height = maxHeight;
+          width = height * targetRatio;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
       }
 
       // 이미지 크기 재계산
@@ -401,11 +416,11 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   return (
     <div
       ref={containerRef}
-      className={`relative w-full h-full overflow-hidden`}
+      className={`relative w-full h-full overflow-hidden flex items-center justify-center`}
     >
       <canvas
         ref={canvasRef}
-        className={`block mx-auto bg-black ${gameMode === 'fullscreen' ? 'w-screen h-screen' : 'w-[80vw] h-[80vh]'}`}
+        className={`block bg-black ${gameMode === 'fullscreen' ? 'w-screen h-screen' : 'max-w-[calc(100vw-48px)] max-h-[calc(100vh-48px)] aspect-video'}`}
         onMouseMove={handleMouseMove}
         onMouseDown={handleMouseDown}
       />
