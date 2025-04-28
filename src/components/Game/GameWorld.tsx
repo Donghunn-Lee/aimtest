@@ -7,6 +7,9 @@ import { Target, TargetConfig } from './target/types';
 import { StartMenu } from './menu/StartMenu';
 import ResultMenu from './menu/ResultMenu';
 import RankingBoard from '../game/ranking/RankingBoard';
+import { ResolutionSettings } from './settings/ResolutionSettings';
+import { Resolution, DEFAULT_RESOLUTION } from './types/resolution';
+
 interface GameWorldProps {
   gameMode: 'fullscreen' | 'windowed';
   onGameModeChange?: (mode: 'fullscreen' | 'windowed') => void;
@@ -40,6 +43,8 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const [hitCount, setHitCount] = useState(0);
   const [totalClick, setTotalClick] = useState(0);
   const [isRankingOpen, setIsRankingOpen] = useState(false);
+  const [selectedResolution, setSelectedResolution] = useState<Resolution>(DEFAULT_RESOLUTION);
+
   const initTargetManager = () => {
     targetManagerRef.current = new TargetManager(targetConfig, {
       width: canvasRef.current?.width || 0,
@@ -200,16 +205,26 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
     const resizeCanvas = () => {
       if (gameMode === 'fullscreen') {
-        // 전체화면 모드에서는 여백 없이 전체 크기 사용
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        // 전체화면 모드에서는 선택된 해상도 비율 유지
+        const targetRatio = selectedResolution.ratio;
+        const screenRatio = window.innerWidth / window.innerHeight;
+
+        if (screenRatio > targetRatio) {
+          // 화면이 더 넓은 경우 (세로로 꽉 차게)
+          canvas.height = window.innerHeight;
+          canvas.width = canvas.height * targetRatio;
+        } else {
+          // 화면이 더 좁은 경우 (가로로 꽉 차게)
+          canvas.width = window.innerWidth;
+          canvas.height = canvas.width / targetRatio;
+        }
       } else {
-        // 창 모드에서는 16:9 비율과 24px 여백 고려
+        // 창 모드에서는 선택된 해상도 비율과 24px 여백 고려
         const maxWidth = window.innerWidth - 48; // 양쪽 24px씩 여백
         const maxHeight = window.innerHeight - 48; // 상하 24px씩 여백
 
-        // 16:9 비율 계산
-        const targetRatio = 16 / 9;
+        // 선택된 해상도 비율 계산
+        const targetRatio = selectedResolution.ratio;
         let width = maxWidth;
         let height = width / targetRatio;
 
@@ -239,7 +254,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     return () => {
       window.removeEventListener('resize', resizeCanvas);
     };
-  }, [gameMode, calculateImageSize]);
+  }, [gameMode, calculateImageSize, selectedResolution]);
 
   // 이미지 로드 (한 번만 실행)
   useEffect(() => {
@@ -416,11 +431,14 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   return (
     <div
       ref={containerRef}
-      className={`relative w-full h-full overflow-hidden flex items-center justify-center`}
+      className={`relative w-full h-full overflow-hidden flex items-center justify-center bg-black`}
     >
       <canvas
         ref={canvasRef}
-        className={`block bg-black ${gameMode === 'fullscreen' ? 'w-screen h-screen' : 'max-w-[calc(100vw-48px)] max-h-[calc(100vh-48px)] aspect-video'}`}
+        className={`block bg-black ${gameMode === 'fullscreen' ? 'w-auto h-auto' : 'max-w-[calc(100vw-48px)] max-h-[calc(100vh-48px)]'}`}
+        style={{
+          aspectRatio: selectedResolution.ratio
+        }}
         onMouseMove={handleMouseMove}
         onMouseDown={handleMouseDown}
       />
@@ -454,7 +472,12 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         </div>
       ) : null}
       {!isGameStarted && !isGameOver && !isRankingOpen && (
-        <StartMenu onStart={handleGameStart} onRanking={() => setIsRankingOpen(true)} />
+        <StartMenu
+          onStart={handleGameStart}
+          onRanking={() => setIsRankingOpen(true)}
+          selectedResolution={selectedResolution}
+          onResolutionChange={setSelectedResolution}
+        />
       )}
       {isGameOver && (
         <ResultMenu
