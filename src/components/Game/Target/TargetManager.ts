@@ -1,8 +1,5 @@
 import { Target, TargetConfig } from './types';
-import {
-  calculateMapBounds,
-  getDefaultConfig,
-} from './utils/TargetContainerUtills';
+import { calculateContainerBounds, getDefaultConfig } from './TargetContainer';
 
 export class TargetManager {
   private targets: Target[] = [];
@@ -21,7 +18,10 @@ export class TargetManager {
     this.targets = [];
 
     // 맵에 그려진 직사각형 영역 정의
-    this.mapBounds = calculateMapBounds(this.gameArea, this.containerConfig);
+    this.mapBounds = calculateContainerBounds(
+      this.gameArea,
+      this.containerConfig
+    );
   }
 
   createTarget(): Target | null {
@@ -148,7 +148,10 @@ export class TargetManager {
 
   updateGameArea(width: number, height: number): void {
     this.gameArea = { width, height };
-    this.mapBounds = calculateMapBounds(this.gameArea, this.containerConfig);
+    this.mapBounds = calculateContainerBounds(
+      this.gameArea,
+      this.containerConfig
+    );
   }
 
   getMapBounds(): { x: number; y: number; width: number; height: number } {

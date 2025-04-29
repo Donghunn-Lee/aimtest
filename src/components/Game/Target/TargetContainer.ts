@@ -3,14 +3,14 @@ interface GameArea {
   height: number;
 }
 
-interface MapBounds {
+interface ContainerBounds {
   x: number;
   y: number;
   width: number;
   height: number;
 }
 
-interface TargetContainerConfig {
+interface ContainerConfig {
   mapAspectRatio: number;
   targetAreaRatio: number;
   verticalOffsetRatio: number;
@@ -22,12 +22,12 @@ interface TargetContainerConfig {
  * 게임 영역과 설정된 비율을 기반으로 타겟 컨테이너의 경계를 계산합니다.
  * @param gameArea 게임 영역의 크기
  * @param config 타겟 컨테이너 설정
- * @returns 계산된 맵 경계
+ * @returns 계산된 컨테이너 경계
  */
-export function calculateMapBounds(
+export function calculateContainerBounds(
   gameArea: GameArea,
-  config: TargetContainerConfig
-): MapBounds {
+  config: ContainerConfig
+): ContainerBounds {
   // 맵의 실제 크기 계산 (게임 영역에 맞게 조정)
   let mapWidth: number;
   let mapHeight: number;
@@ -54,7 +54,7 @@ export function calculateMapBounds(
   const targetY =
     -targetAreaHeight / 2 + mapHeight * config.verticalOffsetRatio;
 
-  // 맵 경계 반환
+  // 컨테이너 경계 반환
   return {
     x: targetX,
     y: targetY,
@@ -66,7 +66,7 @@ export function calculateMapBounds(
 /**
  * 기본 설정값을 반환합니다.
  */
-export function getDefaultConfig(): TargetContainerConfig {
+export function getDefaultConfig(): ContainerConfig {
   return {
     mapAspectRatio: 16 / 9,
     targetAreaRatio: 1,
