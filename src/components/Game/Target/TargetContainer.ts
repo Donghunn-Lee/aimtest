@@ -10,7 +10,7 @@ interface ContainerBounds {
   height: number;
 }
 
-interface ContainerConfig {
+export interface ContainerConfig {
   mapAspectRatio: number;
   targetAreaRatio: number;
   verticalOffsetRatio: number;
@@ -66,12 +66,33 @@ export function calculateContainerBounds(
 /**
  * 기본 설정값을 반환합니다.
  */
-export function getDefaultConfig(): ContainerConfig {
-  return {
-    mapAspectRatio: 16 / 9,
-    targetAreaRatio: 1,
-    verticalOffsetRatio: 0.246,
-    widthScaleRatio: 2.44,
-    heightScaleRatio: 4.14,
-  };
+export function getDefaultConfig(resolution: number): ContainerConfig {
+  if (resolution === 16 / 9) {
+    console.log('16 / 9');
+    return {
+      mapAspectRatio: 16 / 9,
+      targetAreaRatio: 1,
+      verticalOffsetRatio: 0.246,
+      widthScaleRatio: 2.438,
+      heightScaleRatio: 4.124,
+    };
+  } else if (resolution === 16 / 10) {
+    console.log('16 / 10');
+    return {
+      mapAspectRatio: 16 / 10,
+      targetAreaRatio: 1,
+      verticalOffsetRatio: 0.26,
+      widthScaleRatio: 2.326,
+      heightScaleRatio: 4.364,
+    };
+  } else {
+    console.log('4 / 3');
+    return {
+      mapAspectRatio: 4 / 3,
+      targetAreaRatio: 1,
+      verticalOffsetRatio: 0.3,
+      widthScaleRatio: 2.33,
+      heightScaleRatio: 5.26,
+    };
+  }
 }

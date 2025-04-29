@@ -49,7 +49,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     targetManagerRef.current = new TargetManager(targetConfig, {
       width: canvasRef.current?.width || 0,
       height: canvasRef.current?.height || 0
-    });
+    }, selectedResolution.ratio);
   };
 
   // 게임 시작 핸들러
@@ -293,7 +293,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         targetManagerRef.current.clearTargets();
       }
     };
-  }, []); // 의존성 배열을 비워서 한 번만 실행
+  }, [selectedResolution]);
 
   // 타겟 생성 간격 업데이트
   useEffect(() => {
