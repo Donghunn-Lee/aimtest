@@ -54,6 +54,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
   // 게임 시작 핸들러
   const handleGameStart = () => {
+    initTargetManager();
     setIsGameStarted(true);
     setStartTime(Date.now());
     setElapsedTime(0);
@@ -99,7 +100,6 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     drawHeight *= 2;
     drawSizeRef.current = { width: drawWidth, height: drawHeight };
 
-    console.log('Canvas size:', { width: canvas.width, height: canvas.height });
   }, []);
 
   // 이미지 로드 함수
@@ -206,17 +206,17 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     const resizeCanvas = () => {
       if (gameMode === 'fullscreen') {
         // 전체화면 모드에서는 선택된 해상도 비율 유지
-        const targetRatio = selectedResolution.ratio;
+        const resolutionRatio = selectedResolution.ratio;
         const screenRatio = window.innerWidth / window.innerHeight;
 
-        if (screenRatio > targetRatio) {
+        if (screenRatio > resolutionRatio) {
           // 화면이 더 넓은 경우 (세로로 꽉 차게)
           canvas.height = window.innerHeight;
-          canvas.width = canvas.height * targetRatio;
+          canvas.width = canvas.height * resolutionRatio;
         } else {
           // 화면이 더 좁은 경우 (가로로 꽉 차게)
           canvas.width = window.innerWidth;
-          canvas.height = canvas.width / targetRatio;
+          canvas.height = canvas.width / resolutionRatio;
         }
       } else {
         // 창 모드에서는 선택된 해상도 비율과 24px 여백 고려

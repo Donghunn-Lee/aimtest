@@ -18,16 +18,16 @@ export class TargetManager {
     gameArea: { width: number; height: number },
     resolution: number
   ) {
-    this.config = config;
     this.gameArea = gameArea;
     this.targets = [];
     this.containerConfig = getDefaultConfig(resolution);
 
-    // 맵에 그려진 직사각형 영역 정의
+    // 타겟 컨테이너 크기 계싼
     this.mapBounds = calculateContainerBounds(
       this.gameArea,
       this.containerConfig
     );
+    this.config = { ...config, size: this.mapBounds.width / 18 };
   }
 
   createTarget(): Target | null {
@@ -43,14 +43,11 @@ export class TargetManager {
 
       if (this.isValidPosition(target)) {
         this.targets.push(target);
-        console.log('target created', i);
         return target;
       }
 
       i++;
     }
-
-    console.log('target not created', i);
 
     return null;
   }
