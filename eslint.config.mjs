@@ -3,6 +3,7 @@ import pluginJs from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import pluginReact from 'eslint-plugin-react';
 import prettierConfig from 'eslint-config-prettier';
+import pluginPrettier from 'eslint-plugin-prettier';
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
@@ -14,7 +15,12 @@ export default [
   {
     rules: {
       'react/react-in-jsx-scope': 'off',
+      'prettier/prettier': 'error',
     },
   },
-  prettierConfig, // Prettier와 충돌하는 ESLint 규칙 비활성화
+  {
+    plugins: {
+      prettier: pluginPrettier,
+    },
+  },
 ];
