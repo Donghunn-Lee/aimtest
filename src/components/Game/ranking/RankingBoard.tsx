@@ -1,11 +1,20 @@
-import { useEffect } from "react";
-import { useState } from "react";
-import { PanelOverlay } from "../../common/PanelOverlay";
-import { getRankings, type RankingResponse, formatAccuracy, formatPlayTime } from "../../../services/rankingService";
+import { useEffect } from 'react';
+import { useState } from 'react';
+import Button from '../../common/Button';
+import { PanelOverlay } from '../../common/PanelOverlay';
+import {
+  getRankings,
+  type RankingResponse,
+  formatAccuracy,
+  formatPlayTime,
+} from '../../../services/rankingService';
 
-const tableHeaderStyles = "px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider";
-const tableCellStyles = "px-6 py-4 whitespace-nowrap text-sm text-gray-300";
-const tableCellBoldStyles = "px-6 py-4 whitespace-nowrap text-sm font-medium text-white";
+const tableHeaderStyles =
+  'px-1.5 py-[0.2rem] text-left text-[10px] font-medium text-gray-300 uppercase tracking-wider md:px-2 md:py-[0.25rem] md:text-xs lg:px-3 lg:py-[0.3rem] lg:text-sm';
+const tableCellStyles =
+  'px-1.5 py-[0.2rem] whitespace-nowrap text-[10px] text-gray-300 md:px-2 md:py-[0.25rem] md:text-xs lg:px-3 lg:py-[0.3rem] lg:text-sm';
+const tableCellBoldStyles =
+  'px-1.5 py-[0.2rem] whitespace-nowrap text-[10px] font-medium text-white md:px-2 md:py-[0.25rem] md:text-xs lg:px-3 lg:py-[0.3rem] lg:text-sm';
 
 interface RankingBoardProps {
   onClose: () => void;
@@ -26,19 +35,22 @@ const RankingBoard = ({ onClose }: RankingBoardProps) => {
 
   return (
     <PanelOverlay>
-      <div className="space-y-8 p-8">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-white">Ranking Board</h1>
-          <button
+      <div className="mx-auto w-full max-w-[660px] space-y-0.5 p-0.5 md:space-y-0.5 md:p-0.5 lg:space-y-1 lg:p-1">
+        <div className="flex items-center justify-between">
+          <h1 className="text-base font-bold text-white md:text-lg lg:text-xl">
+            Ranking Board
+          </h1>
+          <Button
             onClick={onClose}
-            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+            variant="danger"
+            size="sm"
           >
             Close
-          </button>
+          </Button>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="min-w-full border border-white/30 rounded-md border-separate border-spacing-0">
+        <div className="overflow-x-auto rounded-md border border-white/30">
+          <table className="min-w-full border-separate border-spacing-0">
             <thead>
               <tr>
                 <th className={`${tableHeaderStyles} rounded-tl-md`}>Name</th>
@@ -51,9 +63,7 @@ const RankingBoard = ({ onClose }: RankingBoardProps) => {
             <tbody className="divide-y divide-white/20">
               {ranking.map((item, index) => (
                 <tr key={item.id}>
-                  <td className={tableCellBoldStyles}>
-                    {item.user_name}
-                  </td>
+                  <td className={tableCellBoldStyles}>{item.user_name}</td>
                   <td className={tableCellStyles}>
                     {item.score.toLocaleString()}
                   </td>

@@ -7,10 +7,12 @@ interface PanelOverlayProps {
 
 export const PanelOverlay = ({ children, className }: PanelOverlayProps) => {
   return (
-    <div className={`fixed inset-0 flex items-center justify-center ${className}`}>
-      <div className="bg-black bg-opacity-60 p-8 rounded-lg shadow-lg backdrop-blur-sm">
+    <div
+      className={`fixed inset-0 flex items-center justify-center ${className}`}
+    >
+      <div className="rounded-lg bg-black bg-opacity-60 p-2 shadow-lg backdrop-blur-sm md:p-4 lg:p-6 xl:p-8">
         {children}
       </div>
     </div>
   );
-}; 
+};

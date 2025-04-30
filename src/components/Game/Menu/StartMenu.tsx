@@ -1,6 +1,7 @@
-import { PanelOverlay } from "../../common/PanelOverlay";
-import { ResolutionSettings } from "../settings/ResolutionSettings";
-import { Resolution, DEFAULT_RESOLUTION } from "../types/resolution";
+import Button from '../../common/Button';
+import { PanelOverlay } from '../../common/PanelOverlay';
+import { ResolutionSettings } from '../settings/ResolutionSettings';
+import { Resolution, DEFAULT_RESOLUTION } from '../types/resolution';
 
 interface StartMenuProps {
   onStart: () => void;
@@ -13,39 +14,41 @@ export const StartMenu = ({
   onStart,
   onRanking,
   selectedResolution,
-  onResolutionChange
+  onResolutionChange,
 }: StartMenuProps) => {
-  const handleRankingClick = () => {
-    onRanking();
-  };
-
   return (
     <PanelOverlay>
-      <div className="flex flex-col items-center justify-center space-y-8 px-6">
-        <h2 className="text-2xl font-bold mb-4 text-white text-center">FPS Aim Test</h2>
+      <div className="flex flex-col items-center justify-center space-y-2 px-4 md:space-y-4 md:px-5 lg:space-y-6 lg:px-6 xl:space-y-8 xl:text-ellipsis xl:px-8">
+        <h2 className="mb-2 text-center text-lg font-bold text-white md:mb-3 md:text-xl lg:text-2xl xl:text-3xl">
+          FPS Aim Test
+        </h2>
 
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-xs md:max-w-sm lg:max-w-md xl:max-w-lg">
           <ResolutionSettings
             selectedResolution={selectedResolution}
             onResolutionChange={onResolutionChange}
           />
         </div>
 
-        <div className="space-y-4 w-full max-w-md">
-          <button
+        <div className="w-full max-w-xs space-y-2 md:max-w-sm md:space-y-3 lg:max-w-md lg:space-y-4 xl:max-w-lg xl:space-y-5">
+          <Button
             onClick={onStart}
-            className="px-6 py-3 text-xl font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors w-full"
+            variant="primary"
+            size="md"
+            fullWidth
           >
             START
-          </button>
-          <button
-            onClick={handleRankingClick}
-            className="px-6 py-3 text-xl font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors w-full"
+          </Button>
+          <Button
+            onClick={onRanking}
+            variant="primary"
+            size="md"
+            fullWidth
           >
             RANKING
-          </button>
+          </Button>
         </div>
       </div>
     </PanelOverlay>
   );
-}; 
+};
