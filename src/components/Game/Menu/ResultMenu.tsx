@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Button from '../../common/Button';
 import { PanelOverlay } from '../../common/PanelOverlay';
 import {
   addRanking,
@@ -58,16 +59,22 @@ const ResultMenu = ({
 
   return (
     <PanelOverlay>
-      <div className="flex flex-col items-center justify-center space-y-8 px-6">
-        <h2 className="mb-4 text-center text-2xl font-bold text-white">
+      <div className="flex flex-col items-center justify-center space-y-6 px-6 md:space-y-8">
+        <h2 className="mb-4 text-center text-xl font-bold text-white md:text-2xl lg:text-3xl">
           Game Over
         </h2>
         <div className="space-y-2 text-center text-white">
-          <p>Score: {formatRankingScore(score)}</p>
-          <p>Accuracy: {formatAccuracy(accuracy)}</p>
-          <p>Time: {formatPlayTime(elapsedTime)}</p>
+          <p className="text-base md:text-lg lg:text-xl">
+            Score: {formatRankingScore(score)}
+          </p>
+          <p className="text-base md:text-lg lg:text-xl">
+            Accuracy: {formatAccuracy(accuracy)}
+          </p>
+          <p className="text-base md:text-lg lg:text-xl">
+            Time: {formatPlayTime(elapsedTime)}
+          </p>
         </div>
-        <div className="w-full max-w-md space-y-4">
+        <div className="w-full max-w-md space-y-3 md:space-y-4">
           <div className="space-y-2">
             <input
               type="text"
@@ -83,13 +90,15 @@ const ResultMenu = ({
               </p>
             )}
           </div>
-          <button
+          <Button
             onClick={onSave}
             disabled={!isNameValid || isSaving}
-            className="w-full rounded-lg bg-blue-600 px-6 py-3 text-xl font-bold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+            variant="primary"
+            size="lg"
+            fullWidth
           >
             {isSaving ? 'Saving...' : 'SAVE'}
-          </button>
+          </Button>
           {saveStatus === 'success' && (
             <p className="text-center text-green-500">
               Ranking saved successfully!
@@ -100,18 +109,22 @@ const ResultMenu = ({
               Failed to save ranking. Please try again.
             </p>
           )}
-          <button
+          <Button
             onClick={onRestart}
-            className="w-full rounded-lg bg-blue-600 px-6 py-3 text-xl font-bold text-white transition-colors hover:bg-blue-700"
+            variant="primary"
+            size="lg"
+            fullWidth
           >
             RESTART
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={onMenu}
-            className="w-full rounded-lg bg-blue-600 px-6 py-3 text-xl font-bold text-white transition-colors hover:bg-blue-700"
+            variant="secondary"
+            size="lg"
+            fullWidth
           >
             RANKING
-          </button>
+          </Button>
         </div>
       </div>
     </PanelOverlay>

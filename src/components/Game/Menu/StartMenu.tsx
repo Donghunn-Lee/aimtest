@@ -41,7 +41,7 @@ export const StartMenu = ({
           </Button>
           <Button
             onClick={onRanking}
-            variant="primary"
+            variant="secondary"
             size="md"
             fullWidth
           >
