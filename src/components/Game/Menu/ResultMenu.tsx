@@ -32,27 +32,27 @@ const ResultMenu = ({
   const [displayScore, setDisplayScore] = useState(0);
   const [showAccuracy, setShowAccuracy] = useState(false);
   const [showTime, setShowTime] = useState(false);
-  const [showMenu, setShowMenu] = useState(true);
+  const [showMenu, setShowMenu] = useState(false);
 
   useEffect(() => {
-    // 10점 이하는 점수 즉시 표시
-    if (score > 10) {
-      const menuTimer = setTimeout(() => {
-        setShowMenu(true);
-      }, 1000);
-
-      return () => clearTimeout(menuTimer);
-    } else {
+    // 메뉴 표시
+    const menuTimer = setTimeout(() => {
       setShowMenu(true);
-      setShowAccuracy(true);
-      setShowTime(true);
+    }, 300);
+
+    // 0점인 경우 카운트업 애니메이션 생략
+    if (score === 0) {
       setDisplayScore(score);
+      setTimeout(() => {
+        setShowAccuracy(true);
+        setTimeout(() => {
+          setShowTime(true);
+        }, 300);
+      }, 300);
+      return () => clearTimeout(menuTimer);
     }
-  }, [score]);
 
-  useEffect(() => {
-    if (!showMenu) return; // 메뉴가 표시된 후에만 점수 애니메이션 시작
-
+    // 0점 이외에 점수 카운트 업 애니메이션 적용
     let startTime: number;
     let animationFrameId: number;
     const duration = 2000;
@@ -76,26 +76,27 @@ const ResultMenu = ({
       setDisplayScore(currentValue);
 
       if (progress < 1) {
-        setTimeout(() => {
-          animationFrameId = requestAnimationFrame(animate);
-        }, 16);
+        animationFrameId = requestAnimationFrame(animate);
       } else {
+        // 점수 애니메이션 완료 후 정확도 표시
         setTimeout(() => {
           setShowAccuracy(true);
+          // 정확도 표시 후 시간 표시
           setTimeout(() => {
             setShowTime(true);
           }, 500);
         }, 300);
       }
+    };
 
-      // 오버레이가 보이면 애니메이션 시작
-      if (showMenu) {
-        animationFrameId = requestAnimationFrame(animate);
-      }
+    // 메뉴가 표시된 후에만 애니메이션 시작
+    if (showMenu) {
+      animationFrameId = requestAnimationFrame(animate);
+    }
 
-      return () => {
-        cancelAnimationFrame(animationFrameId);
-      };
+    return () => {
+      clearTimeout(menuTimer);
+      cancelAnimationFrame(animationFrameId);
     };
   }, [score, showMenu]);
 
@@ -168,7 +169,7 @@ const ResultMenu = ({
               maxLength={20}
             />
             <div className="min-h-6 py-1">
-              {!isNameValid && userName.length < 0 ? (
+              {!isNameValid && userName.length > 0 ? (
                 <p className="py-0 text-xs text-red-500">
                   이름은 2~10자로 입력해주세요.
                 </p>
