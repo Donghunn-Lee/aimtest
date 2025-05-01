@@ -7,7 +7,6 @@ import { Target, TargetConfig } from './target/types';
 import { StartMenu } from './menu/StartMenu';
 import ResultMenu from './menu/ResultMenu';
 import RankingBoard from '../game/ranking/RankingBoard';
-import { ResolutionSettings } from './settings/ResolutionSettings';
 import { Resolution, DEFAULT_RESOLUTION } from './types/resolution';
 
 interface GameWorldProps {
@@ -46,6 +45,8 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const [isRankingOpen, setIsRankingOpen] = useState(false);
   const [selectedResolution, setSelectedResolution] =
     useState<Resolution>(DEFAULT_RESOLUTION);
+  const borderOpacity = useRef(0.7);
+  const fadeAnimationFrame = useRef<number | null>(null);
 
   const initTargetManager = () => {
     targetManagerRef.current = new TargetManager(
@@ -346,6 +347,47 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     return () => clearInterval(timer);
   }, [isGameStarted, isGameOver, startTime]);
 
+  // 페이드아웃 애니메이션
+  const startFadeOut = () => {
+    const startTime = Date.now();
+    const duration = 1000; // 1초 동안 페이드아웃
+
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      if (elapsed < duration) {
+        // 1초 동안 0.7에서 0으로 선형적으로 감소
+        borderOpacity.current = 0.7 * (1 - elapsed / duration);
+        fadeAnimationFrame.current = requestAnimationFrame(animate);
+      } else {
+        borderOpacity.current = 0; // 완전히 투명하게
+      }
+    };
+
+    animate();
+  };
+
+  // 테두리 다시 표시
+  const showBorder = () => {
+    if (fadeAnimationFrame.current) {
+      fadeAnimationFrame.current = null;
+    }
+    borderOpacity.current = 0.7;
+  };
+
+  // 게임 시작 시 페이드아웃 시작
+  useEffect(() => {
+    if (isGameStarted) {
+      startFadeOut();
+    }
+  }, [isGameStarted]);
+
+  // 게임 종료 시 테두리 다시 표시
+  useEffect(() => {
+    if (!isGameStarted) {
+      showBorder();
+    }
+  }, [isGameStarted]);
+
   // 렌더링
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -407,8 +449,8 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       // 타겟 컨테이너 영역 테두리 그리기
       if (targetManagerRef.current) {
         const bounds = targetManagerRef.current.getMapBounds();
-        ctx.strokeStyle = 'rgba(255, 0, 0, 0.7)'; // 빨간색 테두리 (반투명)
-        ctx.lineWidth = 3; // 테두리 두께
+        ctx.strokeStyle = `rgba(255, 0, 0, ${borderOpacity.current})`;
+        ctx.lineWidth = 3;
         ctx.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
       }
 
@@ -418,7 +460,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     };
 
     render();
-  }, []);
+  }, []); // isGameStarted가 변경될 때마다 렌더링 함수 재실행
 
   // 마우스 이벤트 처리
   useEffect(() => {
@@ -438,6 +480,15 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
     setAccuracy((hitCount / totalClick) * 100);
   }, [totalClick]);
+
+  // 컴포넌트 언마운트 시 애니메이션 프레임 정리
+  useEffect(() => {
+    return () => {
+      if (fadeAnimationFrame.current) {
+        cancelAnimationFrame(fadeAnimationFrame.current);
+      }
+    };
+  }, []);
 
   return (
     <div
