@@ -13,16 +13,15 @@ const Button: React.FC<ButtonProps> = ({
   size = 'md',
   fullWidth = false,
   className,
+  disabled,
   ...props
 }) => {
-  const baseStyles =
-    'rounded-md font-medium transition-all duration-100 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 flex items-center justify-center';
+  const baseStyles = `rounded-md font-medium focus:outline-none ${!disabled && 'transition-all duration-100 ease-in-out focus:ring-2 focus:ring-offset-2'} flex items-center justify-center`;
 
   const variantStyles = {
-    primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
-    secondary:
-      'bg-gray-300 text-gray-900 hover:bg-gray-400 focus:ring-gray-500',
-    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
+    primary: `bg-blue-600 text-white ${!disabled && 'hover:bg-blue-700 focus:ring-blue-500'} `,
+    secondary: `bg-gray-300 text-gray-900 ${!disabled && 'hover:bg-gray-400 focus:ring-gray-500'} `,
+    danger: `bg-red-600 text-white ${!disabled && 'hover:bg-red-700 focus:ring-red-500'} `,
   };
 
   const sizeStyles = {
@@ -33,6 +32,8 @@ const Button: React.FC<ButtonProps> = ({
 
   const widthStyle = fullWidth ? 'w-full' : '';
 
+  const disabledStyle = disabled ? 'opacity-50 cursor-not-allowed' : '';
+
   return (
     <button
       className={twMerge(
@@ -40,6 +41,7 @@ const Button: React.FC<ButtonProps> = ({
         variantStyles[variant],
         sizeStyles[size],
         widthStyle,
+        disabledStyle,
         className
       )}
       {...props}

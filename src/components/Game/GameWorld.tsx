@@ -60,30 +60,18 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
   // 게임 시작 핸들러
   const handleGameStart = () => {
-    initTargetManager();
-    setIsGameStarted(true);
-    setStartTime(Date.now());
-    setElapsedTime(0);
-    setScore(0);
-    setStartTime(Date.now());
-
-    // 게임 시작 시 포인터 락 활성화
-    if (canvasRef.current) {
-      canvasRef.current.requestPointerLock();
-    }
-  };
-
-  // 게임 재시작 핸들러
-  const handleRestart = () => {
     setIsGameStarted(true);
     setIsGameOver(false);
     setStartTime(Date.now());
     setElapsedTime(0);
+    setAccuracy(0);
+    setHitCount(0);
+    setTotalClick(0);
     setScore(0);
     setTargetConfig(initialTargetConfig);
     targetManagerRef.current?.clearTargets();
     initTargetManager();
-    document.exitPointerLock();
+    canvasRef.current?.requestPointerLock();
   };
 
   // 이미지 크기 계산 함수
@@ -508,7 +496,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
           score={score}
           elapsedTime={elapsedTime}
           accuracy={accuracy}
-          onRestart={handleRestart}
+          onRestart={handleGameStart}
           onMenu={() => {
             setIsGameOver(false);
             setIsGameStarted(false);

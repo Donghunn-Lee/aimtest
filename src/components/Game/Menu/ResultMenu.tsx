@@ -33,65 +33,60 @@ const ResultMenu = ({
   const [showAccuracy, setShowAccuracy] = useState(false);
   const [showTime, setShowTime] = useState(false);
   const [showMenu, setShowMenu] = useState(true);
-  const [isFirstRender, setIsFirstRender] = useState(true);
 
   useEffect(() => {
-    if (isFirstRender) {
-      // 메뉴 전체를 1초 후에 표시
+    // 10점 이하는 점수 즉시 표시
+    if (score > 10) {
       const menuTimer = setTimeout(() => {
         setShowMenu(true);
       }, 1000);
 
       return () => clearTimeout(menuTimer);
     } else {
-      // 첫 렌더링이 아닌 경우 바로 표시
       setShowMenu(true);
       setShowAccuracy(true);
       setShowTime(true);
       setDisplayScore(score);
     }
-  }, [isFirstRender, score]);
+  }, [score]);
 
   useEffect(() => {
     if (!showMenu) return; // 메뉴가 표시된 후에만 점수 애니메이션 시작
 
-    if (isFirstRender) {
-      let startTime: number;
-      let animationFrameId: number;
-      const duration = 2000;
-      const startValue = 0;
-      const endValue = score;
+    let startTime: number;
+    let animationFrameId: number;
+    const duration = 2000;
+    const startValue = 0;
+    const endValue = score;
 
-      const easeOutExpo = (x: number): number => {
-        return x === 1 ? 1 : 1 - Math.pow(2, -8 * x);
-      };
+    const easeOutExpo = (x: number): number => {
+      return x === 1 ? 1 : 1 - Math.pow(2, -8 * x);
+    };
 
-      const animate = (currentTime: number) => {
-        if (!startTime) startTime = currentTime;
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
+    const animate = (currentTime: number) => {
+      if (!startTime) startTime = currentTime;
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
 
-        const easedProgress = easeOutExpo(progress);
-        const currentValue = Math.floor(
-          startValue + (endValue - startValue) * easedProgress
-        );
+      const easedProgress = easeOutExpo(progress);
+      const currentValue = Math.floor(
+        startValue + (endValue - startValue) * easedProgress
+      );
 
-        setDisplayScore(currentValue);
+      setDisplayScore(currentValue);
 
-        if (progress < 1) {
+      if (progress < 1) {
+        setTimeout(() => {
+          animationFrameId = requestAnimationFrame(animate);
+        }, 16);
+      } else {
+        setTimeout(() => {
+          setShowAccuracy(true);
           setTimeout(() => {
-            animationFrameId = requestAnimationFrame(animate);
-          }, 16);
-        } else {
-          setTimeout(() => {
-            setShowAccuracy(true);
-            setTimeout(() => {
-              setShowTime(true);
-              setIsFirstRender(false);
-            }, 500);
-          }, 300);
-        }
-      };
+            setShowTime(true);
+          }, 500);
+        }, 300);
+      }
 
       // 오버레이가 보이면 애니메이션 시작
       if (showMenu) {
@@ -101,8 +96,8 @@ const ResultMenu = ({
       return () => {
         cancelAnimationFrame(animationFrameId);
       };
-    }
-  }, [score, showMenu, isFirstRender]);
+    };
+  }, [score, showMenu]);
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.value.trim();
@@ -168,15 +163,21 @@ const ResultMenu = ({
               type="text"
               value={userName}
               onChange={handleNameChange}
-              placeholder="Enter your name (2-20 characters)"
+              placeholder="이름 (2-10자)"
               className="w-full rounded-lg bg-gray-700 px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               maxLength={20}
             />
-            {!isNameValid && userName.length > 0 && (
-              <p className="text-xs text-red-500">
-                Name must be between 2 and 20 characters
-              </p>
-            )}
+            <div className="min-h-6 py-1">
+              {!isNameValid && userName.length < 0 ? (
+                <p className="py-0 text-xs text-red-500">
+                  이름은 2~10자로 입력해주세요.
+                </p>
+              ) : (
+                <p className="py-0 text-center text-xs text-green-500">
+                  점수 기록을 위해 이름을 입력해주세요!
+                </p>
+              )}
+            </div>
           </div>
           <Button
             onClick={onSave}
