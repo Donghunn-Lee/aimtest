@@ -18,9 +18,10 @@ const tableCellBoldStyles =
 
 interface RankingBoardProps {
   onClose: () => void;
+  animate?: boolean;
 }
 
-const RankingBoard = ({ onClose }: RankingBoardProps) => {
+const RankingBoard = ({ onClose, animate = true }: RankingBoardProps) => {
   const [ranking, setRanking] = useState<RankingResponse[]>([]);
 
   useEffect(() => {
@@ -34,8 +35,8 @@ const RankingBoard = ({ onClose }: RankingBoardProps) => {
   }, []);
 
   return (
-    <PanelOverlay>
-      <div className="mx-auto w-full max-w-[660px] space-y-0.5 p-0.5 md:space-y-0.5 md:p-0.5 lg:space-y-1 lg:p-1">
+    <PanelOverlay animate={animate}>
+      <div className="mx-auto w-full max-w-[660px] space-y-1 p-0.5 md:space-y-1.5 md:p-0.5 lg:space-y-2 lg:p-1">
         <div className="flex items-center justify-between">
           <h1 className="text-base font-bold text-white md:text-lg lg:text-xl">
             Ranking Board
@@ -85,5 +86,4 @@ const RankingBoard = ({ onClose }: RankingBoardProps) => {
     </PanelOverlay>
   );
 };
-
 export default RankingBoard;

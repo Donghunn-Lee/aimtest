@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Button from '../../common/Button';
 import { PanelOverlay } from '../../common/PanelOverlay';
 import {
@@ -29,6 +29,80 @@ const ResultMenu = ({
   );
   const [userName, setUserName] = useState('');
   const [isNameValid, setIsNameValid] = useState(false);
+  const [displayScore, setDisplayScore] = useState(0);
+  const [showAccuracy, setShowAccuracy] = useState(false);
+  const [showTime, setShowTime] = useState(false);
+  const [showMenu, setShowMenu] = useState(true);
+  const [isFirstRender, setIsFirstRender] = useState(true);
+
+  useEffect(() => {
+    if (isFirstRender) {
+      // 메뉴 전체를 1초 후에 표시
+      const menuTimer = setTimeout(() => {
+        setShowMenu(true);
+      }, 1000);
+
+      return () => clearTimeout(menuTimer);
+    } else {
+      // 첫 렌더링이 아닌 경우 바로 표시
+      setShowMenu(true);
+      setShowAccuracy(true);
+      setShowTime(true);
+      setDisplayScore(score);
+    }
+  }, [isFirstRender, score]);
+
+  useEffect(() => {
+    if (!showMenu) return; // 메뉴가 표시된 후에만 점수 애니메이션 시작
+
+    if (isFirstRender) {
+      let startTime: number;
+      let animationFrameId: number;
+      const duration = 2000;
+      const startValue = 0;
+      const endValue = score;
+
+      const easeOutExpo = (x: number): number => {
+        return x === 1 ? 1 : 1 - Math.pow(2, -8 * x);
+      };
+
+      const animate = (currentTime: number) => {
+        if (!startTime) startTime = currentTime;
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        const easedProgress = easeOutExpo(progress);
+        const currentValue = Math.floor(
+          startValue + (endValue - startValue) * easedProgress
+        );
+
+        setDisplayScore(currentValue);
+
+        if (progress < 1) {
+          setTimeout(() => {
+            animationFrameId = requestAnimationFrame(animate);
+          }, 16);
+        } else {
+          setTimeout(() => {
+            setShowAccuracy(true);
+            setTimeout(() => {
+              setShowTime(true);
+              setIsFirstRender(false);
+            }, 500);
+          }, 300);
+        }
+      };
+
+      // 오버레이가 보이면 애니메이션 시작
+      if (showMenu) {
+        animationFrameId = requestAnimationFrame(animate);
+      }
+
+      return () => {
+        cancelAnimationFrame(animationFrameId);
+      };
+    }
+  }, [score, showMenu, isFirstRender]);
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.value.trim();
@@ -58,34 +132,48 @@ const ResultMenu = ({
   };
 
   return (
-    <PanelOverlay>
-      <div className="flex flex-col items-center justify-center space-y-6 px-6 md:space-y-8">
-        <h2 className="mb-4 text-center text-xl font-bold text-white md:text-2xl lg:text-3xl">
+    <PanelOverlay animate={true}>
+      <div
+        className={`flex flex-col items-center justify-center space-y-3 px-4 transition-all duration-1000 md:space-y-4 xl:space-y-5 ${
+          showMenu ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+        }`}
+      >
+        <h2 className="mb-2 text-center text-lg font-bold text-white md:text-xl lg:text-2xl">
           Game Over
         </h2>
-        <div className="space-y-2 text-center text-white">
+        <div className="space-y-1 text-center text-white">
           <p className="text-base md:text-lg lg:text-xl">
-            Score: {formatRankingScore(score)}
+            Score: {formatRankingScore(displayScore)}
           </p>
-          <p className="text-base md:text-lg lg:text-xl">
+          <p
+            className={`text-base transition-all duration-1000 md:text-lg lg:text-xl ${
+              showAccuracy
+                ? 'translate-y-0 opacity-100'
+                : 'translate-y-4 opacity-0'
+            }`}
+          >
             Accuracy: {formatAccuracy(accuracy)}
           </p>
-          <p className="text-base md:text-lg lg:text-xl">
+          <p
+            className={`text-base transition-all duration-1000 md:text-lg lg:text-xl ${
+              showTime ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+            }`}
+          >
             Time: {formatPlayTime(elapsedTime)}
           </p>
         </div>
-        <div className="w-full max-w-md space-y-3 md:space-y-4">
-          <div className="space-y-2">
+        <div className="w-full max-w-sm space-y-2 md:space-y-3">
+          <div className="space-y-1">
             <input
               type="text"
               value={userName}
               onChange={handleNameChange}
               placeholder="Enter your name (2-20 characters)"
-              className="w-full rounded-lg bg-gray-700 px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-lg bg-gray-700 px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               maxLength={20}
             />
             {!isNameValid && userName.length > 0 && (
-              <p className="text-sm text-red-500">
+              <p className="text-xs text-red-500">
                 Name must be between 2 and 20 characters
               </p>
             )}
@@ -94,7 +182,7 @@ const ResultMenu = ({
             onClick={onSave}
             disabled={!isNameValid || isSaving}
             variant="primary"
-            size="lg"
+            size="sm"
             fullWidth
           >
             {isSaving ? 'Saving...' : 'SAVE'}
@@ -112,7 +200,7 @@ const ResultMenu = ({
           <Button
             onClick={onRestart}
             variant="primary"
-            size="lg"
+            size="sm"
             fullWidth
           >
             RESTART
@@ -120,15 +208,14 @@ const ResultMenu = ({
           <Button
             onClick={onMenu}
             variant="secondary"
-            size="lg"
+            size="sm"
             fullWidth
           >
-            RANKING
+            MAIN MENU
           </Button>
         </div>
       </div>
     </PanelOverlay>
   );
 };
-
 export default ResultMenu;

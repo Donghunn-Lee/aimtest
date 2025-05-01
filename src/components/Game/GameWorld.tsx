@@ -33,7 +33,8 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const [targets, setTargets] = useState<Target[]>([]);
   const targetManagerRef = useRef<TargetManager | null>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [targetConfig, setTargetConfig] = useState<TargetConfig>(initialTargetConfig);
+  const [targetConfig, setTargetConfig] =
+    useState<TargetConfig>(initialTargetConfig);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
@@ -43,13 +44,18 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const [hitCount, setHitCount] = useState(0);
   const [totalClick, setTotalClick] = useState(0);
   const [isRankingOpen, setIsRankingOpen] = useState(false);
-  const [selectedResolution, setSelectedResolution] = useState<Resolution>(DEFAULT_RESOLUTION);
+  const [selectedResolution, setSelectedResolution] =
+    useState<Resolution>(DEFAULT_RESOLUTION);
 
   const initTargetManager = () => {
-    targetManagerRef.current = new TargetManager(targetConfig, {
-      width: canvasRef.current?.width || 0,
-      height: canvasRef.current?.height || 0
-    }, selectedResolution.ratio);
+    targetManagerRef.current = new TargetManager(
+      targetConfig,
+      {
+        width: canvasRef.current?.width || 0,
+        height: canvasRef.current?.height || 0,
+      },
+      selectedResolution.ratio
+    );
   };
 
   // 게임 시작 핸들러
@@ -81,26 +87,28 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   };
 
   // 이미지 크기 계산 함수
-  const calculateImageSize = useCallback((canvas: HTMLCanvasElement, image: HTMLImageElement) => {
-    const imageAspect = image.width / image.height;
-    const canvasAspect = canvas.width / canvas.height;
-    let drawWidth = canvas.width;
-    let drawHeight = canvas.height;
+  const calculateImageSize = useCallback(
+    (canvas: HTMLCanvasElement, image: HTMLImageElement) => {
+      const imageAspect = image.width / image.height;
+      const canvasAspect = canvas.width / canvas.height;
+      let drawWidth = canvas.width;
+      let drawHeight = canvas.height;
 
-    if (imageAspect > canvasAspect) {
-      // 이미지가 더 넓은 경우
-      drawHeight = canvas.width / imageAspect;
-    } else {
-      // 이미지가 더 좁은 경우
-      drawWidth = canvas.height * imageAspect;
-    }
+      if (imageAspect > canvasAspect) {
+        // 이미지가 더 넓은 경우
+        drawHeight = canvas.width / imageAspect;
+      } else {
+        // 이미지가 더 좁은 경우
+        drawWidth = canvas.height * imageAspect;
+      }
 
-    // 이미지를 배율
-    drawWidth *= 2;
-    drawHeight *= 2;
-    drawSizeRef.current = { width: drawWidth, height: drawHeight };
-
-  }, []);
+      // 이미지를 배율
+      drawWidth *= 2;
+      drawHeight *= 2;
+      drawSizeRef.current = { width: drawWidth, height: drawHeight };
+    },
+    []
+  );
 
   // 이미지 로드 함수
   const loadImage = useCallback(() => {
@@ -139,7 +147,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     if (isPointerLocked.current) {
       mouseMovement.current = {
         x: event.movementX,
-        y: event.movementY
+        y: event.movementY,
       };
     }
   };
@@ -156,13 +164,13 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
       const hitTarget = targetManagerRef.current.checkHit(screenX, screenY);
       if (hitTarget) {
-        setHitCount(prev => prev + 1);
-        setScore(prevScore => prevScore + (hitTarget.score || 0));
+        setHitCount((prev) => prev + 1);
+        setScore((prevScore) => prevScore + (hitTarget.score || 0));
         const updatedTargets = targetManagerRef.current.getTargets();
         setTargets(updatedTargets);
       }
 
-      setTotalClick(prevCount => prevCount + 1);
+      setTotalClick((prevCount) => prevCount + 1);
     }
   };
 
@@ -177,7 +185,11 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     };
 
     const handleClick = () => {
-      if (gameMode === 'fullscreen' && containerRef.current && !document.fullscreenElement) {
+      if (
+        gameMode === 'fullscreen' &&
+        containerRef.current &&
+        !document.fullscreenElement
+      ) {
         // 사용자 상호작용 직후에 전체화면 요청
         requestAnimationFrame(() => {
           try {
@@ -272,9 +284,9 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         1000 * Math.pow(0.98, elapsedSeconds) // 매초 2%씩 감소
       );
 
-      setTargetConfig(prev => ({
+      setTargetConfig((prev) => ({
         ...prev,
-        spawnInterval: newInterval
+        spawnInterval: newInterval,
       }));
     }, targetConfig.spawnInterval);
 
@@ -340,8 +352,8 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
     const timer = setInterval(() => {
       const elapsed = (Date.now() - startTime!) / 1000;
-      setElapsedTime(elapsed);  // 소수점 유지
-    }, 100);  // 더 자주 업데이트
+      setElapsedTime(elapsed); // 소수점 유지
+    }, 100); // 더 자주 업데이트
 
     return () => clearInterval(timer);
   }, [isGameStarted, isGameOver, startTime]);
@@ -376,15 +388,24 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         // 이동 제한을 맵 크기에 맞게 조정 (범위 조정)
         const maxX = (drawSizeRef.current.width - canvas.width) * 0.5;
         const maxY = (drawSizeRef.current.height - canvas.height) * 0.5;
-        position.current.x = Math.max(-maxX, Math.min(maxX, position.current.x));
-        position.current.y = Math.max(-maxY, Math.min(maxY, position.current.y));
+        position.current.x = Math.max(
+          -maxX,
+          Math.min(maxX, position.current.x)
+        );
+        position.current.y = Math.max(
+          -maxY,
+          Math.min(maxY, position.current.y)
+        );
 
         mouseMovement.current = { x: 0, y: 0 };
       }
 
       // 변환 적용
       ctx.save();
-      ctx.translate(canvas.width / 2 + position.current.x, canvas.height / 2 + position.current.y);
+      ctx.translate(
+        canvas.width / 2 + position.current.x,
+        canvas.height / 2 + position.current.y
+      );
 
       // 이미지 그리기
       ctx.drawImage(
@@ -417,27 +438,29 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     document.addEventListener('pointerlockchange', handlePointerLockChange);
 
     return () => {
-      document.removeEventListener('pointerlockchange', handlePointerLockChange);
+      document.removeEventListener(
+        'pointerlockchange',
+        handlePointerLockChange
+      );
     };
   }, [isGameStarted]);
 
   useEffect(() => {
     if (totalClick === 0) return;
 
-    setAccuracy(hitCount / totalClick * 100);
-  }, [totalClick])
-
+    setAccuracy((hitCount / totalClick) * 100);
+  }, [totalClick]);
 
   return (
     <div
       ref={containerRef}
-      className={`relative w-full h-full overflow-hidden flex items-center justify-center bg-black`}
+      className={`relative flex h-full w-full items-center justify-center overflow-hidden bg-black`}
     >
       <canvas
         ref={canvasRef}
-        className={`block bg-black ${gameMode === 'fullscreen' ? 'w-auto h-auto' : 'max-w-[calc(100vw-48px)] max-h-[calc(100vh-48px)]'}`}
+        className={`block bg-black ${gameMode === 'fullscreen' ? 'h-auto w-auto' : 'max-h-[calc(100vh-48px)] max-w-[calc(100vw-48px)]'}`}
         style={{
-          aspectRatio: selectedResolution.ratio
+          aspectRatio: selectedResolution.ratio,
         }}
         onMouseMove={handleMouseMove}
         onMouseDown={handleMouseDown}
@@ -452,7 +475,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       )}
       <Crosshair />
       {isGameStarted && !isGameOver ? (
-        <div className="absolute top-4 right-4 text-white bg-black bg-opacity-50 p-2 rounded min-w-[200px]">
+        <div className="absolute right-4 top-4 min-w-[200px] rounded bg-black bg-opacity-50 p-2 text-white">
           <div className="flex justify-between">
             <span>생성 간격:</span>
             <span>{targetConfig.spawnInterval.toFixed(0)}ms</span>
@@ -477,20 +500,27 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
           onRanking={() => setIsRankingOpen(true)}
           selectedResolution={selectedResolution}
           onResolutionChange={setSelectedResolution}
+          animate={false}
         />
       )}
-      {isGameOver && (
+      {isGameOver && !isRankingOpen && (
         <ResultMenu
           score={score}
           elapsedTime={elapsedTime}
           accuracy={accuracy}
           onRestart={handleRestart}
-          onMenu={() => setIsRankingOpen(true)}
+          onMenu={() => {
+            setIsGameOver(false);
+            setIsGameStarted(false);
+          }}
         />
       )}
       {isRankingOpen && (
-        <RankingBoard onClose={() => setIsRankingOpen(false)} />
+        <RankingBoard
+          onClose={() => setIsRankingOpen(false)}
+          animate={false}
+        />
       )}
     </div>
   );
-}; 
+};
