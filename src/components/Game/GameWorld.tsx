@@ -9,8 +9,9 @@ import ResultMenu from './menu/ResultMenu';
 import RankingBoard from '../game/ranking/RankingBoard';
 import { Resolution, DEFAULT_RESOLUTION } from './types/resolution';
 import { useImageLoader } from '../../hooks/useImageLoader';
-
 import { calculateAspectFit } from '../../utils/image';
+import { useGameState } from '../../hooks/useGameState';
+
 interface GameWorldProps {
   gameMode: 'fullscreen' | 'windowed';
   onGameModeChange?: (mode: 'fullscreen' | 'windowed') => void;
@@ -46,20 +47,15 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [targetConfig, setTargetConfig] =
     useState<TargetConfig>(initialTargetConfig);
-  const [elapsedTime, setElapsedTime] = useState(0);
-  const [isGameStarted, setIsGameStarted] = useState(false);
-  const [isGameOver, setIsGameOver] = useState(false);
-  const [score, setScore] = useState(0);
-  const [startTime, setStartTime] = useState<number | null>(null);
-  const [accuracy, setAccuracy] = useState(0);
-  const [hitCount, setHitCount] = useState(0);
-  const [totalClick, setTotalClick] = useState(0);
   const [isRankingOpen, setIsRankingOpen] = useState(false);
   const [selectedResolution, setSelectedResolution] =
     useState<Resolution>(DEFAULT_RESOLUTION);
   const borderOpacity = useRef(0.7);
   const fadeAnimationFrame = useRef<number | null>(null);
 
+  const [gameState, gameActions] = useGameState();
+
+  // 타겟 메니저 초기화화
   const initTargetManager = () => {
     targetManagerRef.current = new TargetManager(
       targetConfig,
@@ -73,27 +69,22 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
   // 게임 시작 핸들러
   const handleGameStart = () => {
-    setIsGameStarted(true);
-    setIsGameOver(false);
-    setStartTime(Date.now());
-    setElapsedTime(0);
-    setAccuracy(0);
-    setHitCount(0);
-    setTotalClick(0);
-    setScore(0);
+    gameActions.startGame();
     setTargetConfig(initialTargetConfig);
     targetManagerRef.current?.clearTargets();
     initTargetManager();
     canvasRef.current?.requestPointerLock();
   };
 
+  // 포인터 잠금 상태 변경 핸들러
   const handlePointerLockChange = () => {
     if (!canvasRef.current) return;
     isPointerLocked.current = document.pointerLockElement === canvasRef.current;
   };
 
+  // 마우스 이동 핸들러
   const handleMouseMove = (event: MouseEvent) => {
-    if (!isGameStarted) return;
+    if (!gameState.isGameStarted) return;
     if (isPointerLocked.current) {
       mouseMovement.current = {
         x: event.movementX,
@@ -102,8 +93,9 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     }
   };
 
+  // 마우스 클릭 핸들러
   const handleMouseDown = (event: MouseEvent) => {
-    if (!isGameStarted) return;
+    if (!gameState.isGameStarted) return;
     if (!canvasRef.current) return;
 
     if (!isPointerLocked.current) {
@@ -114,13 +106,13 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
       const hitTarget = targetManagerRef.current.checkHit(screenX, screenY);
       if (hitTarget) {
-        setHitCount((prev) => prev + 1);
-        setScore((prevScore) => prevScore + (hitTarget.score || 0));
+        gameActions.handleHit();
+        gameActions.addScore(hitTarget.score || 0);
         const updatedTargets = targetManagerRef.current.getTargets();
         setTargets(updatedTargets);
       }
 
-      setTotalClick((prevCount) => prevCount + 1);
+      gameActions.handleClick();
     }
   };
 
@@ -140,12 +132,11 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         containerRef.current &&
         !document.fullscreenElement
       ) {
-        // 사용자 상호작용 직후에 전체화면 요청
         requestAnimationFrame(() => {
           try {
             containerRef.current?.requestFullscreen();
           } catch (error) {
-            // 오류 무시
+            // 오류 무시: Chrome 브라우저에서 전체화면 모드 변경 시 버그 존재
           }
         });
       }
@@ -163,34 +154,29 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   // 캔버스 크기 설정
   useEffect(() => {
     const canvas = canvasRef.current;
+
     if (!canvas) return;
 
     const resizeCanvas = () => {
       if (gameMode === 'fullscreen') {
-        // 전체화면 모드에서는 선택된 해상도 비율 유지
         const resolutionRatio = selectedResolution.ratio;
         const screenRatio = window.innerWidth / window.innerHeight;
 
         if (screenRatio > resolutionRatio) {
-          // 화면이 더 넓은 경우 (세로로 꽉 차게)
           canvas.height = window.innerHeight;
           canvas.width = canvas.height * resolutionRatio;
         } else {
-          // 화면이 더 좁은 경우 (가로로 꽉 차게)
           canvas.width = window.innerWidth;
           canvas.height = canvas.width / resolutionRatio;
         }
       } else {
-        // 창 모드에서는 선택된 해상도 비율과 24px 여백 고려
-        const maxWidth = window.innerWidth - 48; // 양쪽 24px씩 여백
-        const maxHeight = window.innerHeight - 48; // 상하 24px씩 여백
+        const maxWidth = window.innerWidth - 48;
+        const maxHeight = window.innerHeight - 48;
 
-        // 선택된 해상도 비율 계산
         const targetRatio = selectedResolution.ratio;
         let width = maxWidth;
         let height = width / targetRatio;
 
-        // 높이가 너무 크면 높이 기준으로 재계산
         if (height > maxHeight) {
           height = maxHeight;
           width = height * targetRatio;
@@ -198,17 +184,6 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
         canvas.width = width;
         canvas.height = height;
-      }
-
-      // 이미지 크기 재계산
-      if (image && image.complete) {
-        calculateAspectFit(
-          image,
-          canvas.height,
-          canvas.width,
-          drawSizeRef.current,
-          2
-        );
       }
 
       if (targetManagerRef.current) {
@@ -226,10 +201,10 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
   // 타겟 생성 간격 점진적 감소
   useEffect(() => {
-    if (!isGameStarted) return;
+    if (!gameState.isGameStarted) return;
 
     const intervalId = setInterval(() => {
-      const elapsedSeconds = (Date.now() - startTime!) / 1000;
+      const elapsedSeconds = (Date.now() - gameState.startTime!) / 1000;
       const newInterval = Math.max(
         250, // 최소 간격 250ms
         1000 * Math.pow(0.98, elapsedSeconds) // 매초 2%씩 감소
@@ -242,9 +217,9 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     }, targetConfig.spawnInterval);
 
     return () => clearInterval(intervalId);
-  }, [targetConfig.spawnInterval, isGameStarted]);
+  }, [targetConfig.spawnInterval, gameState.isGameStarted]);
 
-  // 타겟 매니저 초기화 (한 번만)
+  // 초기 타겟 매니저 초기화
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -260,7 +235,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
   // 타겟 생성 간격 업데이트
   useEffect(() => {
-    if (!targetManagerRef.current || !isGameStarted) return;
+    if (!targetManagerRef.current || !gameState.isGameStarted) return;
 
     const spawnInterval = setInterval(() => {
       if (targetManagerRef.current) {
@@ -273,11 +248,11 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     }, targetConfig.spawnInterval);
 
     return () => clearInterval(spawnInterval);
-  }, [targetConfig.spawnInterval, isGameStarted]);
+  }, [targetConfig.spawnInterval, gameState.isGameStarted]);
 
-  // 타겟 상태 동기화 (16ms마다)
+  // 타겟 상태 동기화 (프레임 간격)
   useEffect(() => {
-    if (!targetManagerRef.current || !isGameStarted) return;
+    if (!targetManagerRef.current || !gameState.isGameStarted) return;
 
     const syncInterval = setInterval(() => {
       const updatedTargets = targetManagerRef.current?.getTargets() || [];
@@ -285,34 +260,29 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
       // 타겟이 10개가 되면 게임 종료
       if (updatedTargets.length >= 10) {
-        const endTime = Date.now();
-        const finalTime = (endTime - startTime!) / 1000;
-        setElapsedTime(finalTime);
-        setIsGameStarted(false);
-        setIsGameOver(true);
+        gameActions.endGame();
         document.exitPointerLock();
       }
     }, 16);
 
     return () => clearInterval(syncInterval);
-  }, [isGameStarted, startTime]);
+  }, [gameState.isGameStarted, gameActions]);
 
-  // 경과 시간 업데이트 (100ms 간격)
+  // 경과 시간 업데이트 (10ms 간격)
   useEffect(() => {
-    if (!isGameStarted || isGameOver) return;
+    if (!gameState.isGameStarted || gameState.isGameOver) return;
 
     const timer = setInterval(() => {
-      const elapsed = (Date.now() - startTime!) / 1000;
-      setElapsedTime(elapsed); // 소수점 유지
-    }, 100); // 더 자주 업데이트
+      gameActions.updatePlayTime();
+    }, 100);
 
     return () => clearInterval(timer);
-  }, [isGameStarted, isGameOver, startTime]);
+  }, [gameState.isGameStarted, gameState.isGameOver, gameActions]);
 
-  // 페이드아웃 애니메이션
+  // 타겟 컨테이너 페이드아웃 애니메이션
   const startFadeOut = () => {
     const startTime = Date.now();
-    const duration = 1000; // 1초 동안 페이드아웃
+    const duration = 1000;
 
     const animate = () => {
       const elapsed = Date.now() - startTime;
@@ -321,14 +291,14 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         borderOpacity.current = 0.7 * (1 - elapsed / duration);
         fadeAnimationFrame.current = requestAnimationFrame(animate);
       } else {
-        borderOpacity.current = 0; // 완전히 투명하게
+        borderOpacity.current = 0;
       }
     };
 
     animate();
   };
 
-  // 테두리 다시 표시
+  // 타겟 컨테이너 테두리 표시
   const showBorder = () => {
     if (fadeAnimationFrame.current) {
       fadeAnimationFrame.current = null;
@@ -338,17 +308,17 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
   // 게임 시작 시 페이드아웃 시작
   useEffect(() => {
-    if (isGameStarted) {
+    if (gameState.isGameStarted) {
       startFadeOut();
     }
-  }, [isGameStarted]);
+  }, [gameState.isGameStarted]);
 
   // 게임 종료 시 테두리 다시 표시
   useEffect(() => {
-    if (!isGameStarted) {
+    if (!gameState.isGameStarted) {
       showBorder();
     }
-  }, [isGameStarted]);
+  }, [gameState.isGameStarted]);
 
   // 렌더링
   useEffect(() => {
@@ -392,14 +362,14 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         mouseMovement.current = { x: 0, y: 0 };
       }
 
-      // 변환 적용
+      // 캔바스 변환 적용
       ctx.save();
       ctx.translate(
         canvas.width / 2 + position.current.x,
         canvas.height / 2 + position.current.y
       );
 
-      // 이미지 그리기
+      // 맵 이미지 그리기
       ctx.drawImage(
         image,
         -drawSizeRef.current.width / 2,
@@ -408,7 +378,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         drawSizeRef.current.height
       );
 
-      // 타겟 컨테이너 영역 테두리 그리기
+      // 타겟 컨테이너 테두리 그리기
       if (targetManagerRef.current) {
         const bounds = targetManagerRef.current.getMapBounds();
         ctx.strokeStyle = `rgba(255, 0, 0, ${borderOpacity.current})`;
@@ -422,11 +392,11 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     };
 
     render();
-  }, []); // isGameStarted가 변경될 때마다 렌더링 함수 재실행
+  }, []);
 
   // 마우스 이벤트 처리
   useEffect(() => {
-    if (!isGameStarted) return;
+    if (!gameState.isGameStarted) return;
     document.addEventListener('pointerlockchange', handlePointerLockChange);
 
     return () => {
@@ -435,13 +405,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         handlePointerLockChange
       );
     };
-  }, [isGameStarted]);
-
-  useEffect(() => {
-    if (totalClick === 0) return;
-
-    setAccuracy((hitCount / totalClick) * 100);
-  }, [totalClick]);
+  }, [gameState.isGameStarted]);
 
   // 컴포넌트 언마운트 시 애니메이션 프레임 정리
   useEffect(() => {
@@ -471,11 +435,11 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
           targets={targets}
           canvas={canvasRef.current}
           position={position.current}
-          isGameStarted={isGameStarted}
+          isGameStarted={gameState.isGameStarted}
         />
       )}
       <Crosshair />
-      {isGameStarted && !isGameOver ? (
+      {gameState.isGameStarted && !gameState.isGameOver ? (
         <div className="absolute right-4 top-4 min-w-[200px] rounded bg-black bg-opacity-50 p-2 text-white">
           <div className="flex justify-between">
             <span>생성 간격:</span>
@@ -483,19 +447,19 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
           </div>
           <div className="flex justify-between">
             <span>경과 시간:</span>
-            <span>{elapsedTime.toFixed(0)}초</span>
+            <span>{gameState.elapsedTime.toFixed(0)}초</span>
           </div>
           <div className="flex justify-between">
             <span>점수:</span>
-            <span>{score}</span>
+            <span>{gameState.score}</span>
           </div>
           <div className="flex justify-between">
             <span>정확도:</span>
-            <span>{accuracy?.toFixed(2) || 0}%</span>
+            <span>{gameState.accuracy?.toFixed(2) || 0}%</span>
           </div>
         </div>
       ) : null}
-      {!isGameStarted && !isGameOver && !isRankingOpen && (
+      {!gameState.isGameStarted && !gameState.isGameOver && !isRankingOpen && (
         <StartMenu
           onStart={handleGameStart}
           onRanking={() => setIsRankingOpen(true)}
@@ -504,15 +468,14 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
           animate={false}
         />
       )}
-      {isGameOver && !isRankingOpen && (
+      {gameState.isGameOver && !isRankingOpen && (
         <ResultMenu
-          score={score}
-          elapsedTime={elapsedTime}
-          accuracy={accuracy}
+          score={gameState.score}
+          elapsedTime={gameState.elapsedTime}
+          accuracy={gameState.accuracy}
           onRestart={handleGameStart}
           onMenu={() => {
-            setIsGameOver(false);
-            setIsGameStarted(false);
+            gameActions.resetGame();
           }}
         />
       )}
