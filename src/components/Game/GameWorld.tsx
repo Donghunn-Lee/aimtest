@@ -8,7 +8,9 @@ import { StartMenu } from './menu/StartMenu';
 import ResultMenu from './menu/ResultMenu';
 import RankingBoard from '../game/ranking/RankingBoard';
 import { Resolution, DEFAULT_RESOLUTION } from './types/resolution';
+import { useImageLoader } from '../../hooks/useImageLoader';
 
+import { calculateAspectFit } from '../../utils/image';
 interface GameWorldProps {
   gameMode: 'fullscreen' | 'windowed';
   onGameModeChange?: (mode: 'fullscreen' | 'windowed') => void;
@@ -27,7 +29,17 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const isPointerLocked = useRef(false);
   const mouseMovement = useRef({ x: 0, y: 0 });
   const position = useRef({ x: 0, y: 100 });
-  const imageRef = useRef<HTMLImageElement | null>(null);
+  const { image, status } = useImageLoader('/map.svg', (image) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    calculateAspectFit(
+      image,
+      canvas.height,
+      canvas.width,
+      drawSizeRef.current,
+      2
+    );
+  });
   const drawSizeRef = useRef({ width: 0, height: 0 });
   const [targets, setTargets] = useState<Target[]>([]);
   const targetManagerRef = useRef<TargetManager | null>(null);
@@ -74,57 +86,6 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     initTargetManager();
     canvasRef.current?.requestPointerLock();
   };
-
-  // 이미지 크기 계산 함수
-  const calculateImageSize = useCallback(
-    (canvas: HTMLCanvasElement, image: HTMLImageElement) => {
-      const imageAspect = image.width / image.height;
-      const canvasAspect = canvas.width / canvas.height;
-      let drawWidth = canvas.width;
-      let drawHeight = canvas.height;
-
-      if (imageAspect > canvasAspect) {
-        // 이미지가 더 넓은 경우
-        drawHeight = canvas.width / imageAspect;
-      } else {
-        // 이미지가 더 좁은 경우
-        drawWidth = canvas.height * imageAspect;
-      }
-
-      // 이미지를 배율
-      drawWidth *= 2;
-      drawHeight *= 2;
-      drawSizeRef.current = { width: drawWidth, height: drawHeight };
-    },
-    []
-  );
-
-  // 이미지 로드 함수
-  const loadImage = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    // 이미지가 이미 로드되어 있으면 크기만 재계산
-    if (imageRef.current && imageRef.current.complete) {
-      calculateImageSize(canvas, imageRef.current);
-      return;
-    }
-
-    // 새 이미지 로드
-    const image = new Image();
-    imageRef.current = image;
-
-    image.onload = () => {
-      calculateImageSize(canvas, image);
-      setImageLoaded(true);
-    };
-
-    image.onerror = (error) => {
-      console.error('Failed to load image:', error);
-    };
-
-    image.src = '/map.svg';
-  }, [calculateImageSize]);
 
   const handlePointerLockChange = () => {
     if (!canvasRef.current) return;
@@ -240,8 +201,14 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       }
 
       // 이미지 크기 재계산
-      if (imageRef.current && imageRef.current.complete) {
-        calculateImageSize(canvas, imageRef.current);
+      if (image && image.complete) {
+        calculateAspectFit(
+          image,
+          canvas.height,
+          canvas.width,
+          drawSizeRef.current,
+          2
+        );
       }
 
       if (targetManagerRef.current) {
@@ -255,12 +222,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     return () => {
       window.removeEventListener('resize', resizeCanvas);
     };
-  }, [gameMode, calculateImageSize, selectedResolution]);
-
-  // 이미지 로드 (한 번만 실행)
-  useEffect(() => {
-    loadImage();
-  }, [loadImage]);
+  }, [gameMode, selectedResolution]);
 
   // 타겟 생성 간격 점진적 감소
   useEffect(() => {
@@ -404,7 +366,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       ctx.fillStyle = '#000';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      if (!imageRef.current || !drawSizeRef.current.width) {
+      if (!image || !drawSizeRef.current.width) {
         requestAnimationFrame(render);
         return;
       }
@@ -439,7 +401,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
       // 이미지 그리기
       ctx.drawImage(
-        imageRef.current,
+        image,
         -drawSizeRef.current.width / 2,
         -drawSizeRef.current.height / 2,
         drawSizeRef.current.width,
