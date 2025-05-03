@@ -22,7 +22,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const isPointerLocked = useRef(false);
   const mouseMovement = useRef({ x: 0, y: 0 });
   const position = useRef({ x: 0, y: 100 });
-  const { image, status } = useImageLoader('/map.svg', (image) => {
+  const image = useImageLoader('/map.svg', (image) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     calculateAspectFit(
@@ -34,7 +34,6 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     );
   });
   const drawSizeRef = useRef({ width: 0, height: 0 });
-  const [imageLoaded, setImageLoaded] = useState(false);
   const [isRankingOpen, setIsRankingOpen] = useState(false);
   const [selectedResolution, setSelectedResolution] =
     useState<Resolution>(DEFAULT_RESOLUTION);

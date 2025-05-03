@@ -32,5 +32,5 @@ export function useImageLoader(
     };
   }, [src, onLoad]);
 
-  return { image: imgRef.current, status };
+  return imgRef.current;
 }
