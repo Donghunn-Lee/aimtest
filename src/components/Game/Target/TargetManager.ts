@@ -7,7 +7,7 @@ import {
 
 export class TargetManager {
   private targets: Target[] = [];
-  private config: TargetConfig;
+  private targetConfig: TargetConfig;
   private gameArea: { width: number; height: number };
   private nextId: number = 1;
   private mapBounds: { x: number; y: number; width: number; height: number };
@@ -22,16 +22,16 @@ export class TargetManager {
     this.targets = [];
     this.containerConfig = getDefaultConfig(resolution);
 
-    // 타겟 컨테이너 크기 계싼
+    // 타겟 컨테이너 크기 계산
     this.mapBounds = calculateContainerBounds(
       this.gameArea,
       this.containerConfig
     );
-    this.config = { ...config, size: this.mapBounds.width / 18 };
+    this.targetConfig = { ...config, size: this.mapBounds.width / 18 };
   }
 
   createTarget(): Target | null {
-    if (this.targets.length >= this.config.maxTargets) {
+    if (this.targets.length >= this.targetConfig.maxTargets) {
       return null;
     }
 
@@ -54,14 +54,16 @@ export class TargetManager {
 
   private generateTarget(): Target {
     // 맵 직사각형 영역 내에서 랜덤 위치 생성
+
+    console.log(this.targets);
     const mapX =
       this.mapBounds.x +
-      this.config.margin +
-      Math.random() * (this.mapBounds.width - 2 * this.config.margin);
+      this.targetConfig.margin +
+      Math.random() * (this.mapBounds.width - 2 * this.targetConfig.margin);
     const mapY =
       this.mapBounds.y +
-      this.config.margin +
-      Math.random() * (this.mapBounds.height - 2 * this.config.margin);
+      this.targetConfig.margin +
+      Math.random() * (this.mapBounds.height - 2 * this.targetConfig.margin);
 
     const id = this.nextId++;
 
@@ -69,7 +71,7 @@ export class TargetManager {
       id: id.toString(),
       x: mapX,
       y: mapY,
-      size: this.config.size,
+      size: this.targetConfig.size,
       hit: false,
       depth: 0,
       rotation: 0,

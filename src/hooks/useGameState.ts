@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 
-interface GameState {
+export interface GameState {
   isGameStarted: boolean;
   isGameOver: boolean;
   score: number;

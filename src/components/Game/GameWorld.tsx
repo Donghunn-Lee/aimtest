@@ -1,9 +1,7 @@
-import { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import type { MouseEvent } from 'react';
 import { Crosshair } from './Crosshair';
-import { TargetManager } from './target/TargetManager';
 import { TargetRenderer } from './target/TargetRenderer';
-import { Target, TargetConfig } from './target/types';
 import { StartMenu } from './menu/StartMenu';
 import ResultMenu from './menu/ResultMenu';
 import RankingBoard from '../game/ranking/RankingBoard';
@@ -11,18 +9,12 @@ import { Resolution, DEFAULT_RESOLUTION } from './types/resolution';
 import { useImageLoader } from '../../hooks/useImageLoader';
 import { calculateAspectFit } from '../../utils/image';
 import { useGameState } from '../../hooks/useGameState';
+import useTargetManager from '../../hooks/useTargetManager';
 
 interface GameWorldProps {
   gameMode: 'fullscreen' | 'windowed';
   onGameModeChange?: (mode: 'fullscreen' | 'windowed') => void;
 }
-
-const initialTargetConfig: TargetConfig = {
-  size: 50,
-  margin: 0,
-  maxTargets: 200,
-  spawnInterval: 1000,
-};
 
 export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -42,11 +34,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     );
   });
   const drawSizeRef = useRef({ width: 0, height: 0 });
-  const [targets, setTargets] = useState<Target[]>([]);
-  const targetManagerRef = useRef<TargetManager | null>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [targetConfig, setTargetConfig] =
-    useState<TargetConfig>(initialTargetConfig);
   const [isRankingOpen, setIsRankingOpen] = useState(false);
   const [selectedResolution, setSelectedResolution] =
     useState<Resolution>(DEFAULT_RESOLUTION);
@@ -54,25 +42,18 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const fadeAnimationFrame = useRef<number | null>(null);
 
   const [gameState, gameActions] = useGameState();
+  const [targetManagerState, targetManagerActions] = useTargetManager();
 
-  // 타겟 메니저 초기화화
-  const initTargetManager = () => {
-    targetManagerRef.current = new TargetManager(
-      targetConfig,
+  // 게임 시작 핸들러
+  const handleGameStart = () => {
+    gameActions.startGame();
+    targetManagerActions.init(
       {
         width: canvasRef.current?.width || 0,
         height: canvasRef.current?.height || 0,
       },
       selectedResolution.ratio
     );
-  };
-
-  // 게임 시작 핸들러
-  const handleGameStart = () => {
-    gameActions.startGame();
-    setTargetConfig(initialTargetConfig);
-    targetManagerRef.current?.clearTargets();
-    initTargetManager();
     canvasRef.current?.requestPointerLock();
   };
 
@@ -100,17 +81,14 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
     if (!isPointerLocked.current) {
       canvasRef.current.requestPointerLock();
-    } else if (targetManagerRef.current) {
+    } else if (targetManagerState) {
       const screenX = -position.current.x;
       const screenY = -position.current.y;
 
-      const hitTarget = targetManagerRef.current.checkHit(screenX, screenY);
-      if (hitTarget) {
+      targetManagerActions.checkHit(screenX, screenY, (target) => {
         gameActions.handleHit();
-        gameActions.addScore(hitTarget.score || 0);
-        const updatedTargets = targetManagerRef.current.getTargets();
-        setTargets(updatedTargets);
-      }
+        gameActions.addScore(target.score || 0);
+      });
 
       gameActions.handleClick();
     }
@@ -186,8 +164,8 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         canvas.height = height;
       }
 
-      if (targetManagerRef.current) {
-        targetManagerRef.current.updateGameArea(canvas.width, canvas.height);
+      if (targetManagerState) {
+        targetManagerActions.updateGameArea(canvas.width, canvas.height);
       }
     };
 
@@ -199,73 +177,58 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     };
   }, [gameMode, selectedResolution]);
 
-  // 타겟 생성 간격 점진적 감소
-  useEffect(() => {
-    if (!gameState.isGameStarted) return;
-
-    const intervalId = setInterval(() => {
-      const elapsedSeconds = (Date.now() - gameState.startTime!) / 1000;
-      const newInterval = Math.max(
-        250, // 최소 간격 250ms
-        1000 * Math.pow(0.98, elapsedSeconds) // 매초 2%씩 감소
-      );
-
-      setTargetConfig((prev) => ({
-        ...prev,
-        spawnInterval: newInterval,
-      }));
-    }, targetConfig.spawnInterval);
-
-    return () => clearInterval(intervalId);
-  }, [targetConfig.spawnInterval, gameState.isGameStarted]);
-
   // 초기 타겟 매니저 초기화
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    initTargetManager();
+    if (!gameState.isGameStarted) {
+      targetManagerActions.init(
+        {
+          width: canvas.width,
+          height: canvas.height,
+        },
+        selectedResolution.ratio
+      );
+    }
 
     return () => {
-      if (targetManagerRef.current) {
-        targetManagerRef.current.clearTargets();
+      if (!gameState.isGameStarted) {
+        targetManagerActions.clearTargets();
       }
     };
   }, [selectedResolution]);
 
+  // 타겟 생성 간격 점진적 감소
+  useEffect(() => {
+    if (!gameState.isGameStarted) return;
+
+    const intervalId = setInterval(() => {
+      targetManagerActions.decreaseSpawnInterval(gameState.startTime!);
+    }, targetManagerState.targetConfig.spawnInterval);
+
+    return () => clearInterval(intervalId);
+  }, [targetManagerState.targetConfig.spawnInterval, gameState.isGameStarted]);
+
   // 타겟 생성 간격 업데이트
   useEffect(() => {
-    if (!targetManagerRef.current || !gameState.isGameStarted) return;
+    if (!gameState.isGameStarted) return;
 
-    const spawnInterval = setInterval(() => {
-      if (targetManagerRef.current) {
-        const newTarget = targetManagerRef.current.createTarget();
-        if (newTarget) {
-          const updatedTargets = targetManagerRef.current.getTargets();
-          setTargets(updatedTargets);
-        }
-      }
-    }, targetConfig.spawnInterval);
-
-    return () => clearInterval(spawnInterval);
-  }, [targetConfig.spawnInterval, gameState.isGameStarted]);
+    const cleanup = targetManagerActions.updateSpawnInterval();
+    return cleanup;
+  }, [gameState.isGameStarted, targetManagerState.targetConfig.spawnInterval]);
 
   // 타겟 상태 동기화 (프레임 간격)
   useEffect(() => {
-    if (!targetManagerRef.current || !gameState.isGameStarted) return;
+    if (!gameState.isGameStarted) return;
 
-    const syncInterval = setInterval(() => {
-      const updatedTargets = targetManagerRef.current?.getTargets() || [];
-      setTargets(updatedTargets);
-
-      // 타겟이 10개가 되면 게임 종료
-      if (updatedTargets.length >= 10) {
+    const cleanup = targetManagerActions.syncTargets(() => {
+      if (targetManagerState.targets.length >= 10) {
         gameActions.endGame();
         document.exitPointerLock();
       }
-    }, 16);
-
-    return () => clearInterval(syncInterval);
+    });
+    return cleanup;
   }, [gameState.isGameStarted, gameActions]);
 
   // 경과 시간 업데이트 (10ms 간격)
@@ -379,12 +342,11 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       );
 
       // 타겟 컨테이너 테두리 그리기
-      if (targetManagerRef.current) {
-        const bounds = targetManagerRef.current.getMapBounds();
+      targetManagerActions.drawTargetContainer((bounds) => {
         ctx.strokeStyle = `rgba(255, 0, 0, ${borderOpacity.current})`;
         ctx.lineWidth = 3;
         ctx.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
-      }
+      });
 
       ctx.restore();
 
@@ -432,7 +394,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       />
       {canvasRef.current && (
         <TargetRenderer
-          targets={targets}
+          targets={targetManagerState.targets}
           canvas={canvasRef.current}
           position={position.current}
           isGameStarted={gameState.isGameStarted}
@@ -443,7 +405,9 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         <div className="absolute right-4 top-4 min-w-[200px] rounded bg-black bg-opacity-50 p-2 text-white">
           <div className="flex justify-between">
             <span>생성 간격:</span>
-            <span>{targetConfig.spawnInterval.toFixed(0)}ms</span>
+            <span>
+              {targetManagerState.targetConfig.spawnInterval.toFixed(0)}ms
+            </span>
           </div>
           <div className="flex justify-between">
             <span>경과 시간:</span>
