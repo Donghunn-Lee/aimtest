@@ -1,4 +1,4 @@
-import { Target, TargetConfig } from './types';
+import { Target, TargetConfig } from '../../../types/target';
 import {
   calculateContainerBounds,
   getDefaultConfig,
@@ -73,9 +73,6 @@ export class TargetManager {
       y: mapY,
       size: this.targetConfig.size,
       hit: false,
-      depth: 0,
-      rotation: 0,
-      scale: 1,
     };
   }
 
