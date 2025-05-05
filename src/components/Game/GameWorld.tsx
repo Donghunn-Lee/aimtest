@@ -10,6 +10,7 @@ import { useImageLoader } from '../../hooks/useImageLoader';
 import { useGameState } from '../../hooks/useGameState';
 import useTargetManager from '../../hooks/useTargetManager';
 import { clearCanvas, applyCanvasTransform } from '../../utils/canvas';
+import type { Position, Size, MouseMovement } from '../../types/game';
 
 interface GameWorldProps {
   gameMode: 'fullscreen' | 'windowed';
@@ -21,9 +22,9 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isPointerLocked = useRef(false);
-  const mouseMovement = useRef({ x: 0, y: 0 });
-  const position = useRef({ x: 0, y: 100 });
-  const drawSizeRef = useRef({ width: 0, height: 0 });
+  const mouseMovement = useRef<MouseMovement>({ x: 0, y: 0 });
+  const position = useRef<Position>({ x: 0, y: 100 });
+  const drawSizeRef = useRef<Size>({ width: 0, height: 0 });
   const image = useImageLoader({
     src: '/map.svg',
     canvas: canvasRef.current,
