@@ -7,9 +7,9 @@ import ResultMenu from './menu/ResultMenu';
 import RankingBoard from '../game/ranking/RankingBoard';
 import { Resolution, DEFAULT_RESOLUTION } from './types/resolution';
 import { useImageLoader } from '../../hooks/useImageLoader';
-import { calculateAspectFit } from '../../utils/image';
 import { useGameState } from '../../hooks/useGameState';
 import useTargetManager from '../../hooks/useTargetManager';
+import { clearCanvas, applyCanvasTransform } from '../../utils/canvas';
 
 interface GameWorldProps {
   gameMode: 'fullscreen' | 'windowed';
@@ -18,22 +18,18 @@ interface GameWorldProps {
 
 export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isPointerLocked = useRef(false);
   const mouseMovement = useRef({ x: 0, y: 0 });
   const position = useRef({ x: 0, y: 100 });
-  const image = useImageLoader('/map.svg', (image) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    calculateAspectFit(
-      image,
-      canvas.height,
-      canvas.width,
-      drawSizeRef.current,
-      2
-    );
-  });
   const drawSizeRef = useRef({ width: 0, height: 0 });
+  const image = useImageLoader({
+    src: '/map.svg',
+    canvas: canvasRef.current,
+    drawSize: drawSizeRef.current,
+  });
+
   const [isRankingOpen, setIsRankingOpen] = useState(false);
   const [selectedResolution, setSelectedResolution] =
     useState<Resolution>(DEFAULT_RESOLUTION);
@@ -42,6 +38,12 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
   const [gameState, gameActions] = useGameState();
   const [targetManagerState, targetManagerActions] = useTargetManager();
+
+  useEffect(() => {
+    if (canvasRef.current) {
+      ctxRef.current = canvasRef.current.getContext('2d');
+    }
+  }, [canvasRef.current]);
 
   // 게임 시작 핸들러
   const handleGameStart = () => {
@@ -268,16 +270,11 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     borderOpacity.current = 0.7;
   };
 
-  // 게임 시작 시 페이드아웃 시작
+  // 게임 시작 및 종료 테두리 표시
   useEffect(() => {
     if (gameState.isGameStarted) {
       startFadeOut();
-    }
-  }, [gameState.isGameStarted]);
-
-  // 게임 종료 시 테두리 다시 표시
-  useEffect(() => {
-    if (!gameState.isGameStarted) {
+    } else {
       showBorder();
     }
   }, [gameState.isGameStarted]);
@@ -285,18 +282,11 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   // 렌더링
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-      console.error('Canvas context not available');
-      return;
-    }
+    const ctx = ctxRef.current;
+    if (!canvas || !ctx) return;
 
     const render = () => {
-      // 화면 지우기
-      ctx.fillStyle = '#000';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      clearCanvas(ctx, canvas.width, canvas.height);
 
       if (!image || !drawSizeRef.current.width) {
         requestAnimationFrame(render);
@@ -324,12 +314,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         mouseMovement.current = { x: 0, y: 0 };
       }
 
-      // 캔바스 변환 적용
-      ctx.save();
-      ctx.translate(
-        canvas.width / 2 + position.current.x,
-        canvas.height / 2 + position.current.y
-      );
+      applyCanvasTransform(ctx, canvas.width, canvas.height, position.current);
 
       // 맵 이미지 그리기
       ctx.drawImage(

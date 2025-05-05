@@ -1,20 +1,33 @@
 import { useEffect, useRef, useState } from 'react';
+import { calculateAspectFit } from '../utils/image';
 
-export function useImageLoader(
-  src: string,
-  onLoad?: (image: HTMLImageElement) => void
-) {
+interface ImageLoaderProps {
+  src: string;
+  canvas: HTMLCanvasElement | null;
+  drawSize: { width: number; height: number };
+}
+export function useImageLoader({ src, canvas, drawSize }: ImageLoaderProps) {
   const imgRef = useRef<HTMLImageElement>(new Image());
   const [status, setStatus] = useState<'loading' | 'loaded' | 'error'>(
     'loading'
   );
+  const onLoad = () => {
+    if (!canvas) return;
+    calculateAspectFit(
+      imgRef.current,
+      canvas.height,
+      canvas.width,
+      drawSize,
+      2
+    );
+  };
 
   useEffect(() => {
     const img = imgRef.current;
 
     const handleLoad = () => {
       setStatus('loaded');
-      onLoad?.(imgRef.current);
+      onLoad?.();
     };
 
     const handleError = () => {
