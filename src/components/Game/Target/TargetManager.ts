@@ -1,9 +1,9 @@
-import { Target, TargetConfig } from '../../../types/target';
+import { Target, TargetConfig } from '@/types/target';
 import {
   calculateContainerBounds,
   getDefaultConfig,
   ContainerConfig,
-} from './TargetContainer';
+} from '@/components/game/target/TargetContainer';
 
 export class TargetManager {
   private targets: Target[] = [];

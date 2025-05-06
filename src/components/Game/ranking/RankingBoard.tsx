@@ -1,13 +1,12 @@
-import { useEffect } from 'react';
-import { useState } from 'react';
-import Button from '../../common/Button';
-import { PanelOverlay } from '../../common/PanelOverlay';
+import { useEffect, useState } from 'react';
+import Button from '@/components/common/Button';
+import { PanelOverlay } from '@/components/common/PanelOverlay';
 import {
   getRankings,
   type RankingResponse,
   formatAccuracy,
   formatPlayTime,
-} from '../../../services/rankingService';
+} from '@/services/rankingService';
 
 const tableHeaderStyles =
   'px-1.5 py-[0.2rem] text-left text-[10px] font-medium text-gray-300 uppercase tracking-wider md:px-2 md:py-[0.25rem] md:text-xs lg:px-3 lg:py-[0.3rem] lg:text-sm';

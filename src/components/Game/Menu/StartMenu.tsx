@@ -1,7 +1,7 @@
-import Button from '../../common/Button';
-import { PanelOverlay } from '../../common/PanelOverlay';
-import { ResolutionSettings } from '../settings/ResolutionSettings';
-import { Resolution, DEFAULT_RESOLUTION } from '../types/resolution';
+import Button from '@/components/common/Button';
+import { PanelOverlay } from '@/components/common/PanelOverlay';
+import { ResolutionSettings } from '@/components/game/settings/ResolutionSettings';
+import { Resolution } from '@/types/resolution';
 
 interface StartMenuProps {
   onStart: () => void;

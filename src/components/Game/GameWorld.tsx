@@ -1,16 +1,16 @@
 import { useRef, useEffect, useState } from 'react';
 import type { MouseEvent } from 'react';
-import { Crosshair } from './Crosshair';
-import { TargetRenderer } from './target/TargetRenderer';
-import { StartMenu } from './menu/StartMenu';
-import ResultMenu from './menu/ResultMenu';
-import RankingBoard from '../game/ranking/RankingBoard';
-import { Resolution, DEFAULT_RESOLUTION } from './types/resolution';
-import { useImageLoader } from '../../hooks/useImageLoader';
-import { useGameState } from '../../hooks/useGameState';
-import useTargetManager from '../../hooks/useTargetManager';
-import { clearCanvas, applyCanvasTransform } from '../../utils/canvas';
-import type { Position, Size, MouseMovement } from '../../types/game';
+import { Crosshair } from '@components/game/Crosshair';
+import { TargetRenderer } from '@components/game/target/TargetRenderer';
+import { StartMenu } from '@components/game/menu/StartMenu';
+import ResultMenu from '@components/game/menu/ResultMenu';
+import RankingBoard from '@components/game/ranking/RankingBoard';
+import { Resolution, DEFAULT_RESOLUTION } from '@/types/resolution';
+import { useImageLoader } from '@hooks/useImageLoader';
+import { useGameState } from '@hooks/useGameState';
+import useTargetManager from '@hooks/useTargetManager';
+import { clearCanvas, applyCanvasTransform } from '@utils/canvas';
+import type { Position, Size, MouseMovement } from '@/types/game';
 
 interface GameWorldProps {
   gameMode: 'fullscreen' | 'windowed';

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
-import { Target } from '../../../types/target';
-import { applyCanvasTransform, drawCircle } from '../../../utils/canvas';
-import { CANVAS_COLORS, CANVAS_STYLES } from '../../../constants/canvas';
+import { Target } from '@/types/target';
+import { applyCanvasTransform, drawCircle } from '@/utils/canvas';
+import { CANVAS_COLORS, CANVAS_STYLES } from '@/constants/canvas';
 
 interface TargetRendererProps {
   targets: Target[];

@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import Button from '../../common/Button';
-import { PanelOverlay } from '../../common/PanelOverlay';
+import Button from '@/components/common/Button';
+import { PanelOverlay } from '@/components/common/PanelOverlay';
 import {
   addRanking,
   formatRankingScore,
   formatAccuracy,
   formatPlayTime,
-} from '../../../services/rankingService';
+} from '@/services/rankingService';
 
 interface ResultMenuProps {
   score: number;
