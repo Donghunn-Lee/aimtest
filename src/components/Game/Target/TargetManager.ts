@@ -3,7 +3,7 @@ import {
   calculateContainerBounds,
   getDefaultConfig,
   ContainerConfig,
-} from '@/components/game/target/TargetContainer';
+} from '@/utils/targetContainer';
 
 export class TargetManager {
   private targets: Target[] = [];
