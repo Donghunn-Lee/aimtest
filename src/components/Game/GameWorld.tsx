@@ -392,12 +392,6 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       {gameState.isGameStarted && !gameState.isGameOver ? (
         <div className="absolute right-4 top-4 min-w-[200px] rounded bg-black bg-opacity-50 p-2 text-white">
           <div className="flex justify-between">
-            <span>생성 간격:</span>
-            <span>
-              {targetManagerState.targetConfig.spawnInterval.toFixed(0)}ms
-            </span>
-          </div>
-          <div className="flex justify-between">
             <span>경과 시간:</span>
             <span>{gameState.elapsedTime.toFixed(0)}초</span>
           </div>
