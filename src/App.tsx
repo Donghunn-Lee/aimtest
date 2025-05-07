@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+
 import { GameWorld } from '@/components/game/GameWorld';
 
 function App() {

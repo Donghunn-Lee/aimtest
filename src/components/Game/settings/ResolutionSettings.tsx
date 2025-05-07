@@ -1,5 +1,7 @@
 import React from 'react';
+
 import Button from '@/components/common/Button';
+
 import { Resolution, RESOLUTIONS } from '@/types/resolution';
 
 interface ResolutionSettingsProps {

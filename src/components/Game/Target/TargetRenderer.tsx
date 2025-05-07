@@ -1,6 +1,9 @@
 import { useEffect, useRef } from 'react';
+
 import { Target } from '@/types/target';
+
 import { applyCanvasTransform, drawCircle } from '@/utils/canvas';
+
 import { CANVAS_COLORS, CANVAS_STYLES } from '@/constants/canvas';
 
 interface TargetRendererProps {
@@ -21,6 +24,11 @@ export const TargetRenderer = ({
   useEffect(() => {
     ctxRef.current = canvas.getContext('2d');
   }, [canvas]);
+
+  useEffect(() => {
+    const animationFrame = requestAnimationFrame(render);
+    return () => cancelAnimationFrame(animationFrame);
+  }, [targets, position, isGameStarted]);
 
   const renderTarget = (target: Target) => {
     const ctx = ctxRef.current;
@@ -48,17 +56,8 @@ export const TargetRenderer = ({
       isGameStarted ? CANVAS_COLORS.TARGET_OUTER : CANVAS_COLORS.TARGET_INNER
     );
 
-    // 안쪽 원 (3점)
+    // 중앙 원 (3점)
     drawCircle(ctx, screenX, screenY, size / 6, CANVAS_COLORS.TARGET_INNER);
-
-    // 정중앙 점
-    drawCircle(
-      ctx,
-      screenX,
-      screenY,
-      CANVAS_STYLES.TARGET_CENTER_RADIUS,
-      CANVAS_COLORS.TARGET_CENTER
-    );
 
     // 점수 표시
     ctx.font = CANVAS_STYLES.TARGET_FONT;
@@ -76,11 +75,6 @@ export const TargetRenderer = ({
 
     requestAnimationFrame(render);
   };
-
-  useEffect(() => {
-    const animationFrame = requestAnimationFrame(render);
-    return () => cancelAnimationFrame(animationFrame);
-  }, [targets, position, isGameStarted]);
 
   return null;
 };

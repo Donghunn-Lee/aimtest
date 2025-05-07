@@ -1,6 +1,7 @@
 import Button from '@/components/common/Button';
 import { PanelOverlay } from '@/components/common/PanelOverlay';
 import { ResolutionSettings } from '@/components/game/settings/ResolutionSettings';
+
 import { Resolution } from '@/types/resolution';
 
 interface StartMenuProps {

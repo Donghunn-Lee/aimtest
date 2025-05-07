@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+
 import Button from '@/components/common/Button';
 import { PanelOverlay } from '@/components/common/PanelOverlay';
+
 import {
   addRanking,
   formatRankingScore,
@@ -34,8 +36,34 @@ const ResultMenu = ({
   const [showTime, setShowTime] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
 
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const name = e.target.value.trim();
+    setUserName(name);
+    setIsNameValid(name.length >= 2 && name.length <= 20);
+  };
+
+  const onSave = async () => {
+    if (!isNameValid) return;
+
+    try {
+      setIsSaving(true);
+      setSaveStatus('idle');
+      await addRanking({
+        user_name: userName,
+        score,
+        accuracy,
+        play_time: elapsedTime,
+      });
+      setSaveStatus('success');
+    } catch (error) {
+      console.error('Failed to save ranking:', error);
+      setSaveStatus('error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   useEffect(() => {
-    // 메뉴 표시
     const menuTimer = setTimeout(() => {
       setShowMenu(true);
     }, 300);
@@ -78,10 +106,8 @@ const ResultMenu = ({
       if (progress < 1) {
         animationFrameId = requestAnimationFrame(animate);
       } else {
-        // 점수 애니메이션 완료 후 정확도 표시
         setTimeout(() => {
           setShowAccuracy(true);
-          // 정확도 표시 후 시간 표시
           setTimeout(() => {
             setShowTime(true);
           }, 500);
@@ -99,33 +125,6 @@ const ResultMenu = ({
       cancelAnimationFrame(animationFrameId);
     };
   }, [score, showMenu]);
-
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const name = e.target.value.trim();
-    setUserName(name);
-    setIsNameValid(name.length >= 2 && name.length <= 20);
-  };
-
-  const onSave = async () => {
-    if (!isNameValid) return;
-
-    try {
-      setIsSaving(true);
-      setSaveStatus('idle');
-      await addRanking({
-        user_name: userName,
-        score,
-        accuracy,
-        play_time: elapsedTime,
-      });
-      setSaveStatus('success');
-    } catch (error) {
-      console.error('Failed to save ranking:', error);
-      setSaveStatus('error');
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   return (
     <PanelOverlay animate={true}>
@@ -199,6 +198,8 @@ const ResultMenu = ({
               Failed to save ranking. Please try again.
             </p>
           )}
+        </div>
+        <div className="w-full max-w-sm space-y-2 md:space-y-3">
           <Button
             onClick={onRestart}
             variant="primary"
@@ -213,11 +214,12 @@ const ResultMenu = ({
             size="sm"
             fullWidth
           >
-            MAIN MENU
+            MENU
           </Button>
         </div>
       </div>
     </PanelOverlay>
   );
 };
+
 export default ResultMenu;

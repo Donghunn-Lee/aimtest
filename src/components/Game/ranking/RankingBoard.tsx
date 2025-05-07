@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+
 import Button from '@/components/common/Button';
 import { PanelOverlay } from '@/components/common/PanelOverlay';
 import {
@@ -8,17 +9,18 @@ import {
   formatPlayTime,
 } from '@/services/rankingService';
 
-const tableHeaderStyles =
-  'px-1.5 py-[0.2rem] text-left text-[10px] font-medium text-gray-300 uppercase tracking-wider md:px-2 md:py-[0.25rem] md:text-xs lg:px-3 lg:py-[0.3rem] lg:text-sm';
-const tableCellStyles =
-  'px-1.5 py-[0.2rem] whitespace-nowrap text-[10px] text-gray-300 md:px-2 md:py-[0.25rem] md:text-xs lg:px-3 lg:py-[0.3rem] lg:text-sm';
-const tableCellBoldStyles =
-  'px-1.5 py-[0.2rem] whitespace-nowrap text-[10px] font-medium text-white md:px-2 md:py-[0.25rem] md:text-xs lg:px-3 lg:py-[0.3rem] lg:text-sm';
-
 interface RankingBoardProps {
   onClose: () => void;
   animate?: boolean;
 }
+
+const styles = {
+  header:
+    'px-1.5 py-[0.2rem] text-left text-[10px] font-medium text-gray-300 uppercase tracking-wider md:px-2 md:py-[0.25rem] md:text-xs lg:px-3 lg:py-[0.3rem] lg:text-sm',
+  cell: 'px-1.5 py-[0.2rem] whitespace-nowrap text-[10px] text-gray-300 md:px-2 md:py-[0.25rem] md:text-xs lg:px-3 lg:py-[0.3rem] lg:text-sm',
+  cellBold:
+    'px-1.5 py-[0.2rem] whitespace-nowrap text-[10px] font-medium text-white md:px-2 md:py-[0.25rem] md:text-xs lg:px-3 lg:py-[0.3rem] lg:text-sm',
+};
 
 const RankingBoard = ({ onClose, animate = true }: RankingBoardProps) => {
   const [ranking, setRanking] = useState<RankingResponse[]>([]);
@@ -26,7 +28,6 @@ const RankingBoard = ({ onClose, animate = true }: RankingBoardProps) => {
   useEffect(() => {
     const fetchRanking = async () => {
       const ranking = await getRankings();
-      console.log(ranking);
       setRanking(ranking);
     };
 
@@ -53,27 +54,25 @@ const RankingBoard = ({ onClose, animate = true }: RankingBoardProps) => {
           <table className="min-w-full border-separate border-spacing-0">
             <thead>
               <tr>
-                <th className={`${tableHeaderStyles} rounded-tl-md`}>Name</th>
-                <th className={tableHeaderStyles}>Score</th>
-                <th className={tableHeaderStyles}>Accuracy</th>
-                <th className={tableHeaderStyles}>Play Time</th>
-                <th className={`${tableHeaderStyles} rounded-tr-md`}>Date</th>
+                <th className={`${styles.header} rounded-tl-md`}>Name</th>
+                <th className={styles.header}>Score</th>
+                <th className={styles.header}>Accuracy</th>
+                <th className={styles.header}>Play Time</th>
+                <th className={`${styles.header} rounded-tr-md`}>Date</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/20">
-              {ranking.map((item, index) => (
+              {ranking.map((item) => (
                 <tr key={item.id}>
-                  <td className={tableCellBoldStyles}>{item.user_name}</td>
-                  <td className={tableCellStyles}>
-                    {item.score.toLocaleString()}
-                  </td>
-                  <td className={tableCellStyles}>
+                  <td className={styles.cellBold}>{item.user_name}</td>
+                  <td className={styles.cell}>{item.score.toLocaleString()}</td>
+                  <td className={styles.cell}>
                     {formatAccuracy(item.accuracy)}
                   </td>
-                  <td className={tableCellStyles}>
+                  <td className={styles.cell}>
                     {formatPlayTime(item.play_time)}
                   </td>
-                  <td className={tableCellStyles}>
+                  <td className={styles.cell}>
                     {new Date(item.created_at).toLocaleDateString()}
                   </td>
                 </tr>
@@ -85,4 +84,5 @@ const RankingBoard = ({ onClose, animate = true }: RankingBoardProps) => {
     </PanelOverlay>
   );
 };
+
 export default RankingBoard;

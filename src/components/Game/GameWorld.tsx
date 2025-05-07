@@ -1,16 +1,19 @@
-import { useRef, useEffect, useState } from 'react';
-import type { MouseEvent } from 'react';
+import { useRef, useEffect, useState, type MouseEvent } from 'react';
+
 import { Crosshair } from '@components/game/Crosshair';
 import { TargetRenderer } from '@components/game/target/TargetRenderer';
 import { StartMenu } from '@components/game/menu/StartMenu';
 import ResultMenu from '@components/game/menu/ResultMenu';
 import RankingBoard from '@components/game/ranking/RankingBoard';
+
 import { Resolution, DEFAULT_RESOLUTION } from '@/types/resolution';
+import type { Position, Size, MouseMovement } from '@/types/game';
+
 import { useImageLoader } from '@hooks/useImageLoader';
 import { useGameState } from '@hooks/useGameState';
 import useTargetManager from '@hooks/useTargetManager';
+
 import { clearCanvas, applyCanvasTransform } from '@utils/canvas';
-import type { Position, Size, MouseMovement } from '@/types/game';
 
 interface GameWorldProps {
   gameMode: 'fullscreen' | 'windowed';
@@ -25,26 +28,20 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const mouseMovement = useRef<MouseMovement>({ x: 0, y: 0 });
   const position = useRef<Position>({ x: 0, y: 100 });
   const drawSizeRef = useRef<Size>({ width: 0, height: 0 });
+  const borderOpacity = useRef(0.7);
+  const fadeAnimationFrame = useRef<number | null>(null);
+
+  const [isRankingOpen, setIsRankingOpen] = useState(false);
+  const [selectedResolution, setSelectedResolution] =
+    useState<Resolution>(DEFAULT_RESOLUTION);
+
   const image = useImageLoader({
     src: '/map.svg',
     canvas: canvasRef.current,
     drawSize: drawSizeRef.current,
   });
-
-  const [isRankingOpen, setIsRankingOpen] = useState(false);
-  const [selectedResolution, setSelectedResolution] =
-    useState<Resolution>(DEFAULT_RESOLUTION);
-  const borderOpacity = useRef(0.7);
-  const fadeAnimationFrame = useRef<number | null>(null);
-
   const [gameState, gameActions] = useGameState();
   const [targetManagerState, targetManagerActions] = useTargetManager();
-
-  useEffect(() => {
-    if (canvasRef.current) {
-      ctxRef.current = canvasRef.current.getContext('2d');
-    }
-  }, [canvasRef.current]);
 
   // 게임 시작 핸들러
   const handleGameStart = () => {
@@ -96,45 +93,65 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     }
   };
 
-  // 전체화면 모드 처리
+  // 타겟 컨테이너 페이드아웃 애니메이션
+  const startFadeOut = () => {
+    const startTime = Date.now();
+    const duration = 1000;
+
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      if (elapsed < duration) {
+        // 1초 동안 0.7에서 0으로 선형적으로 감소
+        borderOpacity.current = 0.7 * (1 - elapsed / duration);
+        fadeAnimationFrame.current = requestAnimationFrame(animate);
+      } else {
+        borderOpacity.current = 0;
+      }
+    };
+
+    animate();
+  };
+
+  // 타겟 컨테이너 테두리 표시
+  const showBorder = () => {
+    if (fadeAnimationFrame.current) {
+      fadeAnimationFrame.current = null;
+    }
+    borderOpacity.current = 0.7;
+  };
+
+  // Canvas context 초기화
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (canvasRef.current) {
+      ctxRef.current = canvasRef.current.getContext('2d');
+    }
+  }, [canvasRef.current]);
 
-    const handleFullscreenChange = () => {
-      if (!document.fullscreenElement && gameMode === 'fullscreen') {
-        onGameModeChange?.('windowed');
-      }
-    };
+  // 초기 타겟 매니저 초기화
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-    const handleClick = () => {
-      if (
-        gameMode === 'fullscreen' &&
-        containerRef.current &&
-        !document.fullscreenElement
-      ) {
-        requestAnimationFrame(() => {
-          try {
-            containerRef.current?.requestFullscreen();
-          } catch (error) {
-            // 오류 무시: Chrome 브라우저에서 전체화면 모드 변경 시 버그 존재
-          }
-        });
-      }
-    };
-
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    document.addEventListener('click', handleClick);
+    if (!gameState.isGameStarted) {
+      targetManagerActions.init(
+        {
+          width: canvas.width,
+          height: canvas.height,
+        },
+        selectedResolution.ratio
+      );
+    }
 
     return () => {
-      document.removeEventListener('fullscreenchange', handleFullscreenChange);
-      document.removeEventListener('click', handleClick);
+      if (!gameState.isGameStarted) {
+        targetManagerActions.clearTargets();
+      }
     };
-  }, [gameMode, onGameModeChange]);
+  }, [selectedResolution]);
 
   // 캔버스 크기 설정
   useEffect(() => {
     const canvas = canvasRef.current;
-
     if (!canvas) return;
 
     const resizeCanvas = () => {
@@ -179,27 +196,40 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     };
   }, [gameMode, selectedResolution]);
 
-  // 초기 타겟 매니저 초기화
+  // 전체화면 모드 처리
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!containerRef.current) return;
 
-    if (!gameState.isGameStarted) {
-      targetManagerActions.init(
-        {
-          width: canvas.width,
-          height: canvas.height,
-        },
-        selectedResolution.ratio
-      );
-    }
-
-    return () => {
-      if (!gameState.isGameStarted) {
-        targetManagerActions.clearTargets();
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement && gameMode === 'fullscreen') {
+        onGameModeChange?.('windowed');
       }
     };
-  }, [selectedResolution]);
+
+    const handleClick = () => {
+      if (
+        gameMode === 'fullscreen' &&
+        containerRef.current &&
+        !document.fullscreenElement
+      ) {
+        requestAnimationFrame(() => {
+          try {
+            containerRef.current?.requestFullscreen();
+          } catch (error) {
+            // 오류 무시: Chrome 브라우저에서 전체화면 모드 변경 시 버그 존재
+          }
+        });
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('click', handleClick);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('click', handleClick);
+    };
+  }, [gameMode, onGameModeChange]);
 
   // 타겟 생성 간격 점진적 감소
   useEffect(() => {
@@ -233,7 +263,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     return cleanup;
   }, [gameState.isGameStarted, gameActions]);
 
-  // 경과 시간 업데이트 (10ms 간격)
+  // 경과 시간 업데이트 (100ms 간격)
   useEffect(() => {
     if (!gameState.isGameStarted || gameState.isGameOver) return;
 
@@ -244,32 +274,18 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     return () => clearInterval(timer);
   }, [gameState.isGameStarted, gameState.isGameOver, gameActions]);
 
-  // 타겟 컨테이너 페이드아웃 애니메이션
-  const startFadeOut = () => {
-    const startTime = Date.now();
-    const duration = 1000;
+  // 마우스 이벤트 처리
+  useEffect(() => {
+    if (!gameState.isGameStarted) return;
+    document.addEventListener('pointerlockchange', handlePointerLockChange);
 
-    const animate = () => {
-      const elapsed = Date.now() - startTime;
-      if (elapsed < duration) {
-        // 1초 동안 0.7에서 0으로 선형적으로 감소
-        borderOpacity.current = 0.7 * (1 - elapsed / duration);
-        fadeAnimationFrame.current = requestAnimationFrame(animate);
-      } else {
-        borderOpacity.current = 0;
-      }
+    return () => {
+      document.removeEventListener(
+        'pointerlockchange',
+        handlePointerLockChange
+      );
     };
-
-    animate();
-  };
-
-  // 타겟 컨테이너 테두리 표시
-  const showBorder = () => {
-    if (fadeAnimationFrame.current) {
-      fadeAnimationFrame.current = null;
-    }
-    borderOpacity.current = 0.7;
-  };
+  }, [gameState.isGameStarted]);
 
   // 게임 시작 및 종료 테두리 표시
   useEffect(() => {
@@ -279,6 +295,15 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       showBorder();
     }
   }, [gameState.isGameStarted]);
+
+  // 컴포넌트 언마운트 시 애니메이션 프레임 정리
+  useEffect(() => {
+    return () => {
+      if (fadeAnimationFrame.current) {
+        cancelAnimationFrame(fadeAnimationFrame.current);
+      }
+    };
+  }, []);
 
   // 렌더링
   useEffect(() => {
@@ -339,28 +364,6 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     };
 
     render();
-  }, []);
-
-  // 마우스 이벤트 처리
-  useEffect(() => {
-    if (!gameState.isGameStarted) return;
-    document.addEventListener('pointerlockchange', handlePointerLockChange);
-
-    return () => {
-      document.removeEventListener(
-        'pointerlockchange',
-        handlePointerLockChange
-      );
-    };
-  }, [gameState.isGameStarted]);
-
-  // 컴포넌트 언마운트 시 애니메이션 프레임 정리
-  useEffect(() => {
-    return () => {
-      if (fadeAnimationFrame.current) {
-        cancelAnimationFrame(fadeAnimationFrame.current);
-      }
-    };
   }, []);
 
   return (

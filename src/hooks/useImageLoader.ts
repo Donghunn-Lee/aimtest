@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+
 import { calculateAspectFit } from '@/utils/image';
 
 interface ImageLoaderProps {
@@ -6,6 +7,7 @@ interface ImageLoaderProps {
   canvas: HTMLCanvasElement | null;
   drawSize: { width: number; height: number };
 }
+
 export function useImageLoader({ src, canvas, drawSize }: ImageLoaderProps) {
   const imgRef = useRef<HTMLImageElement>(new Image());
   const [status, setStatus] = useState<'loading' | 'loaded' | 'error'>(
