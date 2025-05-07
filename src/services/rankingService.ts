@@ -1,7 +1,5 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:3001/api';
-
 export interface RankingData {
   user_name: string;
   score: number;
@@ -21,7 +19,7 @@ export interface RankingResponse {
 // API
 export const addRanking = async (data: RankingData): Promise<void> => {
   try {
-    await axios.post(`${API_BASE_URL}/rankings`, data);
+    await axios.post(`${process.env.REACT_APP_API_BASE_URL}/rankings`, data);
   } catch (error) {
     console.error('Error adding ranking:', error);
     throw error;
@@ -30,7 +28,9 @@ export const addRanking = async (data: RankingData): Promise<void> => {
 
 export const getRankings = async (): Promise<RankingResponse[]> => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/rankings`);
+    const response = await axios.get(
+      `${process.env.REACT_APP_API_BASE_URL}/rankings`
+    );
     return response.data;
   } catch (error) {
     console.error('Error getting rankings:', error);
@@ -42,7 +42,9 @@ export const getUserRankings = async (
   userName: string
 ): Promise<RankingResponse[]> => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/rankings/${userName}`);
+    const response = await axios.get(
+      `${process.env.REACT_APP_API_BASE_URL}/rankings/${userName}`
+    );
     return response.data;
   } catch (error) {
     console.error('Error getting user rankings:', error);
