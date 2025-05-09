@@ -1,0 +1,33 @@
+version: '3'
+services:
+  frontend:
+    build: .
+    ports:
+      - '3000:3000'
+    depends_on:
+      - backend
+
+  backend:
+    build: ./server
+    ports:
+      - '3001:3001'
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_USER=aimtest_user
+      - DB_PASSWORD="!@12aimtest"
+      - DB_NAME=aimtest
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: aimtest
+      MYSQL_USER: aimtest_user
+      MYSQL_PASSWORD: '!@12aimtest'
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
