@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.json({ message: 'AIM Game Server' });
+  res.json({ message: 'AIM TEST Server' });
 });
 
 app.use('/api/rankings', rankingsRouter);
