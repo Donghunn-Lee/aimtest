@@ -13,7 +13,8 @@ jobs:
       - name: Build and save Docker images
         run: |
           docker compose build
-          docker save frontend backend db > images.tar
+          docker pull mysql:8.0
+          docker save frontend backend mysql:8.0 > images.tar
 
       - name: Deploy to EC2
         uses: appleboy/scp-action@v0.1.7
