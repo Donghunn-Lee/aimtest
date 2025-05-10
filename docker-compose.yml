@@ -4,9 +4,11 @@ services:
     build: .
     image: frontend
     ports:
-      - '3000:3000'
+      - '80:3000'
     depends_on:
       - backend
+    environment:
+      - REACT_APP_API_BASE_URL=http://backend:3001/api
     deploy:
       resources:
         limits:
