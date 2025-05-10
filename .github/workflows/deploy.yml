@@ -22,7 +22,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: 'images.tar,docker-compose.yml'
+          source: 'images.tar,docker-compose.yml,server'
           target: '/home/ubuntu'
 
       - name: Execute remote commands
