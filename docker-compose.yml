@@ -22,7 +22,7 @@ services:
       - DB_NAME=aimtest
 
   db:
-    image: mysql:8.0
+    image: db
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: aimtest
