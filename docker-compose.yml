@@ -2,6 +2,7 @@ version: '3'
 services:
   frontend:
     build: .
+    image: frontend
     ports:
       - '3000:3000'
     depends_on:
@@ -9,6 +10,7 @@ services:
 
   backend:
     build: ./server
+    image: backend
     ports:
       - '3001:3001'
     depends_on:
