@@ -23,7 +23,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           source: 'images.tar'
-          target: '/home/ubuntu'
+          target: '/home/ubuntu/aimtest'
 
       - name: Execute remote commands
         uses: appleboy/ssh-action@v1.0.3
