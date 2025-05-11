@@ -21,6 +21,7 @@ services:
       - '3001:3001'
     depends_on:
       - db
+    command: bash -c 'while !</dev/tcp/db/3306; do sleep 1; done; npm start'
     environment:
       - DB_HOST=db
       - DB_USER=aimtest_user
@@ -44,6 +45,12 @@ services:
       MYSQL_INNODB_FLUSH_LOG_AT_TRX_COMMIT: 2
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test:
+        ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-proot']
+      interval: 5s
+      timeout: 5s
+      retries: 20
     deploy:
       resources:
         limits:
