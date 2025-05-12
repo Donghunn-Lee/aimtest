@@ -8,6 +8,13 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3001;
 
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  console.log('Headers:', req.headers);
+  next();
+});
+
 app.use(cors());
 app.use(express.json());
 
@@ -16,6 +23,14 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/rankings', rankingsRouter);
+
+// Catch-all route for debugging
+app.use('*', (req, res) => {
+  console.log(
+    `[${new Date().toISOString()}] Unhandled route: ${req.method} ${req.originalUrl}`
+  );
+  res.status(404).json({ error: 'Not found' });
+});
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
