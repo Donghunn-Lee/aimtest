@@ -25,7 +25,7 @@ app.get('/', (req, res) => {
 app.use('/api/rankings', rankingsRouter);
 
 // Catch-all route for debugging
-app.use('*', (req, res) => {
+app.all('*', (req, res) => {
   console.log(
     `[${new Date().toISOString()}] Unhandled route: ${req.method} ${req.originalUrl}`
   );
