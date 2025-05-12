@@ -37,15 +37,23 @@ export function useImageLoader({ src, canvas, drawSize }: ImageLoaderProps) {
       console.error('Failed to load image:', src);
     };
 
+    const handleResize = () => {
+      if (status === 'loaded') {
+        onLoad?.();
+      }
+    };
+
     img.src = src;
     img.onload = handleLoad;
     img.onerror = handleError;
+    window.addEventListener('resize', handleResize);
 
     return () => {
       img.onload = null;
       img.onerror = null;
+      window.removeEventListener('resize', handleResize);
     };
-  }, [src, onLoad]);
+  }, [src, onLoad, status]);
 
   return imgRef.current;
 }
