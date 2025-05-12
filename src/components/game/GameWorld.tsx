@@ -11,6 +11,7 @@ import { TargetRenderer } from '@components/game/target/TargetRenderer';
 import { StartMenu } from '@components/game/menu/StartMenu';
 import ResultMenu from '@components/game/menu/ResultMenu';
 import RankingBoard from '@components/game/ranking/RankingBoard';
+import { GameStatus } from '@components/game/GameStatus';
 
 import { Resolution, DEFAULT_RESOLUTION } from '@/types/resolution';
 import type { Position, Size, MouseMovement } from '@/types/game';
@@ -443,24 +444,12 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       )}
       <Crosshair />
       {gameState.isGameStarted && !gameState.isGameOver ? (
-        <div className="absolute right-4 top-4 min-w-[200px] rounded bg-black bg-opacity-50 p-2 text-white">
-          <div className="flex justify-between">
-            <span>경과 시간:</span>
-            <span>{gameState.elapsedTime.toFixed(0)}초</span>
-          </div>
-          <div className="flex justify-between">
-            <span>점수:</span>
-            <span>{gameState.score}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>정확도:</span>
-            <span>{gameState.accuracy?.toFixed(2) || 0}%</span>
-          </div>
-          <div className="flex justify-between">
-            <span>마우스 민감도:</span>
-            <span>{sensitivityDisplay.toFixed(1)}</span>
-          </div>
-        </div>
+        <GameStatus
+          elapsedTime={gameState.elapsedTime}
+          score={gameState.score}
+          accuracy={gameState.accuracy}
+          sensitivity={sensitivityDisplay}
+        />
       ) : null}
       {!gameState.isGameStarted && !gameState.isGameOver && !isRankingOpen && (
         <StartMenu
