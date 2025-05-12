@@ -1,7 +1,10 @@
 version: '3'
 services:
   frontend:
-    build: .
+    build:
+      context: .
+      args:
+        - REACT_APP_API_BASE_URL=${REACT_APP_API_BASE_URL}
     image: frontend
     ports:
       - '80:3000'
