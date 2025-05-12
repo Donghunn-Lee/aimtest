@@ -1,4 +1,10 @@
-import { useRef, useEffect, useState, type MouseEvent } from 'react';
+import {
+  useRef,
+  useEffect,
+  useState,
+  type MouseEvent,
+  useCallback,
+} from 'react';
 
 import { Crosshair } from '@components/game/Crosshair';
 import { TargetRenderer } from '@components/game/target/TargetRenderer';
@@ -30,10 +36,12 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const drawSizeRef = useRef<Size>({ width: 0, height: 0 });
   const borderOpacity = useRef(0.7);
   const fadeAnimationFrame = useRef<number | null>(null);
+  const mouseSensitivity = useRef(1);
 
   const [isRankingOpen, setIsRankingOpen] = useState(false);
   const [selectedResolution, setSelectedResolution] =
     useState<Resolution>(DEFAULT_RESOLUTION);
+  const [sensitivityDisplay, setSensitivityDisplay] = useState(1);
 
   const image = useImageLoader({
     src: '/map.svg',
@@ -320,6 +328,34 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     };
   }, []);
 
+  // 키보드 이벤트 핸들러
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (!gameState.isGameStarted) return;
+
+      if (event.key === '[') {
+        // 민감도 감소 (최소 0.1)
+        const newSensitivity = Math.max(0.1, mouseSensitivity.current - 0.1);
+        mouseSensitivity.current = newSensitivity;
+        setSensitivityDisplay(newSensitivity);
+      } else if (event.key === ']') {
+        // 민감도 증가 (최대 5.0)
+        const newSensitivity = Math.min(5.0, mouseSensitivity.current + 0.1);
+        mouseSensitivity.current = newSensitivity;
+        setSensitivityDisplay(newSensitivity);
+      }
+    },
+    [gameState.isGameStarted]
+  );
+
+  // 키보드 이벤트 리스너 설정
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleKeyDown]);
+
   // 렌더링
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -336,9 +372,11 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
       // 위치 업데이트
       if (isPointerLocked.current) {
-        // 마우스 움직임의 반대 방향으로 이동 (속도 조정)
-        position.current.x -= mouseMovement.current.x * 1;
-        position.current.y -= mouseMovement.current.y * 1;
+        // 마우스 움직임의 반대 방향으로 이동 (민감도 적용)
+        position.current.x -=
+          mouseMovement.current.x * mouseSensitivity.current;
+        position.current.y -=
+          mouseMovement.current.y * mouseSensitivity.current;
 
         // 이동 제한을 맵 크기에 맞게 조정 (범위 조정)
         const maxX = (drawSizeRef.current.width - canvas.width) * 0.5;
@@ -417,6 +455,10 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
           <div className="flex justify-between">
             <span>정확도:</span>
             <span>{gameState.accuracy?.toFixed(2) || 0}%</span>
+          </div>
+          <div className="flex justify-between">
+            <span>마우스 민감도:</span>
+            <span>{sensitivityDisplay.toFixed(1)}</span>
           </div>
         </div>
       ) : null}

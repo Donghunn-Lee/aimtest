@@ -9,6 +9,7 @@ export interface GameState {
   accuracy: number;
   hitCount: number;
   totalClick: number;
+  mouseSensitivity: number;
 }
 
 interface GameStateActions {
@@ -19,6 +20,7 @@ interface GameStateActions {
   handleHit: () => void;
   handleClick: () => void;
   updatePlayTime: () => void;
+  setMouseSensitivity: (sensitivity: number) => void;
 }
 
 export const useGameState = (): [GameState, GameStateActions] => {
@@ -30,6 +32,7 @@ export const useGameState = (): [GameState, GameStateActions] => {
   const [accuracy, setAccuracy] = useState(0);
   const [hitCount, setHitCount] = useState(0);
   const [totalClick, setTotalClick] = useState(0);
+  const [mouseSensitivity, setMouseSensitivity] = useState(1);
 
   const startGame = useCallback(() => {
     setIsGameStarted(true);
@@ -96,6 +99,7 @@ export const useGameState = (): [GameState, GameStateActions] => {
     accuracy,
     hitCount,
     totalClick,
+    mouseSensitivity,
   };
 
   const actions: GameStateActions = {
@@ -106,6 +110,7 @@ export const useGameState = (): [GameState, GameStateActions] => {
     handleHit,
     handleClick,
     updatePlayTime,
+    setMouseSensitivity,
   };
 
   return [gameState, actions];
