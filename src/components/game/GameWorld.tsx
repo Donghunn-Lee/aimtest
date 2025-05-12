@@ -53,13 +53,23 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       },
       selectedResolution.ratio
     );
-    canvasRef.current?.requestPointerLock();
+    try {
+      canvasRef.current?.requestPointerLock();
+    } catch (error) {
+      // 포인터락 요청 실패 시 게임 시작 취소
+      gameActions.resetGame();
+    }
   };
 
   // 포인터 잠금 상태 변경 핸들러
   const handlePointerLockChange = () => {
     if (!canvasRef.current) return;
     isPointerLocked.current = document.pointerLockElement === canvasRef.current;
+
+    // 포인터락이 해제되었을 때 게임 상태 처리
+    if (!isPointerLocked.current && gameState.isGameStarted) {
+      gameActions.endGame();
+    }
   };
 
   // 마우스 이동 핸들러
@@ -79,7 +89,14 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     if (!canvasRef.current) return;
 
     if (!isPointerLocked.current) {
-      canvasRef.current.requestPointerLock();
+      // 게임이 시작된 상태에서만 포인터락 요청
+      if (gameState.isGameStarted) {
+        try {
+          canvasRef.current.requestPointerLock();
+        } catch (error) {
+          // 포인터락 요청 실패 시 무시
+        }
+      }
     } else if (targetManagerState) {
       const screenX = -position.current.x;
       const screenY = -position.current.y;
@@ -274,11 +291,9 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     return () => clearInterval(timer);
   }, [gameState.isGameStarted, gameState.isGameOver, gameActions]);
 
-  // 마우스 이벤트 처리
+  // 포인터락 이벤트 리스너 설정
   useEffect(() => {
-    if (!gameState.isGameStarted) return;
     document.addEventListener('pointerlockchange', handlePointerLockChange);
-
     return () => {
       document.removeEventListener(
         'pointerlockchange',
