@@ -449,6 +449,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
           score={gameState.score}
           accuracy={gameState.accuracy}
           sensitivity={sensitivityDisplay}
+          gameMode={gameMode}
         />
       ) : null}
       {!gameState.isGameStarted && !gameState.isGameOver && !isRankingOpen && (
