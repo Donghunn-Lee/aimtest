@@ -38,6 +38,7 @@ const ResultMenu = ({
   const [showMenu, setShowMenu] = useState(false);
   const [rank, setRank] = useState<number | null>(null);
   const [showRank, setShowRank] = useState(false);
+  const [isRestartEnabled, setIsRestartEnabled] = useState(false);
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.value.trim();
@@ -78,6 +79,9 @@ const ResultMenu = ({
         setShowAccuracy(true);
         setTimeout(() => {
           setShowTime(true);
+          setTimeout(() => {
+            setIsRestartEnabled(true);
+          }, 1000);
         }, 300);
       }, 300);
       return () => clearTimeout(menuTimer);
@@ -119,6 +123,10 @@ const ResultMenu = ({
               getScoreRank(score).then((rank) => {
                 setRank(rank);
                 setShowRank(true);
+                // 모든 정보가 표시된 후 RESTART 버튼 활성화
+                setTimeout(() => {
+                  setIsRestartEnabled(true);
+                }, 300);
               });
             }, 300);
           }, 300);
@@ -223,10 +231,14 @@ const ResultMenu = ({
 
         <div className="flex w-full space-x-2">
           <Button
-            onClick={onRestart}
+            onClick={isRestartEnabled ? onRestart : undefined}
             variant="primary"
             size="sm"
             fullWidth
+            disabled={!isRestartEnabled}
+            className={`transition-all duration-500 ${
+              isRestartEnabled ? 'opacity-100' : 'opacity-50'
+            }`}
           >
             RESTART
           </Button>
