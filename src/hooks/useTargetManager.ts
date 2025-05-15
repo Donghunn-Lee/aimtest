@@ -1,6 +1,6 @@
 import { useCallback, useState, useRef } from 'react';
 
-import { TargetManager } from '@/components/game/target/TargetManager';
+import { TargetManager } from '@/components/game/core/target/TargetManager';
 
 import type { Target, TargetConfig } from '@/types/target';
 

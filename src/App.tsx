@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 
-import { GameWorld } from '@/components/game/GameWorld';
+import { GameWorld } from '@/components/game/core/GameWorld';
 
 function App() {
   const [gameMode, setGameMode] = useState<'fullscreen' | 'windowed' | null>(

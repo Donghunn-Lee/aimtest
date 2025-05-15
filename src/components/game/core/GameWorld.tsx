@@ -6,13 +6,13 @@ import {
   useCallback,
 } from 'react';
 
-import { Crosshair } from '@components/game/Crosshair';
-import { TargetRenderer } from '@components/game/target/TargetRenderer';
+import { Crosshair } from '@components/game/ui/Crosshair';
+import { TargetRenderer } from '@/components/game/core/target/TargetRenderer';
 import { StartMenu } from '@components/game/menu/StartMenu';
 import ResultMenu from '@components/game/menu/ResultMenu';
 import RankingBoard from '@components/game/ranking/RankingBoard';
-import { GameStatus } from '@components/game/GameStatus';
-import GameGuide from './GameGuide';
+import { GameStatus } from '@/components/game/ui/GameStatus';
+import GameGuide from '../ui/GameGuide';
 
 import { Resolution, DEFAULT_RESOLUTION } from '@/types/resolution';
 import type { Position, Size, MouseMovement } from '@/types/game';
