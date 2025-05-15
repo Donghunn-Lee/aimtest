@@ -88,8 +88,8 @@ const useTargetManager = (): [TargetManagerState, TargetManagerActions] => {
   const decreaseSpawnInterval = useCallback((startTime: number) => {
     const elapsedSeconds = (Date.now() - startTime) / 1000;
     const newInterval = Math.max(
-      250, // 최소 간격 250ms
-      1000 * Math.pow(0.98, elapsedSeconds) // 매초 2%씩 감소
+      300, // 최소 간격 300ms
+      1000 * Math.pow(0.982, elapsedSeconds) // 타겟 생성 시마다 1.8%씩 감소
     );
     setTargetConfig((prev) => ({
       ...prev,
