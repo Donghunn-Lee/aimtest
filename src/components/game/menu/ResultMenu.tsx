@@ -8,6 +8,7 @@ import {
   formatRankingScore,
   formatAccuracy,
   formatPlayTime,
+  getScoreRank,
 } from '@/services/rankingService';
 
 interface ResultMenuProps {
@@ -35,6 +36,8 @@ const ResultMenu = ({
   const [showAccuracy, setShowAccuracy] = useState(false);
   const [showTime, setShowTime] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [rank, setRank] = useState<number | null>(null);
+  const [showRank, setShowRank] = useState(false);
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.value.trim();
@@ -106,11 +109,19 @@ const ResultMenu = ({
       if (progress < 1) {
         animationFrameId = requestAnimationFrame(animate);
       } else {
+        // 점수 애니메이션이 끝나면 순차적으로 정보 표시
         setTimeout(() => {
           setShowAccuracy(true);
           setTimeout(() => {
             setShowTime(true);
-          }, 500);
+            setTimeout(() => {
+              // 등수는 마지막에 조회하고 표시
+              getScoreRank(score).then((rank) => {
+                setRank(rank);
+                setShowRank(true);
+              });
+            }, 300);
+          }, 300);
         }, 300);
       }
     };
@@ -136,7 +147,7 @@ const ResultMenu = ({
         <h2 className="mb-2 text-center text-lg font-bold text-white md:text-xl lg:text-2xl">
           Game Over
         </h2>
-        <div className="space-y-1 text-center text-white">
+        <div className="h-[110px] space-y-1 text-center text-white md:h-[130px] lg:h-[140px]">
           <p className="text-base md:text-lg lg:text-xl">
             Score: {formatRankingScore(displayScore)}
           </p>
@@ -156,8 +167,16 @@ const ResultMenu = ({
           >
             Time: {formatPlayTime(elapsedTime)}
           </p>
+          <p
+            className={`text-base transition-all duration-1000 md:text-lg lg:text-xl ${
+              showRank ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+            }`}
+          >
+            {rank !== null ? `Rank: #${rank.toLocaleString()}` : 'Rank: #-'}
+          </p>
         </div>
-        <div className="w-full max-w-sm space-y-2 md:space-y-3">
+
+        {saveStatus === 'idle' && (
           <div className="space-y-1">
             <input
               type="text"
@@ -179,6 +198,8 @@ const ResultMenu = ({
               )}
             </div>
           </div>
+        )}
+        {saveStatus === 'idle' && (
           <Button
             onClick={onSave}
             disabled={!isNameValid || isSaving}
@@ -188,18 +209,19 @@ const ResultMenu = ({
           >
             {isSaving ? 'Saving...' : 'SAVE'}
           </Button>
-          {saveStatus === 'success' && (
-            <p className="text-center text-green-500">
-              Ranking saved successfully!
-            </p>
-          )}
-          {saveStatus === 'error' && (
-            <p className="text-center text-red-500">
-              Failed to save ranking. Please try again.
-            </p>
-          )}
-        </div>
-        <div className="w-full max-w-sm space-y-2 md:space-y-3">
+        )}
+        {saveStatus === 'success' && (
+          <p className="text-center text-green-500">
+            Ranking saved successfully!
+          </p>
+        )}
+        {saveStatus === 'error' && (
+          <p className="text-center text-red-500">
+            Failed to save ranking. Please try again.
+          </p>
+        )}
+
+        <div className="flex w-full space-x-2">
           <Button
             onClick={onRestart}
             variant="primary"

@@ -20,7 +20,7 @@ export const PanelOverlay = ({
             : ''
         } ${className}`}
       >
-        <div className="rounded-lg bg-black bg-opacity-60 p-2 shadow-lg backdrop-blur-sm md:p-4 lg:p-6 xl:p-8">
+        <div className="rounded-lg bg-black bg-opacity-60 p-4 shadow-lg backdrop-blur-sm lg:p-6 xl:p-8">
           {children}
         </div>
       </div>
