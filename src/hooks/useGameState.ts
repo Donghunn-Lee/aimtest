@@ -70,11 +70,12 @@ export const useGameState = (): [GameState, GameStateActions] => {
   }, []);
 
   const handleHit = useCallback(() => {
-    setHitCount((prev) => prev + 1);
-    if (totalClick > 0) {
-      setAccuracy(((hitCount + 1) / (totalClick + 1)) * 100);
-    }
-  }, [hitCount, totalClick]);
+    setHitCount((prevHitCount) => {
+      const newHitCount = prevHitCount + 1;
+      setAccuracy((newHitCount / (totalClick + 1)) * 100);
+      return newHitCount;
+    });
+  }, [totalClick]);
 
   const handleClick = useCallback(() => {
     setTotalClick((prev) => prev + 1);
