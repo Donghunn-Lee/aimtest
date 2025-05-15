@@ -21,8 +21,8 @@ export const StartMenu = ({
 }: StartMenuProps) => {
   return (
     <PanelOverlay animate={animate}>
-      <div className="flex flex-col items-center justify-center space-y-2 px-4 md:px-5 lg:space-y-4 lg:px-6 xl:space-y-6 xl:text-ellipsis xl:px-8">
-        <h2 className="mb-2 text-center text-lg font-bold text-white md:mb-3 md:text-xl lg:text-2xl xl:text-3xl">
+      <div className="flex flex-col items-center justify-center space-y-2 px-1 md:px-1 lg:space-y-4 lg:px-6 xl:space-y-6 xl:text-ellipsis xl:px-8">
+        <h2 className="mb-2 text-center text-lg font-bold text-white md:mb-3 md:text-lg lg:text-2xl xl:text-3xl">
           FPS Aim Test
         </h2>
 

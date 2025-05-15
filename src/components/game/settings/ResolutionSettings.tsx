@@ -15,7 +15,7 @@ export const ResolutionSettings: React.FC<ResolutionSettingsProps> = ({
 }) => {
   return (
     <div className="mb-4">
-      <label className="mb-2 block text-sm font-medium text-gray-300 md:text-base lg:text-lg">
+      <label className="md:text-md mb-2 block text-sm font-medium text-gray-300 lg:text-lg">
         해상도 설정
       </label>
       <div className="flex flex-wrap gap-2">
