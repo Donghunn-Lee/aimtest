@@ -80,8 +80,14 @@ const ResultMenu = ({
         setTimeout(() => {
           setShowTime(true);
           setTimeout(() => {
-            setIsRestartEnabled(true);
-          }, 1000);
+            // 0점은 unranked로 표시
+            setRank(null);
+            setShowRank(true);
+            // 모든 정보가 표시된 후 RESTART 버튼 활성화
+            setTimeout(() => {
+              setIsRestartEnabled(true);
+            }, 300);
+          }, 300);
         }, 300);
       }, 300);
       return () => clearTimeout(menuTimer);
