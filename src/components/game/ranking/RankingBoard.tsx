@@ -20,6 +20,10 @@ const styles = {
   cell: 'px-1.5 py-[0.2rem] whitespace-nowrap text-[10px] text-gray-300 md:px-2 md:py-[0.25rem] md:text-xs lg:px-3 lg:py-[0.3rem] lg:text-sm',
   cellBold:
     'px-1.5 py-[0.2rem] whitespace-nowrap text-[10px] font-medium text-white md:px-2 md:py-[0.25rem] md:text-xs lg:px-3 lg:py-[0.3rem] lg:text-sm',
+  rankCell: 'w-8 text-center',
+  rank1: 'text-yellow-400 font-bold',
+  rank2: 'text-gray-300 font-bold',
+  rank3: 'text-amber-600 font-bold',
 };
 
 const RankingBoard = ({ onClose, animate = true }: RankingBoardProps) => {
@@ -33,6 +37,19 @@ const RankingBoard = ({ onClose, animate = true }: RankingBoardProps) => {
 
     fetchRanking();
   }, []);
+
+  const getRankStyle = (index: number) => {
+    switch (index) {
+      case 0:
+        return styles.rank1;
+      case 1:
+        return styles.rank2;
+      case 2:
+        return styles.rank3;
+      default:
+        return '';
+    }
+  };
 
   return (
     <PanelOverlay animate={animate}>
@@ -54,7 +71,12 @@ const RankingBoard = ({ onClose, animate = true }: RankingBoardProps) => {
           <table className="min-w-full border-separate border-spacing-0">
             <thead>
               <tr>
-                <th className={`${styles.header} rounded-tl-md`}>Name</th>
+                <th
+                  className={`${styles.header} ${styles.rankCell} rounded-tl-md`}
+                >
+                  Rank
+                </th>
+                <th className={styles.header}>Name</th>
                 <th className={styles.header}>Score</th>
                 <th className={styles.header}>Accuracy</th>
                 <th className={styles.header}>Play Time</th>
@@ -62,8 +84,13 @@ const RankingBoard = ({ onClose, animate = true }: RankingBoardProps) => {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/20 overflow-y-auto">
-              {ranking.map((item) => (
+              {ranking.map((item, index) => (
                 <tr key={item.id}>
+                  <td
+                    className={`${styles.cell} ${styles.rankCell} ${getRankStyle(index)}`}
+                  >
+                    {index + 1}
+                  </td>
                   <td className={styles.cellBold}>{item.user_name}</td>
                   <td className={styles.cell}>{item.score.toLocaleString()}</td>
                   <td className={styles.cell}>
