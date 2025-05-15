@@ -55,9 +55,12 @@ const RankingBoard = ({ onClose, animate = true }: RankingBoardProps) => {
     <PanelOverlay animate={animate}>
       <div className="mx-auto w-full max-w-[660px] space-y-1 p-0.5 md:space-y-1.5 md:p-0.5 lg:space-y-2 lg:p-1">
         <div className="flex items-center justify-between">
-          <h1 className="text-base font-bold text-white md:text-lg lg:text-xl">
-            Ranking Board
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-base font-bold text-white md:text-lg lg:text-xl">
+              Ranking Board
+            </h1>
+            <span className="text-xs text-gray-400 md:text-sm">(Top 100)</span>
+          </div>
           <Button
             onClick={onClose}
             variant="danger"
