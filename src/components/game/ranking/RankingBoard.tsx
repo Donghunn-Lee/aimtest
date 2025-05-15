@@ -46,11 +46,11 @@ const RankingBoard = ({ onClose, animate = true }: RankingBoardProps) => {
             variant="danger"
             size="sm"
           >
-            Close
+            ←
           </Button>
         </div>
 
-        <div className="overflow-x-auto rounded-md border border-white/30">
+        <div className="max-h-[240px] overflow-y-auto rounded-md border border-white/30 md:max-h-[320px] lg:max-h-[400px] xl:max-h-[480px]">
           <table className="min-w-full border-separate border-spacing-0">
             <thead>
               <tr>
@@ -61,7 +61,7 @@ const RankingBoard = ({ onClose, animate = true }: RankingBoardProps) => {
                 <th className={`${styles.header} rounded-tr-md`}>Date</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/20">
+            <tbody className="divide-y divide-white/20 overflow-y-auto">
               {ranking.map((item) => (
                 <tr key={item.id}>
                   <td className={styles.cellBold}>{item.user_name}</td>
