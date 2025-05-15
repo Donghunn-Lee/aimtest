@@ -23,7 +23,7 @@ const styles = {
   rankCell: 'w-8 text-center',
   rank1: 'text-yellow-400 font-bold',
   rank2: 'text-gray-300 font-bold',
-  rank3: 'text-amber-600 font-bold',
+  rank3: 'text-amber-500 font-bold',
 };
 
 const RankingBoard = ({ onClose, animate = true }: RankingBoardProps) => {
