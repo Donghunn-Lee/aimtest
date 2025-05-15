@@ -67,45 +67,49 @@ const RankingBoard = ({ onClose, animate = true }: RankingBoardProps) => {
           </Button>
         </div>
 
-        <div className="max-h-[240px] overflow-y-auto rounded-md border border-white/30 md:max-h-[320px] lg:max-h-[400px] xl:max-h-[480px]">
-          <table className="min-w-full border-separate border-spacing-0">
-            <thead>
-              <tr>
-                <th
-                  className={`${styles.header} ${styles.rankCell} rounded-tl-md`}
-                >
-                  Rank
-                </th>
-                <th className={styles.header}>Name</th>
-                <th className={styles.header}>Score</th>
-                <th className={styles.header}>Accuracy</th>
-                <th className={styles.header}>Play Time</th>
-                <th className={`${styles.header} rounded-tr-md`}>Date</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/20 overflow-y-auto">
-              {ranking.map((item, index) => (
-                <tr key={item.id}>
-                  <td
-                    className={`${styles.cell} ${styles.rankCell} ${getRankStyle(index)}`}
+        <div className="rounded-md border border-white/30 p-1">
+          <div className="max-h-[240px] overflow-y-auto md:max-h-[320px] lg:max-h-[400px] xl:max-h-[480px] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:p-2 hover:[&::-webkit-scrollbar-thumb]:bg-white/30 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1.5">
+            <table className="min-w-full border-separate border-spacing-0">
+              <thead>
+                <tr>
+                  <th
+                    className={`${styles.header} ${styles.rankCell} rounded-tl-md`}
                   >
-                    {index + 1}
-                  </td>
-                  <td className={styles.cellBold}>{item.user_name}</td>
-                  <td className={styles.cell}>{item.score.toLocaleString()}</td>
-                  <td className={styles.cell}>
-                    {formatAccuracy(item.accuracy)}
-                  </td>
-                  <td className={styles.cell}>
-                    {formatPlayTime(item.play_time)}
-                  </td>
-                  <td className={styles.cell}>
-                    {new Date(item.created_at).toLocaleDateString()}
-                  </td>
+                    Rank
+                  </th>
+                  <th className={styles.header}>Name</th>
+                  <th className={styles.header}>Score</th>
+                  <th className={styles.header}>Accuracy</th>
+                  <th className={styles.header}>Play Time</th>
+                  <th className={`${styles.header} rounded-tr-md`}>Date</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-white/20 overflow-y-auto">
+                {ranking.map((item, index) => (
+                  <tr key={item.id}>
+                    <td
+                      className={`${styles.cell} ${styles.rankCell} ${getRankStyle(index)}`}
+                    >
+                      {index + 1}
+                    </td>
+                    <td className={styles.cellBold}>{item.user_name}</td>
+                    <td className={styles.cell}>
+                      {item.score.toLocaleString()}
+                    </td>
+                    <td className={styles.cell}>
+                      {formatAccuracy(item.accuracy)}
+                    </td>
+                    <td className={styles.cell}>
+                      {formatPlayTime(item.play_time)}
+                    </td>
+                    <td className={styles.cell}>
+                      {new Date(item.created_at).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </PanelOverlay>
