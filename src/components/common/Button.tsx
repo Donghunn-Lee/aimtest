@@ -15,7 +15,7 @@ const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const baseStyles = `rounded-md font-medium focus:outline-none ${!disabled && 'transition-all duration-100 ease-in-out focus:ring-2 focus:ring-offset-2'} flex items-center justify-center`;
+  const baseStyles = `rounded-md font-medium focus:outline-none ${!disabled && 'transition-all duration-100 ease-in-out focus:ring-2 focus:ring-offset-2'} flex items-center justify-center leading-none`;
 
   const variantStyles = {
     primary: `bg-blue-600 text-white ${!disabled && 'hover:bg-blue-700 focus:ring-blue-500'} `,
@@ -24,9 +24,9 @@ const Button: React.FC<ButtonProps> = ({
   };
 
   const sizeStyles = {
-    sm: 'px-3 py-1.5 text-sm md:px-4 md:py-2 md:text-base lg:px-5 lg:py-2.5 lg:text-lg',
-    md: 'px-4 py-2 text-base md:px-5 md:py-2.5 md:text-lg lg:px-6 lg:py-3 lg:text-xl',
-    lg: 'px-6 py-3 text-lg md:px-7 md:py-3.5 md:text-xl lg:px-8 lg:py-4 lg:text-2xl',
+    sm: 'px-2 py-1 text-sm md:px-3 md:py-1.5 md:text-base lg:px-4 lg:py-2 lg:text-lg',
+    md: 'px-3 py-1.5 text-base md:px-4 md:py-2 md:text-lg lg:px-5 lg:py-2.5 lg:text-xl',
+    lg: 'px-4 py-2 text-lg md:px-5 md:py-2.5 md:text-xl lg:px-6 lg:py-3 lg:text-2xl',
   };
 
   const widthStyle = fullWidth ? 'w-full' : '';
