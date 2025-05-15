@@ -16,7 +16,7 @@ interface RankingBoardProps {
 
 const styles = {
   header:
-    'px-1.5 py-[0.2rem] text-left text-[10px] font-medium text-gray-300 uppercase tracking-wider md:px-2 md:py-[0.25rem] md:text-xs lg:px-3 lg:py-[0.3rem] lg:text-sm',
+    'px-1 py-[0.2rem] text-left text-[10px] font-medium text-gray-300 uppercase tracking-wider md:px-1.5 md:py-[0.25rem] md:text-xs lg:px-2 lg:py-[0.3rem] lg:text-sm',
   cell: 'px-1.5 py-[0.2rem] whitespace-nowrap text-[10px] text-gray-300 md:px-2 md:py-[0.25rem] md:text-xs lg:px-3 lg:py-[0.3rem] lg:text-sm',
   cellBold:
     'px-1.5 py-[0.2rem] whitespace-nowrap text-[10px] font-medium text-white md:px-2 md:py-[0.25rem] md:text-xs lg:px-3 lg:py-[0.3rem] lg:text-sm',
@@ -55,12 +55,9 @@ const RankingBoard = ({ onClose, animate = true }: RankingBoardProps) => {
     <PanelOverlay animate={animate}>
       <div className="mx-auto w-full max-w-[660px] space-y-1 p-0.5 md:space-y-1.5 md:p-0.5 lg:space-y-2 lg:p-1">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <h1 className="text-base font-bold text-white md:text-lg lg:text-xl">
-              Ranking Board
-            </h1>
-            <span className="text-xs text-gray-400 md:text-sm">(Top 100)</span>
-          </div>
+          <h1 className="text-base font-bold text-white md:text-lg lg:text-xl">
+            Ranking Board
+          </h1>
           <Button
             onClick={onClose}
             variant="danger"
