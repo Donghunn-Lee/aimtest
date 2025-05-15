@@ -12,6 +12,7 @@ import { StartMenu } from '@components/game/menu/StartMenu';
 import ResultMenu from '@components/game/menu/ResultMenu';
 import RankingBoard from '@components/game/ranking/RankingBoard';
 import { GameStatus } from '@components/game/GameStatus';
+import GameGuide from './GameGuide';
 
 import { Resolution, DEFAULT_RESOLUTION } from '@/types/resolution';
 import type { Position, Size, MouseMovement } from '@/types/game';
@@ -478,6 +479,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
           animate={false}
         />
       )}
+      <GameGuide animate={!gameState.isGameStarted} />
     </div>
   );
 };
