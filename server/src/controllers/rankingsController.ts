@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import pool from '../database/db';
+import { RowDataPacket } from 'mysql2';
 
 // 랭킹 추가
 export const addRanking = async (req: Request, res: Response) => {
@@ -46,5 +47,22 @@ export const getUserRankings = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error getting user rankings:', error);
     res.status(500).json({ error: 'Failed to get user rankings' });
+  }
+};
+
+// 특정 점수의 순위 조회
+export const getScoreRank = async (req: Request, res: Response) => {
+  try {
+    const { score } = req.params;
+
+    const [rows] = await pool.execute<RowDataPacket[]>(
+      'SELECT COUNT(*) + 1 as rank_position FROM rankings WHERE score > ?',
+      [score]
+    );
+
+    res.json(rows[0]);
+  } catch (error) {
+    console.error('Error getting score rank:', error);
+    res.status(500).json({ error: 'Failed to get score rank' });
   }
 };

@@ -59,6 +59,19 @@ export const getUserRankings = async (
   }
 };
 
+export const getScoreRank = async (score: number): Promise<number> => {
+  try {
+    const url = `${process.env.REACT_APP_API_BASE_URL}/rankings/rank/${score}`;
+    console.log('Getting score rank with URL:', url);
+    const response = await axios.get(url);
+    console.log('Score rank response:', response.data);
+    return response.data.rank_position;
+  } catch (error) {
+    console.error('Error getting score rank:', error);
+    throw error;
+  }
+};
+
 // 유틸리티 함수
 export const formatRankingScore = (score: number): string => {
   return score.toLocaleString();
