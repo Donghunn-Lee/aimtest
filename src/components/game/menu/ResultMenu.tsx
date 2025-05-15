@@ -225,9 +225,7 @@ const ResultMenu = ({
           </Button>
         )}
         {saveStatus === 'success' && (
-          <p className="text-center text-green-500">
-            Ranking saved successfully!
-          </p>
+          <p className="text-center text-green-500">기록이 저장되었습니다!</p>
         )}
         {saveStatus === 'error' && (
           <p className="text-center text-red-500">
