@@ -23,7 +23,7 @@ const styles = {
   rankCell: 'text-center',
   rank1: '!text-yellow-400 font-bold',
   rank2: '!text-gray-300 font-bold',
-  rank3: '!text-amber-00 font-bold',
+  rank3: '!text-amber-500 font-bold',
 };
 
 const RankingBoard = ({ onClose, animate = true }: RankingBoardProps) => {
@@ -71,12 +71,30 @@ const RankingBoard = ({ onClose, animate = true }: RankingBoardProps) => {
           <div className="max-h-[240px] overflow-y-auto md:max-h-[320px] lg:max-h-[400px] xl:max-h-[480px] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:p-2 hover:[&::-webkit-scrollbar-thumb]:bg-white/30 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1.5">
             <table className="min-w-full table-fixed border-separate border-spacing-0">
               <colgroup>
-                <col className="w-4" /> {/* Rank */}
-                <col className="w-32" /> {/* Name */}
-                <col className="w-8" /> {/* Score */}
-                <col className="w-16" /> {/* Accuracy */}
-                <col className="w-20" /> {/* Play Time */}
-                <col className="w-20" /> {/* Date */}
+                <col
+                  key="rank"
+                  className="w-4"
+                />
+                <col
+                  key="name"
+                  className="w-32"
+                />
+                <col
+                  key="score"
+                  className="w-8"
+                />
+                <col
+                  key="accuracy"
+                  className="w-16"
+                />
+                <col
+                  key="playTime"
+                  className="w-20"
+                />
+                <col
+                  key="date"
+                  className="w-20"
+                />
               </colgroup>
               <thead>
                 <tr>
@@ -94,7 +112,7 @@ const RankingBoard = ({ onClose, animate = true }: RankingBoardProps) => {
               </thead>
               <tbody className="divide-y divide-white/20 overflow-y-auto">
                 {ranking.map((item, index) => (
-                  <tr key={item.id}>
+                  <tr key={`ranking-${item.id}-${index}`}>
                     <td
                       className={`${styles.cell} ${styles.rankCell} ${getRankStyle(index)}`}
                     >
