@@ -89,11 +89,11 @@ const RankingBoard = ({ onClose, animate = true }: RankingBoardProps) => {
                 />
                 <col
                   key="playTime"
-                  className="w-20"
+                  className="w-24"
                 />
                 <col
                   key="date"
-                  className="w-20"
+                  className="w-30"
                 />
               </colgroup>
               <thead>
