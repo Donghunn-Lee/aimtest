@@ -495,7 +495,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
           animate={false}
         />
       )}
-      <GameGuide animate={!gameState.isGameStarted} />
+      <GameGuide animate={!gameState.isGameStarted && !isRankingOpen} />
     </div>
   );
 };
