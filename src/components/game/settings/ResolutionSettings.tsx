@@ -1,5 +1,3 @@
-import React from 'react';
-
 import Button from '@/components/common/Button';
 
 import { Resolution, RESOLUTIONS } from '@/types/resolution';
@@ -14,7 +12,7 @@ export const ResolutionSettings: React.FC<ResolutionSettingsProps> = ({
   onResolutionChange,
 }) => {
   return (
-    <div className="mb-4">
+    <div>
       <label className="md:text-md mb-2 block text-sm font-medium text-gray-300 lg:text-lg">
         해상도 설정
       </label>

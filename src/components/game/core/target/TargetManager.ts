@@ -12,8 +12,6 @@ export class TargetManager {
   private nextId: number = 1;
   private mapBounds: { x: number; y: number; width: number; height: number };
   private containerConfig: ContainerConfig;
-  private hitSound: HTMLAudioElement;
-  private missSound: HTMLAudioElement;
 
   constructor(
     config: TargetConfig,
@@ -23,10 +21,6 @@ export class TargetManager {
     this.gameArea = gameArea;
     this.targets = [];
     this.containerConfig = getDefaultConfig(resolution);
-    this.hitSound = new Audio('/sounds/hit.mp3');
-    this.missSound = new Audio('/sounds/miss.mp3');
-    this.hitSound.volume = 0.5;
-    this.missSound.volume = 0.5;
 
     this.mapBounds = calculateContainerBounds(
       this.gameArea,
@@ -113,19 +107,9 @@ export class TargetManager {
         target.score = score;
         this.targets.splice(i, 1);
 
-        this.hitSound.currentTime = 0;
-        this.hitSound.play().catch(() => {
-          // 브라우저의 자동 재생 정책으로 인한 오류 무시
-        });
-
         return target;
       }
     }
-
-    this.missSound.currentTime = 0;
-    this.missSound.play().catch(() => {
-      // 브라우저의 자동 재생 정책으로 인한 오류 무시
-    });
 
     return null;
   }

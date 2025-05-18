@@ -8,7 +8,7 @@ import {
 
 import { Crosshair } from '@components/game/ui/Crosshair';
 import { TargetRenderer } from '@/components/game/core/target/TargetRenderer';
-import { StartMenu } from '@components/game/menu/StartMenu';
+import StartMenu from '@components/game/menu/StartMenu';
 import ResultMenu from '@components/game/menu/ResultMenu';
 import RankingBoard from '@components/game/ranking/RankingBoard';
 import { GameStatus } from '@/components/game/ui/GameStatus';
@@ -22,6 +22,7 @@ import { useGameState } from '@hooks/useGameState';
 import useTargetManager from '@hooks/useTargetManager';
 
 import { clearCanvas, applyCanvasTransform } from '@utils/canvas';
+import useVolume from '@/hooks/useVolume';
 
 interface GameWorldProps {
   gameMode: 'fullscreen' | 'windowed';
@@ -52,6 +53,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   });
   const [gameState, gameActions] = useGameState();
   const [targetManagerState, targetManagerActions] = useTargetManager();
+  const [volumeState, volumeActions] = useVolume();
 
   // 게임 시작 핸들러
   const handleGameStart = () => {
@@ -111,10 +113,20 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       const screenX = -position.current.x;
       const screenY = -position.current.y;
 
-      targetManagerActions.checkHit(screenX, screenY, (target) => {
-        gameActions.handleHit();
-        gameActions.addScore(target.score || 0);
-      });
+      const isHited = targetManagerActions.checkHit(
+        screenX,
+        screenY,
+        (target) => {
+          gameActions.handleHit();
+          gameActions.addScore(target.score || 0);
+        }
+      );
+
+      if (isHited) {
+        volumeActions.playHitSound();
+      } else {
+        volumeActions.playMissSound();
+      }
 
       gameActions.handleClick();
     }
@@ -312,12 +324,14 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     };
   }, [gameState.isGameStarted]);
 
-  // 게임 시작 및 종료 테두리 표시
+  // 게임 시작 및 종료 테두리 표시, 배경음악 관리
   useEffect(() => {
     if (gameState.isGameStarted) {
+      volumeActions.playBGM();
       startFadeOut();
     } else {
       showBorder();
+      volumeActions.stopBGM();
     }
   }, [gameState.isGameStarted]);
 
@@ -460,6 +474,8 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
           selectedResolution={selectedResolution}
           onResolutionChange={setSelectedResolution}
           animate={false}
+          volumeState={volumeState}
+          volumeActions={volumeActions}
         />
       )}
       {gameState.isGameOver && !isRankingOpen && (
