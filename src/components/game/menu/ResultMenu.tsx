@@ -43,7 +43,7 @@ const ResultMenu = ({
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.value.trim();
     setUserName(name);
-    setIsNameValid(name.length >= 2 && name.length <= 20);
+    setIsNameValid(name.length >= 2 && name.length <= 10);
   };
 
   const onSave = async () => {
@@ -198,7 +198,7 @@ const ResultMenu = ({
               onChange={handleNameChange}
               placeholder="이름 (2-10자)"
               className="w-full rounded-lg bg-gray-700 px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              maxLength={20}
+              maxLength={10}
             />
             <div className="min-h-6 py-1">
               {!isNameValid && userName.length > 0 ? (
