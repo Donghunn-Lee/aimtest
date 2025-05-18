@@ -26,7 +26,7 @@ const VolumeSlider = ({ volumeState, volumeActions }: VolumeSliderProps) => {
             disabled={volumeState.isEfMuted}
             className="w-full"
           />
-          <p className="w-4 items-center">
+          <p className="w-10 items-center">
             {volumeState.isEfMuted ? '0' : volumeState.efVolume}
           </p>
         </div>
@@ -49,7 +49,7 @@ const VolumeSlider = ({ volumeState, volumeActions }: VolumeSliderProps) => {
             disabled={volumeState.isBgMuted}
             className="w-full"
           />
-          <p className="w-4 items-center">
+          <p className="w-10 items-center">
             {volumeState.isBgMuted ? '0' : volumeState.bgVolume}
           </p>
         </div>

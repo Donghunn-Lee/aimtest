@@ -19,15 +19,15 @@ export interface VolumeActionsType {
 }
 
 const useVolume = (): [VolumeStateType, VolumeActionsType] => {
-  const [efVolume, setEfVolume] = useState(30);
-  const [bgVolume, setBgVolume] = useState(30);
+  const [efVolume, setEfVolume] = useState(50);
+  const [bgVolume, setBgVolume] = useState(50);
   const bgSoundRef = useRef<HTMLAudioElement>(null);
   const [isEfMuted, setIsEfMuted] = useState(false);
   const [isBgMuted, setIsBgMuted] = useState(false);
 
   const playHitSound = () => {
     const hitSound = new Audio('/sounds/hit.mp3');
-    hitSound.volume = isEfMuted ? 0 : Math.max(efVolume / 100 - 0.2, 0);
+    hitSound.volume = isEfMuted ? 0 : efVolume / 100;
     hitSound.play().catch(() => {});
   };
 
@@ -43,7 +43,7 @@ const useVolume = (): [VolumeStateType, VolumeActionsType] => {
         bgSoundRef.current = new Audio('/sounds/bgm.mp3');
         bgSoundRef.current.loop = true;
       }
-      bgSoundRef.current.volume = isBgMuted ? 0 : bgVolume / 100 - 0.2;
+      bgSoundRef.current.volume = isBgMuted ? 0 : bgVolume / 100;
       bgSoundRef.current.play().catch(() => {});
     }, 1000);
   };
