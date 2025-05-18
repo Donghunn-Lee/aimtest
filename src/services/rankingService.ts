@@ -19,10 +19,6 @@ export interface RankingResponse {
 // API
 export const addRanking = async (data: RankingData): Promise<void> => {
   try {
-    console.log(
-      'Adding ranking with URL:',
-      `${process.env.REACT_APP_API_BASE_URL}/rankings`
-    );
     await axios.post(`${process.env.REACT_APP_API_BASE_URL}/rankings`, data);
   } catch (error) {
     console.error('Error adding ranking:', error);
@@ -33,10 +29,7 @@ export const addRanking = async (data: RankingData): Promise<void> => {
 export const getRankings = async (): Promise<RankingResponse[]> => {
   try {
     const url = `${process.env.REACT_APP_API_BASE_URL}/rankings`;
-    console.log('Getting rankings with URL:', url);
-    console.log('Environment variable:', process.env.REACT_APP_API_BASE_URL);
     const response = await axios.get(url);
-    console.log('Rankings response:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error getting rankings:', error);
@@ -49,9 +42,7 @@ export const getUserRankings = async (
 ): Promise<RankingResponse[]> => {
   try {
     const url = `${process.env.REACT_APP_API_BASE_URL}/rankings/${userName}`;
-    console.log('Getting user rankings with URL:', url);
     const response = await axios.get(url);
-    console.log('User rankings response:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error getting user rankings:', error);
@@ -62,9 +53,7 @@ export const getUserRankings = async (
 export const getScoreRank = async (score: number): Promise<number> => {
   try {
     const url = `${process.env.REACT_APP_API_BASE_URL}/rankings/rank/${score}`;
-    console.log('Getting score rank with URL:', url);
     const response = await axios.get(url);
-    console.log('Score rank response:', response.data);
     return response.data.rank_position;
   } catch (error) {
     console.error('Error getting score rank:', error);
