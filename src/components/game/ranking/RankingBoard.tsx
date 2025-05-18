@@ -17,13 +17,13 @@ interface RankingBoardProps {
 const styles = {
   header:
     'px-1 py-[0.2rem] text-left text-[10px] font-medium text-gray-300 uppercase tracking-wider md:px-1.5 md:py-[0.25rem] md:text-xs lg:px-2 lg:py-[0.3rem] lg:text-sm',
-  cell: 'px-1.5 py-[0.2rem] whitespace-nowrap text-[10px] text-gray-300 md:px-2 md:py-[0.25rem] md:text-xs lg:px-3 lg:py-[0.3rem] lg:text-sm',
+  cell: 'px-1.5 py-[0.2rem] text-[10px] text-gray-300 md:px-2 md:py-[0.25rem] md:text-xs lg:px-3 lg:py-[0.3rem] lg:text-sm',
   cellBold:
-    'px-1.5 py-[0.2rem] whitespace-nowrap text-[10px] font-medium text-white md:px-2 md:py-[0.25rem] md:text-xs lg:px-3 lg:py-[0.3rem] lg:text-sm',
-  rankCell: 'w-8 text-center',
-  rank1: 'text-yellow-400 font-bold',
-  rank2: 'text-gray-300 font-bold',
-  rank3: 'text-amber-600 font-bold',
+    'px-1.5 py-[0.2rem] text-[10px] font-medium text-white md:px-2 md:py-[0.25rem] md:text-xs lg:px-3 lg:py-[0.3rem] lg:text-sm',
+  rankCell: 'text-center',
+  rank1: '!text-yellow-400 font-bold',
+  rank2: '!text-gray-300 font-bold',
+  rank3: '!text-amber-00 font-bold',
 };
 
 const RankingBoard = ({ onClose, animate = true }: RankingBoardProps) => {
@@ -53,7 +53,7 @@ const RankingBoard = ({ onClose, animate = true }: RankingBoardProps) => {
 
   return (
     <PanelOverlay animate={animate}>
-      <div className="mx-auto w-full max-w-[660px] space-y-1 p-0.5 md:space-y-1.5 md:p-0.5 lg:space-y-2 lg:p-1">
+      <div className="mx-auto w-full max-w-[600px] space-y-1 p-0.5 md:space-y-1.5 md:p-0.5 lg:space-y-2 lg:p-1">
         <div className="flex items-center justify-between">
           <h1 className="text-base font-bold text-white md:text-lg lg:text-xl">
             Ranking Board
@@ -69,7 +69,15 @@ const RankingBoard = ({ onClose, animate = true }: RankingBoardProps) => {
 
         <div className="rounded-md border border-white/30 p-1">
           <div className="max-h-[240px] overflow-y-auto md:max-h-[320px] lg:max-h-[400px] xl:max-h-[480px] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:p-2 hover:[&::-webkit-scrollbar-thumb]:bg-white/30 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1.5">
-            <table className="min-w-full border-separate border-spacing-0">
+            <table className="min-w-full table-fixed border-separate border-spacing-0">
+              <colgroup>
+                <col className="w-4" /> {/* Rank */}
+                <col className="w-32" /> {/* Name */}
+                <col className="w-8" /> {/* Score */}
+                <col className="w-16" /> {/* Accuracy */}
+                <col className="w-20" /> {/* Play Time */}
+                <col className="w-20" /> {/* Date */}
+              </colgroup>
               <thead>
                 <tr>
                   <th
