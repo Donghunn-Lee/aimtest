@@ -13,7 +13,7 @@ const VolumeSlider = ({ volumeState, volumeActions }: VolumeSliderProps) => {
         <div className="flex items-center justify-center gap-2">
           <button
             onClick={volumeActions.toggleEfMute}
-            className="rounded px-2 py-1 text-white"
+            className="flex h-8 w-8 items-center justify-center rounded text-white"
           >
             {volumeState.isEfMuted ? '🔇' : '🔊'}
           </button>
@@ -36,7 +36,7 @@ const VolumeSlider = ({ volumeState, volumeActions }: VolumeSliderProps) => {
         <div className="flex items-center justify-center gap-2">
           <button
             onClick={volumeActions.toggleBgMute}
-            className="rounded px-2 py-1 text-white"
+            className="flex h-8 w-8 items-center justify-center rounded text-white"
           >
             {volumeState.isBgMuted ? '🔇' : '🔊'}
           </button>
