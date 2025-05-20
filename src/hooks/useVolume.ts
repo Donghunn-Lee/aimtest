@@ -19,11 +19,12 @@ export interface VolumeActionsType {
 }
 
 const useVolume = (): [VolumeStateType, VolumeActionsType] => {
-  const [efVolume, setEfVolume] = useState(50);
-  const [bgVolume, setBgVolume] = useState(50);
+  const [efVolume, setEfVolume] = useState(30);
+  const [bgVolume, setBgVolume] = useState(30);
   const bgSoundRef = useRef<HTMLAudioElement>(null);
   const [isEfMuted, setIsEfMuted] = useState(false);
   const [isBgMuted, setIsBgMuted] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const playHitSound = () => {
     const hitSound = new Audio('/sounds/hit.mp3');
@@ -38,7 +39,7 @@ const useVolume = (): [VolumeStateType, VolumeActionsType] => {
   };
 
   const playBGM = () => {
-    setTimeout(() => {
+    timerRef.current = setTimeout(() => {
       if (!bgSoundRef.current) {
         bgSoundRef.current = new Audio('/sounds/bgm.mp3');
         bgSoundRef.current.loop = true;
@@ -49,6 +50,10 @@ const useVolume = (): [VolumeStateType, VolumeActionsType] => {
   };
 
   const stopBGM = () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
     if (bgSoundRef.current) {
       bgSoundRef.current.pause();
       bgSoundRef.current.currentTime = 0;
