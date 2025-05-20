@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: http://ec2-52-79-221-80.ap-northeast-2.compute.amazonaws.com/sitemap.xml 
