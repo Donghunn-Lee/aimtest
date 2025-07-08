@@ -24,7 +24,7 @@ const VolumeSlider = ({ volumeState, volumeActions }: VolumeSliderProps) => {
             value={volumeState.efVolume}
             onChange={(e) => volumeActions.setEfVolume(Number(e.target.value))}
             disabled={volumeState.isEfMuted}
-            className="w-full"
+            className="h-2 w-full rounded-lg bg-gray-200 accent-blue-600"
           />
           <p className="w-10 items-center">
             {volumeState.isEfMuted ? '0' : volumeState.efVolume}
@@ -47,7 +47,7 @@ const VolumeSlider = ({ volumeState, volumeActions }: VolumeSliderProps) => {
             value={volumeState.bgVolume}
             onChange={(e) => volumeActions.setBgVolume(Number(e.target.value))}
             disabled={volumeState.isBgMuted}
-            className="w-full"
+            className="h-2 w-full rounded-lg bg-gray-200 accent-blue-600"
           />
           <p className="w-10 items-center">
             {volumeState.isBgMuted ? '0' : volumeState.bgVolume}
