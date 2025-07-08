@@ -38,8 +38,12 @@ const GameGuide = ({ animate = true }: GameGuideProps) => {
           남아있는 시점에 게임이 종료됩니다
         </li>
         <li className={styles.listItem}>
-          <span className={styles.highlight}>ESC 키</span>를 눌러 게임을 즉시
+          <span className={styles.highlight}>ESC</span>를 눌러 게임을 즉시
           종료할 수 있습니다.
+        </li>
+        <li className={styles.listItem}>
+          <span className={styles.highlight}>F5</span>를 눌러 화면 모드를 다시
+          선택할 수 있습니다.
         </li>
       </ul>
     </div>
