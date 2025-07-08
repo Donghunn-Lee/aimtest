@@ -19,9 +19,9 @@ function App() {
   );
 
   return (
-    <div className="flex h-full min-h-screen flex-col items-center justify-center bg-[#1a1a1a] p-8 text-white">
+    <div className="flex h-full min-h-screen w-full flex-col items-center justify-center bg-[#1a1a1a] p-8 text-white">
       {!gameMode ? (
-        <div className="max-w-3xl p-8 text-center">
+        <div className="absolute inset-0 flex h-full flex-col items-center justify-center p-8 text-center">
           <h1 className="mb-8 text-5xl font-bold text-[#00ff00] [text-shadow:0_0_10px_rgba(0,255,0,0.5)]">
             FPS Aim Test
           </h1>
@@ -49,7 +49,7 @@ function App() {
               창 모드
             </button>
           </div>
-          <footer className="mt-32 w-full space-y-6 text-left text-xs text-gray-500 sm:absolute sm:bottom-24">
+          <footer className="absolute bottom-24 left-1/2 mt-32 -translate-x-1/2 space-y-6 text-left text-xs text-gray-500">
             <div className="flex w-full flex-col gap-2">
               <p className="p-0 font-bold">Developed by Ethan</p>
               <div className="flex flex-col gap-1">
