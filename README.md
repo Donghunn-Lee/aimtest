@@ -205,7 +205,8 @@ docker-compose up
   `requestAnimationFrame`을 활용해 프레임마다 효율적으로 화면을 갱신하며, React의 상태 변화와 분리된 순수 Canvas 렌더링 구조로 60fps의 부드러운 애니메이션을 구현했습니다.
 
 - **타겟 배열 직접 관리 및 렌더링 최소화**  
-  타겟 데이터는 클래스 내부 배열로 직접 관리하며, React의 상태 업데이트가 아닌 내부 데이터 조작과 useRef를 적극 활용해 불필요한 컴포넌트 리렌더링을 방지했습니다.  
+  타겟 데이터는 클래스 내부 배열로 직접 관리하며, React의 상태 업데이트가 아닌 내부 데이터 조작과 `useRef`를 적극 활용해 불필요한 컴포넌트 리렌더링을 방지했습니다.  
+
   타겟이 너무 많아질 경우(10개 이상) 게임을 종료하는 로직을 도입하여, 렌더링 부하와 성능 저하를 사전에 차단했습니다.
 
 - **타겟 랜덤 좌표 생성 최적화**  
@@ -256,5 +257,4 @@ docker-compose up
 ---
 
 ## 12. 📄 라이선스 및 크레딧 (License & Credits)
-- BGM: 니아 / SellBuyMusic
-- 오픈소스 라이브러리들
+- BGM: 니아 / SellBuyMusic / [https://sellbuymusic.com/md/mqqtckh-dffhnkh](https://sellbuymusic.com/md/mqqtckh-dffhnkh)
