@@ -5,7 +5,7 @@
 **🔗 [실제 서비스 바로가기](http://ec2-xx-xx-xx-xx.compute-1.amazonaws.com)**<br>
 **🎬 [구동 영상 보기 (Google Drive)](https://drive.google.com/file/d/1FVA1koKcU6UHaQKNVxIjD53eldVBDea3/view?usp=drive_link)** (배경 음악이 들어가 있습니다. 미리 볼륨을 줄인 후 조절해주세요!)
 
-<img src="https://github.com/user-attachments/assets/36bc89d2-4d4a-4739-a0cd-b34a6c6d4e97" width="60%" />
+<img src="https://github.com/user-attachments/assets/36bc89d2-4d4a-4739-a0cd-b34a6c6d4e97" width="80%" />
 
 ---
 
@@ -42,7 +42,7 @@ FPS 게임 에임 능력 향상을 위한 웹 기반 훈련 도구
 
 ### 🖥️ 게임 모드
 - 전체화면/창 모드 지원 및 16:9, 4:3, 16:10의 세 가지 해상도 지원  
-<img src="https://github.com/user-attachments/assets/5f59958e-4793-4141-84ee-c0cd76fe3195" width="50%" />
+<img src="https://github.com/user-attachments/assets/5f59958e-4793-4141-84ee-c0cd76fe3195" width="70%" />
 
 ### 🎯 1인칭 시점
 - 마우스 감도 조절, 포인터 락을 통한 1인칭 시점
@@ -52,33 +52,33 @@ FPS 게임 에임 능력 향상을 위한 웹 기반 훈련 도구
 
 ### 🏅 랭킹 시스템
 - MySQL 기반 점수 저장 및 순위 표시  
-<img src="https://github.com/user-attachments/assets/d1378855-ffcb-4041-8cf0-a72dadda5c71" width="50%" />
+<img src="https://github.com/user-attachments/assets/d1378855-ffcb-4041-8cf0-a72dadda5c71" width="70%" />
 
 ### 🔉 사운드
 - BGM, HIT/MISS 사운드 효과 적용
 
 ### 🎨 UI/UX
 - 기본 페이지 네온 테마, 인게임 역시 눈부시지 않은 라이트 그레이 테마  
-<img src="https://github.com/user-attachments/assets/aceb1428-7eb5-47c3-8276-9482e5a08e51" width="48%" />
+<img src="https://github.com/user-attachments/assets/aceb1428-7eb5-47c3-8276-9482e5a08e51" width="70%" />
 
 ---
 
 ## 4. ⚙️ 실행 방법 (Getting Started)
 
-### 1. 사전 준비
+### 1) 사전 준비
 - [Docker](https://www.docker.com/products/docker-desktop/)와 [Docker Compose](https://docs.docker.com/compose/)가 설치되어 있어야 합니다.
 
-### 2. 프로젝트 클론
+### 2) 프로젝트 클론
 ```bash
 git clone https://github.com/Donghunn-Lee/aimtest.git
 cd aimtest
 ```
 
-### 3. 환경변수 설정 (선택)
+### 3) 환경변수 설정 (선택)
 - 기본적으로 `docker-compose.yml`에 환경변수 값이 포함되어 있습니다.
 - 필요하다면 `.env` 파일을 생성해 환경변수를 오버라이드할 수 있습니다.
 
-### 4. 전체 서비스 실행
+### 4) 전체 서비스 실행
 ```bash
 docker-compose up
 ```
@@ -90,7 +90,7 @@ docker-compose up
 > - (EC2/Ubuntu 등에서는 기본적으로 `docker-compose` 명령어를 사용하세요.)
 
 
-### 5. 접속 방법
+### 5) 접속 방법
 - 웹 브라우저에서 [http://localhost](http://localhost)로 접속하면 서비스가 실행됩니다.
 - 랭킹 시스템 등 모든 데이터는 **본인 PC의 MySQL 컨테이너에만 저장**됩니다.
 
@@ -120,27 +120,27 @@ docker-compose up
 
 ## 6. 🏗️ 아키텍처 (Architecture)
 
-### ☁️ **Deployment**
+### ☁️ **배포 환경**
 
-#### **Infrastructure**
+#### **인프라 구성**
 - **Hosting**: AWS EC2 (t2.micro)
 - **Domain**: http://ec2-52-79-221-80.ap-northeast-2.compute.amazonaws.com/
 - **Containerization**: Docker & Docker Compose
 - **CI/CD**: GitHub Actions
 
-#### **Deployment Process**
+#### **배포 과정**
 1. GitHub에 코드 푸시
 2. GitHub Actions에서 자동 빌드 및 Docker 이미지 생성
 3. Docker Hub에 이미지 푸시
 4. AWS EC2에서 이미지를 Pull & Deploy
 5. 무중단 배포 및 컨테이너 관리
 
-#### **Key Benefits**
+#### **키 포인트**
 - ⚡ **Automated Deployment**: 코드 푸시만으로 자동 배포
 - 🌀 **Zero-Downtime**: Docker 기반 무중단 배포
 - 🧩 **Easy Maintenance**: 컨테이너화로 환경 관리 간편
 
-#### **Production Environment**
+#### **프로덕션 환경 구조**
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    AWS EC2 Instance                         │
@@ -153,7 +153,7 @@ docker-compose up
 └─────────────────┴─────────────────┴─────────────────────────┘
 ```
 
-#### **CI/CD Pipeline**
+#### **CI/CD 파이프라인**
 ```
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
 │   GitHub    │───►│ GitHub      │───►│ Docker Hub  │───►│ AWS EC2     │
