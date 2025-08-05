@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 export interface GameState {
   isGameStarted: boolean;
@@ -33,6 +33,15 @@ export const useGameState = (): [GameState, GameStateActions] => {
   const [hitCount, setHitCount] = useState(0);
   const [totalClick, setTotalClick] = useState(0);
   const [mouseSensitivity, setMouseSensitivity] = useState(1);
+
+  // 정확도 계산을 useEffect로 분리
+  useEffect(() => {
+    if (totalClick > 0) {
+      setAccuracy((hitCount / totalClick) * 100);
+    } else {
+      setAccuracy(0);
+    }
+  }, [hitCount, totalClick]);
 
   const startGame = useCallback(() => {
     setIsGameStarted(true);
@@ -70,19 +79,13 @@ export const useGameState = (): [GameState, GameStateActions] => {
   }, []);
 
   const handleHit = useCallback(() => {
-    setHitCount((prevHitCount) => {
-      const newHitCount = prevHitCount + 1;
-      setAccuracy((newHitCount / (totalClick + 1)) * 100);
-      return newHitCount;
-    });
-  }, [totalClick]);
+    setHitCount((prev) => prev + 1);
+    setTotalClick((prev) => prev + 1);
+  }, []);
 
   const handleClick = useCallback(() => {
     setTotalClick((prev) => prev + 1);
-    if (hitCount > 0) {
-      setAccuracy((hitCount / (totalClick + 1)) * 100);
-    }
-  }, [hitCount, totalClick]);
+  }, []);
 
   const updatePlayTime = useCallback(() => {
     if (startTime && isGameStarted && !isGameOver) {

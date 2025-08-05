@@ -126,9 +126,8 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         volumeActions.playHitSound();
       } else {
         volumeActions.playMissSound();
+        gameActions.handleClick(); // Miss일 때만 handleClick 호출
       }
-
-      gameActions.handleClick();
     }
   };
 
