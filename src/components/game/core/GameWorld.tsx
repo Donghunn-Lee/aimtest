@@ -65,6 +65,10 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       },
       selectedResolution.ratio
     );
+    // 고정 틱 누적 기반 스폰 시작
+    if (gameState.startTime) {
+      targetManagerActions.startSpawner(gameState.startTime);
+    }
     try {
       canvasRef.current?.requestPointerLock();
     } catch (error) {
@@ -271,22 +275,12 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
   // 타겟 생성 간격 점진적 감소
   useEffect(() => {
-    if (!gameState.isGameStarted) return;
-
-    const intervalId = setInterval(() => {
-      targetManagerActions.decreaseSpawnInterval(gameState.startTime!);
-    }, targetManagerState.targetConfig.spawnInterval);
-
-    return () => clearInterval(intervalId);
-  }, [targetManagerState.targetConfig.spawnInterval, gameState.isGameStarted]);
-
-  // 타겟 생성 간격 업데이트
-  useEffect(() => {
-    if (!gameState.isGameStarted) return;
-
-    const cleanup = targetManagerActions.updateSpawnInterval();
-    return cleanup;
-  }, [gameState.isGameStarted, targetManagerState.targetConfig.spawnInterval]);
+    if (gameState.isGameStarted && gameState.startTime) {
+      targetManagerActions.startSpawner(gameState.startTime);
+      return () => targetManagerActions.stopSpawner();
+    }
+    targetManagerActions.stopSpawner();
+  }, [gameState.isGameStarted, gameState.startTime]);
 
   // 타겟 상태 동기화 (프레임 간격)
   useEffect(() => {

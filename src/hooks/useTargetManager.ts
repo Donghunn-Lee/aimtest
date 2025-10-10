@@ -14,15 +14,15 @@ interface TargetManagerActions {
     gameArea: { width: number; height: number },
     resolution: number
   ) => void;
+  startSpawner: (startTime: number) => void;
+  stopSpawner: () => void;
   checkHit: (
     x: number,
     y: number,
     onHit?: (target: Target) => void
   ) => Target | null;
   updateGameArea: (width: number, height: number) => void;
-  decreaseSpawnInterval: (startTime: number) => void;
   clearTargets: () => void;
-  updateSpawnInterval: () => void;
   syncTargets: (onTrigger?: () => void) => void;
   drawTargetContainer: (
     onDraw: (bounds: {
@@ -46,6 +46,10 @@ const useTargetManager = (): [TargetManagerState, TargetManagerActions] => {
   const [targetConfig, setTargetConfig] =
     useState<TargetConfig>(initialTargetConfig);
   const [targets, setTargets] = useState<Target[]>([]);
+  const rafIdRef = useRef<number | null>(null);
+  const lastTsRef = useRef<number | null>(null);
+  const accumMsRef = useRef<number>(0);
+  const spawnerStartTimeRef = useRef<number | null>(null);
 
   const init = useCallback(
     (gameArea: { width: number; height: number }, resolution: number) => {
@@ -85,16 +89,54 @@ const useTargetManager = (): [TargetManagerState, TargetManagerActions] => {
     targetManagerRef.current.updateGameArea(width, height);
   }, []);
 
-  const decreaseSpawnInterval = useCallback((startTime: number) => {
+  const computeSpawnInterval = useCallback((startTime: number) => {
     const elapsedSeconds = (Date.now() - startTime) / 1000;
-    const newInterval = Math.max(
-      300, // 최소 간격 300ms
-      1000 * Math.pow(0.982, elapsedSeconds) // 타겟 생성 시마다 1.8%씩 감소
-    );
-    setTargetConfig((prev) => ({
-      ...prev,
-      spawnInterval: newInterval,
-    }));
+    // 330ms 최소 간격, 1.6%씩 감소
+    return Math.max(330, 1000 * Math.pow(0.982, elapsedSeconds));
+  }, []);
+
+  const spawnerTick = useCallback(() => {
+    if (!targetManagerRef.current || spawnerStartTimeRef.current == null) {
+      rafIdRef.current = null;
+      return;
+    }
+    const now = performance.now();
+    const last = lastTsRef.current ?? now;
+    const dt = Math.min(now - last, 100); // 100ms 이상은 무시(스톨 방지)
+    lastTsRef.current = now;
+    accumMsRef.current += dt;
+
+    const intervalMs = computeSpawnInterval(spawnerStartTimeRef.current);
+
+    while (accumMsRef.current >= intervalMs) {
+      accumMsRef.current -= intervalMs;
+      const spawned = targetManagerRef.current.createTarget();
+      if (spawned) {
+        setTargets(targetManagerRef.current.getTargets());
+      }
+    }
+
+    rafIdRef.current = requestAnimationFrame(spawnerTick);
+  }, [computeSpawnInterval]);
+
+  const startSpawner = useCallback(
+    (startTime: number) => {
+      if (!targetManagerRef.current) return;
+      spawnerStartTimeRef.current = startTime;
+      accumMsRef.current = 0;
+      lastTsRef.current = null;
+      if (rafIdRef.current != null) cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = requestAnimationFrame(spawnerTick);
+    },
+    [spawnerTick]
+  );
+
+  const stopSpawner = useCallback(() => {
+    if (rafIdRef.current != null) cancelAnimationFrame(rafIdRef.current);
+    rafIdRef.current = null;
+    lastTsRef.current = null;
+    accumMsRef.current = 0;
+    spawnerStartTimeRef.current = null;
   }, []);
 
   const clearTargets = useCallback(() => {
@@ -103,23 +145,6 @@ const useTargetManager = (): [TargetManagerState, TargetManagerActions] => {
     targetManagerRef.current.clearTargets();
   }, []);
 
-  const updateSpawnInterval = useCallback(() => {
-    if (!targetManagerRef.current) return;
-
-    const spawnInterval = setInterval(() => {
-      if (targetManagerRef.current) {
-        const newTarget = targetManagerRef.current.createTarget();
-
-        if (newTarget) {
-          const updatedTargets = targetManagerRef.current.getTargets();
-          setTargets(updatedTargets);
-        }
-      }
-    }, targetConfig.spawnInterval);
-
-    return () => clearInterval(spawnInterval);
-  }, [targetConfig.spawnInterval]);
-
   const syncTargets = useCallback((onTrigger?: () => void) => {
     if (!targetManagerRef.current) return;
 
@@ -127,7 +152,7 @@ const useTargetManager = (): [TargetManagerState, TargetManagerActions] => {
       const updatedTargets = targetManagerRef.current?.getTargets() || [];
       setTargets(updatedTargets);
       onTrigger?.();
-    }, 16);
+    }, 8);
 
     return () => clearInterval(syncInterval);
   }, []);
@@ -156,11 +181,11 @@ const useTargetManager = (): [TargetManagerState, TargetManagerActions] => {
 
   const actions: TargetManagerActions = {
     init,
+    startSpawner,
+    stopSpawner,
     checkHit,
     updateGameArea,
-    decreaseSpawnInterval,
     clearTargets,
-    updateSpawnInterval,
     syncTargets,
     drawTargetContainer,
   };
