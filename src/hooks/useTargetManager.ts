@@ -46,7 +46,7 @@ const useTargetManager = (): [TargetManagerState, TargetManagerActions] => {
   const [targetConfig, setTargetConfig] =
     useState<TargetConfig>(initialTargetConfig);
   const [targets, setTargets] = useState<Target[]>([]);
-  const rafIdRef = useRef<number | null>(null);
+  const spawnerRef = useRef<number | null>(null);
   const lastTsRef = useRef<number | null>(null);
   const accumMsRef = useRef<number>(0);
   const spawnerStartTimeRef = useRef<number | null>(null);
@@ -91,13 +91,13 @@ const useTargetManager = (): [TargetManagerState, TargetManagerActions] => {
 
   const computeSpawnInterval = useCallback((startTime: number) => {
     const elapsedSeconds = (Date.now() - startTime) / 1000;
-    // 330ms 최소 간격, 1.6%씩 감소
+    // 330ms 최소 간격, 1.8%씩 감소
     return Math.max(330, 1000 * Math.pow(0.982, elapsedSeconds));
   }, []);
 
   const spawnerTick = useCallback(() => {
     if (!targetManagerRef.current || spawnerStartTimeRef.current == null) {
-      rafIdRef.current = null;
+      spawnerRef.current = null;
       return;
     }
     const now = performance.now();
@@ -116,7 +116,7 @@ const useTargetManager = (): [TargetManagerState, TargetManagerActions] => {
       }
     }
 
-    rafIdRef.current = requestAnimationFrame(spawnerTick);
+    spawnerRef.current = requestAnimationFrame(spawnerTick);
   }, [computeSpawnInterval]);
 
   const startSpawner = useCallback(
@@ -125,15 +125,15 @@ const useTargetManager = (): [TargetManagerState, TargetManagerActions] => {
       spawnerStartTimeRef.current = startTime;
       accumMsRef.current = 0;
       lastTsRef.current = null;
-      if (rafIdRef.current != null) cancelAnimationFrame(rafIdRef.current);
-      rafIdRef.current = requestAnimationFrame(spawnerTick);
+      if (spawnerRef.current != null) cancelAnimationFrame(spawnerRef.current);
+      spawnerRef.current = requestAnimationFrame(spawnerTick);
     },
     [spawnerTick]
   );
 
   const stopSpawner = useCallback(() => {
-    if (rafIdRef.current != null) cancelAnimationFrame(rafIdRef.current);
-    rafIdRef.current = null;
+    if (spawnerRef.current != null) cancelAnimationFrame(spawnerRef.current);
+    spawnerRef.current = null;
     lastTsRef.current = null;
     accumMsRef.current = 0;
     spawnerStartTimeRef.current = null;
