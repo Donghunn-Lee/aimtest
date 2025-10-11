@@ -60,7 +60,6 @@ const ResultMenu = ({
       });
       setSaveStatus('success');
     } catch (error) {
-      console.error('Failed to save ranking:', error);
       setSaveStatus('error');
     } finally {
       setIsSaving(false);
@@ -68,21 +67,36 @@ const ResultMenu = ({
   };
 
   useEffect(() => {
+    console.log('rank', rank);
+  }, [rank]);
+
+  useEffect(() => {
     const menuTimer = setTimeout(() => {
       setShowMenu(true);
     }, 300);
 
-    // 0점인 경우 카운트업 애니메이션 생략
-    if (score === 0) {
+    const showAnimation = (finalScore: number) => {
       setDisplayScore(score);
       setTimeout(() => {
         setShowAccuracy(true);
         setTimeout(() => {
           setShowTime(true);
           setTimeout(() => {
-            // 0점은 unranked로 표시
-            setRank(null);
-            setShowRank(true);
+            // 0점은 Unranked로 표시
+            if (finalScore === 0) {
+              setRank(null);
+              setShowRank(true);
+            } else {
+              getScoreRank(score)
+                .then((rank) => {
+                  setRank(rank);
+                  setShowRank(true);
+                })
+                .catch((error) => {
+                  setRank(-1);
+                  setShowRank(true);
+                });
+            }
             // 모든 정보가 표시된 후 RESTART 버튼 활성화
             setTimeout(() => {
               setIsRestartEnabled(true);
@@ -91,14 +105,18 @@ const ResultMenu = ({
         }, 300);
       }, 300);
       return () => clearTimeout(menuTimer);
+    };
+
+    if (score === 0) {
+      setDisplayScore(score);
+      showAnimation(0);
+      return () => clearTimeout(menuTimer);
     }
 
-    // 0점 이외에 점수 카운트 업 애니메이션 적용
+    // 점수 카운트 업 애니메이션 적용
     let startTime: number;
     let animationFrameId: number;
     const duration = 2000;
-    const startValue = 0;
-    const endValue = score;
 
     const easeOutExpo = (x: number): number => {
       return x === 1 ? 1 : 1 - Math.pow(2, -8 * x);
@@ -110,33 +128,14 @@ const ResultMenu = ({
       const progress = Math.min(elapsed / duration, 1);
 
       const easedProgress = easeOutExpo(progress);
-      const currentValue = Math.floor(
-        startValue + (endValue - startValue) * easedProgress
-      );
+      const currentValue = Math.floor(0 + (score - 0) * easedProgress);
 
       setDisplayScore(currentValue);
 
       if (progress < 1) {
         animationFrameId = requestAnimationFrame(animate);
       } else {
-        // 점수 애니메이션이 끝나면 순차적으로 정보 표시
-        setTimeout(() => {
-          setShowAccuracy(true);
-          setTimeout(() => {
-            setShowTime(true);
-            setTimeout(() => {
-              // 등수는 마지막에 조회하고 표시
-              getScoreRank(score).then((rank) => {
-                setRank(rank);
-                setShowRank(true);
-                // 모든 정보가 표시된 후 RESTART 버튼 활성화
-                setTimeout(() => {
-                  setIsRestartEnabled(true);
-                }, 300);
-              });
-            }, 300);
-          }, 300);
-        }, 300);
+        showAnimation(score);
       }
     };
 
@@ -163,7 +162,7 @@ const ResultMenu = ({
         </h2>
         <div className="h-[110px] space-y-1 text-center text-white md:h-[130px] lg:h-[140px]">
           <p className="text-base md:text-lg lg:text-xl">
-            Score: {formatRankingScore(displayScore)}
+            Score : {formatRankingScore(displayScore)}
           </p>
           <p
             className={`text-base transition-all duration-1000 md:text-lg lg:text-xl ${
@@ -172,67 +171,82 @@ const ResultMenu = ({
                 : 'translate-y-4 opacity-0'
             }`}
           >
-            Accuracy: {formatAccuracy(accuracy)}
+            Accuracy : {formatAccuracy(accuracy)}
           </p>
           <p
             className={`text-base transition-all duration-1000 md:text-lg lg:text-xl ${
               showTime ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
             }`}
           >
-            Time: {formatPlayTime(elapsedTime)}
+            Time : {formatPlayTime(elapsedTime)}
           </p>
           <p
             className={`text-base transition-all duration-1000 md:text-lg lg:text-xl ${
               showRank ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-            }`}
+            } text-white`}
           >
-            {rank !== null ? `Rank: #${rank.toLocaleString()}` : 'Rank: #-'}
+            Rank :{' '}
+            <span className={rank === -1 ? 'text-red-500' : 'text-white'}>
+              {rank === -1
+                ? 'Failed load'
+                : rank !== null
+                  ? `#${rank.toLocaleString()}`
+                  : 'Unranked'}
+            </span>
           </p>
         </div>
-
-        {saveStatus === 'idle' && (
-          <div className="space-y-1">
-            <input
-              type="text"
-              value={userName}
-              onChange={handleNameChange}
-              placeholder="이름 (2-10자)"
-              className="w-full rounded-lg bg-gray-700 px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              maxLength={10}
-            />
-            <div className="min-h-6 py-1">
-              {!isNameValid && userName.length > 0 ? (
-                <p className="py-0 text-xs text-red-500">
-                  이름은 2~10자로 입력해주세요.
-                </p>
-              ) : (
-                <p className="py-0 text-center text-xs text-green-500">
-                  점수 기록을 위해 이름을 입력해주세요!
-                </p>
-              )}
-            </div>
-          </div>
+        {score !== 0 && (
+          <>
+            {(saveStatus === 'idle' || saveStatus === 'error') && (
+              <div className="space-y-1">
+                <input
+                  type="text"
+                  value={userName}
+                  onChange={handleNameChange}
+                  placeholder="이름 (2-10자)"
+                  className="w-full rounded-lg bg-gray-700 px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  maxLength={10}
+                />
+                <div className="min-h-6 py-1 text-center text-xs">
+                  {userName.length === 0 ? (
+                    <p className="py-0 text-center text-xs text-green-500">
+                      점수 기록을 위해 이름을 입력해주세요!
+                    </p>
+                  ) : !isNameValid ? (
+                    <p className="text-red-500">
+                      이름은 2~10자로 입력해주세요.
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+            )}
+            {(saveStatus === 'idle' || saveStatus === 'error') && (
+              <Button
+                onClick={onSave}
+                disabled={!isNameValid || isSaving}
+                variant="primary"
+                size="sm"
+                fullWidth
+              >
+                {isSaving
+                  ? 'Saving...'
+                  : saveStatus === 'error'
+                    ? 'RESAVE'
+                    : 'SAVE'}
+              </Button>
+            )}
+            {saveStatus === 'success' && (
+              <p className="text-center text-green-500">
+                기록이 저장되었습니다!
+              </p>
+            )}
+            {saveStatus === 'error' && (
+              <p className="text-center text-xs font-semibold text-red-500">
+                오류가 발생했습니다. 다시 시도해주세요.
+              </p>
+            )}
+          </>
         )}
-        {saveStatus === 'idle' && (
-          <Button
-            onClick={onSave}
-            disabled={!isNameValid || isSaving}
-            variant="primary"
-            size="sm"
-            fullWidth
-          >
-            {isSaving ? 'Saving...' : 'SAVE'}
-          </Button>
-        )}
-        {saveStatus === 'success' && (
-          <p className="text-center text-green-500">기록이 저장되었습니다!</p>
-        )}
-        {saveStatus === 'error' && (
-          <p className="text-center text-red-500">
-            Failed to save ranking. Please try again.
-          </p>
-        )}
-
         <div className="flex w-full space-x-2">
           <Button
             onClick={isRestartEnabled ? onRestart : undefined}
