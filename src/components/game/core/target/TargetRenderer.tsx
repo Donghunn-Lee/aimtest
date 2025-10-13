@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react';
 import { Target } from '@/types/target';
 
 import { applyCanvasTransform, drawCircle } from '@/utils/canvas';
+import { decideTargetColor } from '@/utils/target';
 
 import { CANVAS_COLORS, CANVAS_STYLES } from '@/constants/canvas';
 
@@ -10,14 +11,16 @@ interface TargetRendererProps {
   targets: Target[];
   canvas: HTMLCanvasElement;
   position: { x: number; y: number };
-  isGameStarted: boolean;
+  graceStartAt: number | null;
+  isGameOver: boolean;
 }
 
 export const TargetRenderer = ({
   targets,
   canvas,
   position,
-  isGameStarted,
+  graceStartAt,
+  isGameOver,
 }: TargetRendererProps) => {
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
 
@@ -28,9 +31,9 @@ export const TargetRenderer = ({
   useEffect(() => {
     const animationFrame = requestAnimationFrame(render);
     return () => cancelAnimationFrame(animationFrame);
-  }, [targets, position, isGameStarted]);
+  }, [targets, position, isGameOver, graceStartAt]);
 
-  const renderTarget = (target: Target) => {
+  const renderTarget = (target: Target, targetColor: string) => {
     const ctx = ctxRef.current;
     if (!ctx || target.hit) return;
 
@@ -39,29 +42,17 @@ export const TargetRenderer = ({
     const size = target.size;
 
     // 바깥쪽 원 (1점)
-    drawCircle(
-      ctx,
-      screenX,
-      screenY,
-      size / 2,
-      isGameStarted ? CANVAS_COLORS.TARGET_OUTER : CANVAS_COLORS.TARGET_INNER
-    );
+    drawCircle(ctx, screenX, screenY, size / 2, targetColor);
 
     // 중간 원 (2점)
-    drawCircle(
-      ctx,
-      screenX,
-      screenY,
-      size / 3,
-      isGameStarted ? CANVAS_COLORS.TARGET_OUTER : CANVAS_COLORS.TARGET_INNER
-    );
+    drawCircle(ctx, screenX, screenY, size / 3, targetColor);
 
     // 중앙 원 (3점)
-    drawCircle(ctx, screenX, screenY, size / 6, CANVAS_COLORS.TARGET_INNER);
+    drawCircle(ctx, screenX, screenY, size / 6, '#FF0000');
 
     // 점수 표시
     ctx.font = CANVAS_STYLES.TARGET_FONT;
-    ctx.fillStyle = CANVAS_COLORS.TARGET_CENTER;
+    ctx.fillStyle = CANVAS_COLORS.target.expired;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
   };
@@ -69,8 +60,10 @@ export const TargetRenderer = ({
   const render = () => {
     if (!ctxRef.current) return;
 
+    const targetColor = decideTargetColor(isGameOver, graceStartAt);
+
     applyCanvasTransform(ctxRef.current, canvas.width, canvas.height, position);
-    targets.forEach(renderTarget);
+    targets.forEach((t) => renderTarget(t, targetColor));
     ctxRef.current.restore();
 
     requestAnimationFrame(render);

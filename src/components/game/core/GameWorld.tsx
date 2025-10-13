@@ -18,7 +18,7 @@ import { Resolution, DEFAULT_RESOLUTION } from '@/types/resolution';
 import type { Position, Size, MouseMovement } from '@/types/game';
 
 import { useImageLoader } from '@hooks/useImageLoader';
-import { useGameState } from '@hooks/useGameState';
+import { useGame } from '@/hooks/useGame';
 import useTargetManager from '@hooks/useTargetManager';
 
 import { clearCanvas, applyCanvasTransform } from '@utils/canvas';
@@ -51,7 +51,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     canvas: canvasRef.current,
     drawSize: drawSizeRef.current,
   });
-  const [gameState, gameActions] = useGameState();
+  const [gameState, gameActions] = useGame();
   const [targetManagerState, targetManagerActions] = useTargetManager();
   const [volumeState, volumeActions] = useVolume();
 
@@ -288,8 +288,9 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
     const cleanup = targetManagerActions.syncTargets(() => {
       if (targetManagerState.targets.length >= 10) {
-        gameActions.endGame();
-        document.exitPointerLock();
+        gameActions.triggerGraceTimer();
+      } else {
+        gameActions.cancelGraceTimer();
       }
     });
     return cleanup;
@@ -447,7 +448,8 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
           targets={targetManagerState.targets}
           canvas={canvasRef.current}
           position={position.current}
-          isGameStarted={gameState.isGameStarted}
+          graceStartAt={gameState.graceStartAt}
+          isGameOver={gameState.isGameOver}
         />
       )}
       <Crosshair />
