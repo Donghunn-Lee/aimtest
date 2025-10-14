@@ -67,10 +67,6 @@ const ResultMenu = ({
   };
 
   useEffect(() => {
-    console.log('rank', rank);
-  }, [rank]);
-
-  useEffect(() => {
     const menuTimer = setTimeout(() => {
       setShowMenu(true);
     }, 300);
