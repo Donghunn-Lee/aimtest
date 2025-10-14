@@ -38,7 +38,6 @@ export const useGame = (): [GameState, GameStateActions] => {
   const [totalClick, setTotalClick] = useState(0);
   const [mouseSensitivity, setMouseSensitivity] = useState(1);
   const [graceStartAt, setGraceStartAt] = useState<number | null>(null);
-  const [graceState, setGraceState] = useState('');
   const endTimeoutRef = useRef<number | null>(null);
 
   // 정확도 계산을 useEffect로 분리
