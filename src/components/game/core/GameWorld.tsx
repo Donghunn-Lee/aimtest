@@ -7,7 +7,7 @@ import {
 } from 'react';
 
 import { Crosshair } from '@components/game/ui/Crosshair';
-import { TargetRenderer } from '@/components/game/core/target/TargetRenderer';
+import { renderTargets } from '@/components/game/core/renderers/targetRenderer';
 import StartMenu from '@components/game/menu/StartMenu';
 import ResultMenu from '@components/game/menu/ResultMenu';
 import RankingBoard from '@components/game/ranking/RankingBoard';
@@ -21,8 +21,14 @@ import { useImageLoader } from '@hooks/useImageLoader';
 import { useGame } from '@/hooks/useGame';
 import useTargetManager from '@hooks/useTargetManager';
 
-import { clearCanvas, applyCanvasTransform } from '@utils/canvas';
+import {
+  clearCanvas,
+  applyCameraTransform,
+  endCameraTransform,
+} from '@utils/canvas';
 import useVolume from '@/hooks/useVolume';
+import { renderMapAndBounds } from '@/components/game/core/renderers/mapRenderer';
+import { Target } from '@/types/target';
 
 interface GameWorldProps {
   gameMode: 'fullscreen' | 'windowed';
@@ -32,6 +38,12 @@ interface GameWorldProps {
 export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
+  const rafIdRef = useRef<number | null>(null);
+  const targetsRef = useRef<Target[]>([]);
+  const gameRef = useRef({
+    graceStartAt: null as number | null,
+    isGameOver: false,
+  });
   const containerRef = useRef<HTMLDivElement>(null);
   const isPointerLocked = useRef(false);
   const mouseMovement = useRef<MouseMovement>({ x: 0, y: 0 });
@@ -197,16 +209,24 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     if (!canvas) return;
 
     const resizeCanvas = () => {
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const dpr = window.devicePixelRatio || 1;
+
+      let displayWidth: number;
+      let displayHeight: number;
+
       if (gameMode === 'fullscreen') {
         const resolutionRatio = selectedResolution.ratio;
         const screenRatio = window.innerWidth / window.innerHeight;
 
         if (screenRatio > resolutionRatio) {
-          canvas.height = window.innerHeight;
-          canvas.width = canvas.height * resolutionRatio;
+          displayHeight = window.innerHeight;
+          displayWidth = displayHeight * resolutionRatio;
         } else {
-          canvas.width = window.innerWidth;
-          canvas.height = canvas.width / resolutionRatio;
+          displayWidth = window.innerWidth;
+          displayHeight = displayWidth / resolutionRatio;
         }
       } else {
         const maxWidth = window.innerWidth - 48;
@@ -221,10 +241,22 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
           width = height * targetRatio;
         }
 
-        canvas.width = width;
-        canvas.height = height;
+        displayWidth = width;
+        displayHeight = height;
       }
 
+      // CSS 픽셀 기준 크기 설정
+      canvas.style.width = `${displayWidth}px`;
+      canvas.style.height = `${displayHeight}px`;
+
+      // 실제 캔버스 픽셀 크기를 DPR로 보정
+      canvas.width = Math.floor(displayWidth * dpr);
+      canvas.height = Math.floor(displayHeight * dpr);
+
+      // 컨텍스트 스케일도 DPR로 보정
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      // 게임 영역 갱신
       if (targetManagerState) {
         targetManagerActions.updateGameArea(canvas.width, canvas.height);
       }
@@ -273,6 +305,11 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     };
   }, [gameMode, onGameModeChange]);
 
+  // targetsRef 동기화
+  useEffect(() => {
+    targetsRef.current = targetManagerState.targets;
+  }, [targetManagerState.targets]);
+
   // 타겟 생성 간격 점진적 감소
   useEffect(() => {
     if (gameState.isGameStarted && gameState.startTime) {
@@ -317,6 +354,12 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       );
     };
   }, [gameState.isGameStarted]);
+
+  // gameRef 동기화
+  useEffect(() => {
+    gameRef.current.graceStartAt = gameState.graceStartAt;
+    gameRef.current.isGameOver = gameState.isGameOver;
+  }, [gameState.graceStartAt, gameState.isGameOver]);
 
   // 게임 시작 및 종료 테두리 표시, 배경음악 관리
   useEffect(() => {
@@ -373,7 +416,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     if (!canvas || !ctx) return;
 
     const render = () => {
-      clearCanvas(ctx, canvas.width, canvas.height);
+      clearCanvas(ctx, canvas);
 
       if (!image || !drawSizeRef.current.width) {
         requestAnimationFrame(render);
@@ -403,30 +446,34 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         mouseMovement.current = { x: 0, y: 0 };
       }
 
-      applyCanvasTransform(ctx, canvas.width, canvas.height, position.current);
+      applyCameraTransform(ctx, canvas, position.current);
 
-      // 맵 이미지 그리기
-      ctx.drawImage(
+      renderMapAndBounds(ctx, {
         image,
-        -drawSizeRef.current.width / 2,
-        -drawSizeRef.current.height / 2,
-        drawSizeRef.current.width,
-        drawSizeRef.current.height
-      );
-
-      // 타겟 컨테이너 테두리 그리기
-      targetManagerActions.drawTargetContainer((bounds) => {
-        ctx.strokeStyle = `rgba(255, 0, 0, ${borderOpacity.current})`;
-        ctx.lineWidth = 3;
-        ctx.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
+        width: canvas.width,
+        height: canvas.height,
+        drawSize: drawSizeRef.current,
+        borderOpacity: borderOpacity.current,
+        drawTargetContainer: (onDraw) =>
+          targetManagerActions.drawTargetContainer(onDraw),
       });
 
-      ctx.restore();
+      renderTargets({
+        ctx,
+        targets: targetsRef.current,
+        graceStartAt: gameRef.current.graceStartAt,
+        isGameOver: gameRef.current.isGameOver,
+      });
 
-      requestAnimationFrame(render);
+      endCameraTransform(ctx);
+
+      rafIdRef.current = requestAnimationFrame(render);
     };
 
-    render();
+    rafIdRef.current = requestAnimationFrame(render);
+    return () => {
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+    };
   }, []);
 
   return (
@@ -443,15 +490,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         onMouseMove={handleMouseMove}
         onMouseDown={handleMouseDown}
       />
-      {canvasRef.current && (
-        <TargetRenderer
-          targets={targetManagerState.targets}
-          canvas={canvasRef.current}
-          position={position.current}
-          graceStartAt={gameState.graceStartAt}
-          isGameOver={gameState.isGameOver}
-        />
-      )}
+
       <Crosshair />
       {gameState.isGameStarted && !gameState.isGameOver ? (
         <GameStatus
