@@ -32,6 +32,7 @@ interface TargetManagerActions {
       height: number;
     }) => void
   ) => void;
+  getTargetSize: () => number | null;
 }
 
 const initialTargetConfig: TargetConfig = {
@@ -174,6 +175,10 @@ const useTargetManager = (): [TargetManagerState, TargetManagerActions] => {
     []
   );
 
+  const getTargetSize = useCallback(() => {
+    return targetManagerRef.current?.getTargetSize() ?? null;
+  }, []);
+
   const state: TargetManagerState = {
     targets,
     targetConfig,
@@ -188,6 +193,7 @@ const useTargetManager = (): [TargetManagerState, TargetManagerActions] => {
     clearTargets,
     syncTargets,
     drawTargetContainer,
+    getTargetSize,
   };
 
   return [state, actions];

@@ -25,10 +25,16 @@ import {
   clearCanvas,
   applyCameraTransform,
   endCameraTransform,
+  setCanvasSizeDPR,
 } from '@utils/canvas';
 import useVolume from '@/hooks/useVolume';
 import { renderMapAndBounds } from '@/components/game/core/renderers/mapRenderer';
 import { Target } from '@/types/target';
+import {
+  addFloatingScore,
+  drawFloatingScores,
+  updateFloatingScores,
+} from '@/components/game/core/renderers/floatingScoreRenderer';
 
 interface GameWorldProps {
   gameMode: 'fullscreen' | 'windowed';
@@ -135,6 +141,13 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         (target) => {
           gameActions.handleHit();
           gameActions.addScore(target.score || 0);
+
+          addFloatingScore(
+            target.x,
+            target.y,
+            target.score || 0,
+            target.score == 3
+          );
         }
       );
 
@@ -142,7 +155,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         volumeActions.playHitSound();
       } else {
         volumeActions.playMissSound();
-        gameActions.handleClick(); // Miss일 때만 handleClick 호출
+        gameActions.handleClick();
       }
     }
   };
@@ -209,11 +222,6 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     if (!canvas) return;
 
     const resizeCanvas = () => {
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
-      const dpr = window.devicePixelRatio || 1;
-
       let displayWidth: number;
       let displayHeight: number;
 
@@ -245,20 +253,13 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         displayHeight = height;
       }
 
-      // CSS 픽셀 기준 크기 설정
       canvas.style.width = `${displayWidth}px`;
       canvas.style.height = `${displayHeight}px`;
 
-      // 실제 캔버스 픽셀 크기를 DPR로 보정
-      canvas.width = Math.floor(displayWidth * dpr);
-      canvas.height = Math.floor(displayHeight * dpr);
+      setCanvasSizeDPR(canvas);
 
-      // 컨텍스트 스케일도 DPR로 보정
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-      // 게임 영역 갱신
       if (targetManagerState) {
-        targetManagerActions.updateGameArea(canvas.width, canvas.height);
+        targetManagerActions.updateGameArea(displayWidth, displayHeight);
       }
     };
 
@@ -415,6 +416,10 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     const ctx = ctxRef.current;
     if (!canvas || !ctx) return;
 
+    setCanvasSizeDPR(canvas);
+
+    let last = performance.now();
+
     const render = () => {
       clearCanvas(ctx, canvas);
 
@@ -448,6 +453,11 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
       applyCameraTransform(ctx, canvas, position.current);
 
+      const now = performance.now();
+      const dt = now - last;
+      last = now;
+      updateFloatingScores(dt);
+
       renderMapAndBounds(ctx, {
         image,
         width: canvas.width,
@@ -464,6 +474,9 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         graceStartAt: gameRef.current.graceStartAt,
         isGameOver: gameRef.current.isGameOver,
       });
+
+      const targetSize = targetManagerActions.getTargetSize() ?? 50;
+      drawFloatingScores(ctx, targetSize);
 
       endCameraTransform(ctx);
 

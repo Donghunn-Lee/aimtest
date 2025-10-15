@@ -118,6 +118,10 @@ export class TargetManager {
     return this.targets;
   }
 
+  getTargetSize(): number {
+    return this.targetConfig.size;
+  }
+
   removeTarget(id: string): void {
     this.targets = this.targets.filter((target) => target.id !== id);
   }
