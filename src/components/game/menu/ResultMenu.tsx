@@ -10,6 +10,8 @@ import {
   formatPlayTime,
   getScoreRank,
 } from '@/services/rankingService';
+import { motion } from 'framer-motion';
+import { slideUp } from '@/utils/motion';
 
 interface ResultMenuProps {
   score: number;
@@ -147,126 +149,138 @@ const ResultMenu = ({
   }, [score, showMenu]);
 
   return (
-    <PanelOverlay animate={true}>
-      <div
-        className={`flex flex-col items-center justify-center space-y-3 px-4 transition-all duration-1000 md:space-y-4 xl:space-y-5 ${
-          showMenu ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-        }`}
-      >
-        <h2 className="mb-2 text-center text-lg font-bold text-white md:text-xl lg:text-2xl">
-          Game Over
-        </h2>
-        <div className="h-[110px] space-y-1 text-center text-white md:h-[130px] lg:h-[140px]">
-          <p className="text-base md:text-lg lg:text-xl">
-            Score : {formatRankingScore(displayScore)}
-          </p>
-          <p
-            className={`text-base transition-all duration-1000 md:text-lg lg:text-xl ${
-              showAccuracy
-                ? 'translate-y-0 opacity-100'
-                : 'translate-y-4 opacity-0'
-            }`}
-          >
-            Accuracy : {formatAccuracy(accuracy)}
-          </p>
-          <p
-            className={`text-base transition-all duration-1000 md:text-lg lg:text-xl ${
-              showTime ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-            }`}
-          >
-            Time : {formatPlayTime(elapsedTime)}
-          </p>
-          <p
-            className={`text-base transition-all duration-1000 md:text-lg lg:text-xl ${
-              showRank ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-            } text-white`}
-          >
-            Rank :{' '}
-            <span className={rank === -1 ? 'text-red-500' : 'text-white'}>
-              {rank === -1
-                ? 'Failed load'
-                : rank !== null
-                  ? `#${rank.toLocaleString()}`
-                  : 'Unranked'}
-            </span>
-          </p>
-        </div>
-        {score !== 0 && (
-          <>
-            {(saveStatus === 'idle' || saveStatus === 'error') && (
-              <div className="space-y-1">
-                <input
-                  type="text"
-                  value={userName}
-                  onChange={handleNameChange}
-                  placeholder="이름 (2-10자)"
-                  className="w-full rounded-lg bg-gray-700 px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  maxLength={10}
-                />
-                <div className="min-h-6 py-1 text-center text-xs">
-                  {userName.length === 0 ? (
-                    <p className="py-0 text-center text-xs text-green-500">
-                      점수 기록을 위해 이름을 입력해주세요!
-                    </p>
-                  ) : !isNameValid ? (
-                    <p className="text-red-500">
-                      이름은 2~10자로 입력해주세요.
-                    </p>
-                  ) : null}
+    <motion.div
+      variants={slideUp}
+      initial="hidden"
+      animate="show"
+      exit="exit"
+      className="absolute inset-x-0 mx-auto w-full max-w-md"
+    >
+      <PanelOverlay animate={true}>
+        <div
+          className={`flex flex-col items-center justify-center space-y-3 px-4 transition-all duration-1000 md:space-y-4 xl:space-y-5 ${
+            showMenu ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+          }`}
+        >
+          <h2 className="mb-2 text-center text-lg font-bold text-white md:text-xl lg:text-2xl">
+            Game Over
+          </h2>
+          <div className="h-[110px] space-y-1 text-center text-white md:h-[130px] lg:h-[140px]">
+            <p className="text-base md:text-lg lg:text-xl">
+              Score : {formatRankingScore(displayScore)}
+            </p>
+            <p
+              className={`text-base transition-all duration-1000 md:text-lg lg:text-xl ${
+                showAccuracy
+                  ? 'translate-y-0 opacity-100'
+                  : 'translate-y-4 opacity-0'
+              }`}
+            >
+              Accuracy : {formatAccuracy(accuracy)}
+            </p>
+            <p
+              className={`text-base transition-all duration-1000 md:text-lg lg:text-xl ${
+                showTime
+                  ? 'translate-y-0 opacity-100'
+                  : 'translate-y-4 opacity-0'
+              }`}
+            >
+              Time : {formatPlayTime(elapsedTime)}
+            </p>
+            <p
+              className={`text-base transition-all duration-1000 md:text-lg lg:text-xl ${
+                showRank
+                  ? 'translate-y-0 opacity-100'
+                  : 'translate-y-4 opacity-0'
+              } text-white`}
+            >
+              Rank :{' '}
+              <span className={rank === -1 ? 'text-red-500' : 'text-white'}>
+                {rank === -1
+                  ? 'Failed load'
+                  : rank !== null
+                    ? `#${rank.toLocaleString()}`
+                    : 'Unranked'}
+              </span>
+            </p>
+          </div>
+          {score !== 0 && (
+            <>
+              {(saveStatus === 'idle' || saveStatus === 'error') && (
+                <div className="space-y-1">
+                  <input
+                    type="text"
+                    value={userName}
+                    onChange={handleNameChange}
+                    placeholder="이름 (2-10자)"
+                    className="w-full rounded-lg bg-gray-700 px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    maxLength={10}
+                  />
+                  <div className="min-h-6 py-1 text-center text-xs">
+                    {userName.length === 0 ? (
+                      <p className="py-0 text-center text-xs text-green-500">
+                        점수 기록을 위해 이름을 입력해주세요!
+                      </p>
+                    ) : !isNameValid ? (
+                      <p className="text-red-500">
+                        이름은 2~10자로 입력해주세요.
+                      </p>
+                    ) : null}
+                  </div>
                 </div>
-              </div>
-            )}
-            {(saveStatus === 'idle' || saveStatus === 'error') && (
-              <Button
-                onClick={onSave}
-                disabled={!isNameValid || isSaving}
-                variant="primary"
-                size="sm"
-                fullWidth
-              >
-                {isSaving
-                  ? 'Saving...'
-                  : saveStatus === 'error'
-                    ? 'RESAVE'
-                    : 'SAVE'}
-              </Button>
-            )}
-            {saveStatus === 'success' && (
-              <p className="text-center text-green-500">
-                기록이 저장되었습니다!
-              </p>
-            )}
-            {saveStatus === 'error' && (
-              <p className="text-center text-xs font-semibold text-red-500">
-                오류가 발생했습니다. 다시 시도해주세요.
-              </p>
-            )}
-          </>
-        )}
-        <div className="flex w-full space-x-2">
-          <Button
-            onClick={isRestartEnabled ? onRestart : undefined}
-            variant="primary"
-            size="sm"
-            fullWidth
-            disabled={!isRestartEnabled}
-            className={`transition-all duration-500 ${
-              isRestartEnabled ? 'opacity-100' : 'opacity-50'
-            }`}
-          >
-            RESTART
-          </Button>
-          <Button
-            onClick={onMenu}
-            variant="secondary"
-            size="sm"
-            fullWidth
-          >
-            MENU
-          </Button>
+              )}
+              {(saveStatus === 'idle' || saveStatus === 'error') && (
+                <Button
+                  onClick={onSave}
+                  disabled={!isNameValid || isSaving}
+                  variant="primary"
+                  size="sm"
+                  fullWidth
+                >
+                  {isSaving
+                    ? 'Saving...'
+                    : saveStatus === 'error'
+                      ? 'RESAVE'
+                      : 'SAVE'}
+                </Button>
+              )}
+              {saveStatus === 'success' && (
+                <p className="text-center text-green-500">
+                  기록이 저장되었습니다!
+                </p>
+              )}
+              {saveStatus === 'error' && (
+                <p className="text-center text-xs font-semibold text-red-500">
+                  오류가 발생했습니다. 다시 시도해주세요.
+                </p>
+              )}
+            </>
+          )}
+          <div className="flex w-full space-x-2">
+            <Button
+              onClick={isRestartEnabled ? onRestart : undefined}
+              variant="primary"
+              size="sm"
+              fullWidth
+              disabled={!isRestartEnabled}
+              className={`transition-all duration-500 ${
+                isRestartEnabled ? 'opacity-100' : 'opacity-50'
+              }`}
+            >
+              RESTART
+            </Button>
+            <Button
+              onClick={onMenu}
+              variant="secondary"
+              size="sm"
+              fullWidth
+            >
+              MENU
+            </Button>
+          </div>
         </div>
-      </div>
-    </PanelOverlay>
+      </PanelOverlay>
+    </motion.div>
   );
 };
 

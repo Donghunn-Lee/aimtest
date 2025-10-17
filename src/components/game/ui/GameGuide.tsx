@@ -1,8 +1,5 @@
-import { PanelOverlay } from '@/components/common/PanelOverlay';
-
-interface GameGuideProps {
-  animate?: boolean;
-}
+import { slideLeft } from '@/utils/motion';
+import { motion } from 'framer-motion';
 
 const styles = {
   listItem:
@@ -10,10 +7,14 @@ const styles = {
   highlight: 'text-[#00ff00] font-bold',
 } as const;
 
-const GameGuide = ({ animate = true }: GameGuideProps) => {
+const GameGuide = () => {
   return (
-    <div
-      className={`absolute left-4 top-4 max-w-[240px] space-y-2 rounded-lg bg-black bg-opacity-50 p-2 text-white backdrop-blur-sm transition-opacity duration-1000 md:left-4 md:top-4 md:max-w-[280px] md:p-2.5 lg:left-8 lg:top-8 lg:max-w-[320px] lg:p-3 xl:left-10 xl:top-10 xl:max-w-[360px] xl:p-3.5 ${animate ? 'opacity-100' : 'opacity-0'}`}
+    <motion.div
+      variants={slideLeft}
+      initial="hidden"
+      animate="show"
+      exit="exit"
+      className={`absolute left-4 top-4 max-w-[240px] space-y-2 rounded-lg bg-black bg-opacity-60 p-2 text-white backdrop-blur-sm md:left-4 md:top-4 md:max-w-[280px] md:p-2.5 lg:left-8 lg:top-8 lg:max-w-[320px] lg:p-3 xl:left-10 xl:top-10 xl:max-w-[360px] xl:p-3.5`}
     >
       <h2 className="text-[11px] font-bold text-[#00ff00] md:text-xs lg:text-sm xl:text-base">
         Game Guide
@@ -44,7 +45,7 @@ const GameGuide = ({ animate = true }: GameGuideProps) => {
           선택할 수 있습니다.
         </li>
       </ul>
-    </div>
+    </motion.div>
   );
 };
 

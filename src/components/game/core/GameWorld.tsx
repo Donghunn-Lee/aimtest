@@ -6,20 +6,32 @@ import {
   useCallback,
 } from 'react';
 
+import { AnimatePresence, motion } from 'framer-motion';
+
 import { Crosshair } from '@components/game/ui/Crosshair';
 import { renderTargets } from '@/components/game/core/renderers/targetRenderer';
 import StartMenu from '@components/game/menu/StartMenu';
 import ResultMenu from '@components/game/menu/ResultMenu';
 import RankingBoard from '@components/game/ranking/RankingBoard';
 import { GameStatus } from '@/components/game/ui/GameStatus';
-import GameGuide from '../ui/GameGuide';
+import { renderMapAndBounds } from '@/components/game/core/renderers/mapRenderer';
+import GameGuide from '@components/game/ui/GameGuide';
+import {
+  addFloatingScore,
+  drawFloatingScores,
+  updateFloatingScores,
+} from '@/components/game/core/renderers/floatingScoreRenderer';
 
 import { Resolution, DEFAULT_RESOLUTION } from '@/types/resolution';
 import type { Position, Size, MouseMovement } from '@/types/game';
+import { Target } from '@/types/target';
 
 import { useImageLoader } from '@hooks/useImageLoader';
 import { useGame } from '@/hooks/useGame';
 import useTargetManager from '@hooks/useTargetManager';
+import useVolume from '@/hooks/useVolume';
+
+// import { slideUp, slideRight, slideLeft } from '@/constants/motion';
 
 import {
   clearCanvas,
@@ -27,14 +39,6 @@ import {
   endCameraTransform,
   setCanvasSizeDPR,
 } from '@utils/canvas';
-import useVolume from '@/hooks/useVolume';
-import { renderMapAndBounds } from '@/components/game/core/renderers/mapRenderer';
-import { Target } from '@/types/target';
-import {
-  addFloatingScore,
-  drawFloatingScores,
-  updateFloatingScores,
-} from '@/components/game/core/renderers/floatingScoreRenderer';
 
 interface GameWorldProps {
   gameMode: 'fullscreen' | 'windowed';
@@ -507,44 +511,63 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       />
 
       <Crosshair />
-      {gameState.isGameStarted && !gameState.isGameOver ? (
-        <GameStatus
-          elapsedTime={gameState.elapsedTime}
-          score={gameState.score}
-          accuracy={gameState.accuracy}
-          sensitivity={sensitivityDisplay}
-          gameMode={gameMode}
-        />
-      ) : null}
-      {!gameState.isGameStarted && !gameState.isGameOver && !isRankingOpen && (
-        <StartMenu
-          onStart={handleGameStart}
-          onRanking={() => setIsRankingOpen(true)}
-          selectedResolution={selectedResolution}
-          onResolutionChange={setSelectedResolution}
-          animate={false}
-          volumeState={volumeState}
-          volumeActions={volumeActions}
-        />
-      )}
-      {gameState.isGameOver && !isRankingOpen && (
-        <ResultMenu
-          score={gameState.score}
-          elapsedTime={gameState.elapsedTime}
-          accuracy={gameState.accuracy}
-          onRestart={handleGameStart}
-          onMenu={() => {
-            gameActions.resetGame();
-          }}
-        />
-      )}
-      {isRankingOpen && (
-        <RankingBoard
-          onClose={() => setIsRankingOpen(false)}
-          animate={false}
-        />
-      )}
-      <GameGuide animate={!gameState.isGameStarted && !isRankingOpen} />
+
+      <AnimatePresence>
+        {gameState.isGameStarted && !gameState.isGameOver ? (
+          <GameStatus
+            key="status"
+            elapsedTime={gameState.elapsedTime}
+            score={gameState.score}
+            accuracy={gameState.accuracy}
+            sensitivity={sensitivityDisplay}
+            gameMode={gameMode}
+          />
+        ) : null}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {!gameState.isGameStarted &&
+          !gameState.isGameOver &&
+          !isRankingOpen && (
+            <StartMenu
+              key="start"
+              onStart={handleGameStart}
+              onRanking={() => setIsRankingOpen(true)}
+              selectedResolution={selectedResolution}
+              onResolutionChange={setSelectedResolution}
+              animate={true}
+              volumeState={volumeState}
+              volumeActions={volumeActions}
+            />
+          )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {gameState.isGameOver && !isRankingOpen && (
+          <ResultMenu
+            score={gameState.score}
+            elapsedTime={gameState.elapsedTime}
+            accuracy={gameState.accuracy}
+            onRestart={handleGameStart}
+            onMenu={() => {
+              gameActions.resetGame();
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isRankingOpen && (
+          <RankingBoard
+            onClose={() => setIsRankingOpen(false)}
+            animate={false}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {!gameState.isGameStarted && !isRankingOpen && <GameGuide />}
+      </AnimatePresence>
     </div>
   );
 };
