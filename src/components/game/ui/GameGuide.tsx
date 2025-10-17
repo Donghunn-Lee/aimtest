@@ -35,7 +35,8 @@ const GameGuide = ({ animate = true }: GameGuideProps) => {
           종료됩니다.
         </li>
         <li className={styles.listItem}>
-          <span className={styles.highlight}>ESC</span>를 눌러 게임을 즉시
+          <span className={styles.highlight}>ESC</span> 또는{' '}
+          <span className={styles.highlight}>~</span>키를 눌러 게임을 즉시
           종료할 수 있습니다.
         </li>
         <li className={styles.listItem}>

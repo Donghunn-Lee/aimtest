@@ -397,6 +397,8 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         const newSensitivity = Math.min(5.0, mouseSensitivity.current + 0.1);
         mouseSensitivity.current = newSensitivity;
         setSensitivityDisplay(newSensitivity);
+      } else if (event.key === '`') {
+        gameActions.endGame();
       }
     },
     [gameState.isGameStarted]
