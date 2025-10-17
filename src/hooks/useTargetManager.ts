@@ -92,7 +92,7 @@ const useTargetManager = (): [TargetManagerState, TargetManagerActions] => {
 
   const computeSpawnInterval = useCallback((startTime: number) => {
     const elapsedSeconds = (Date.now() - startTime) / 1000;
-    // 330ms 최소 간격, 1.8%씩 감소
+    // 330ms 최소 간격, 1.8%씩 지수적 감소
     return Math.max(330, 1000 * Math.pow(0.982, elapsedSeconds));
   }, []);
 

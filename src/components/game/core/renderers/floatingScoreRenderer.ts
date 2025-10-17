@@ -9,6 +9,7 @@ export type FloatingScore = {
 
 const items: FloatingScore[] = [];
 
+// 타겟 사이즈(타겟 컨테이너 기준)를 기준으로한 offset
 const FONT_PER_SIZE = 0.42;
 const RISE_PER_SIZE = 0.54;
 const LW_PER_SIZE = 0.09;
@@ -84,13 +85,11 @@ export function drawFloatingScores(
 }
 
 function pickFillColor(score: number, crit: boolean): string {
-  if (score < 0) return '#ffb3b3'; // 패널티: 옅은 레드
-  if (crit) return '#ffec99'; // 크리티컬: 옅은 옐로
-  if (score === 0) return '#d9d9d9'; // 0점: 그레이
-  return '#e6f2ff'; // 기본: 옅은 블루
+  if (crit) return '#ffec99';
+  if (score === 0) return '#d9d9d9';
+  return '#e6f2ff';
 }
 
 function formatScore(score: number) {
-  // +3, -1, 0 등 출력 일관화
   return `${score > 0 ? '+' : ''}${score}`;
 }
