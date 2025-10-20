@@ -1,28 +1,32 @@
 import { ReactNode } from 'react';
+import { motion } from 'framer-motion';
+import { slideUp } from '@/utils/motion';
 
 interface PanelOverlayProps {
   children: ReactNode;
   className?: string;
-  animate?: boolean;
+  animate?: boolean; // true/false
 }
 
 export const PanelOverlay = ({
   children,
   className,
-  animate = false,
+  animate = true,
 }: PanelOverlayProps) => {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-opacity-50">
-      <div
-        className={`fixed inset-0 flex items-center justify-center ${
-          animate
-            ? `translate-y-0 opacity-100 transition-all duration-1000`
-            : ''
-        } ${className}`}
-      >
-        <div className="rounded-lg bg-black bg-opacity-60 p-4 shadow-lg backdrop-blur-sm lg:p-6 xl:p-8">
+    <div className="absolute inset-x-0 w-full">
+      <div className="flex justify-center">
+        <motion.div
+          variants={slideUp}
+          initial="hidden"
+          animate="show"
+          exit="exit"
+          className={`transform rounded-lg bg-black bg-opacity-60 p-4 text-white shadow-lg backdrop-blur-sm lg:p-6 xl:p-8 ${
+            className ?? ''
+          }`}
+        >
           {children}
-        </div>
+        </motion.div>
       </div>
     </div>
   );

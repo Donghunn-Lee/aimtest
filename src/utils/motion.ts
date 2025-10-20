@@ -1,5 +1,5 @@
 export const D = {
-  base: 1,
+  base: 0.8,
   out: 0.5,
 };
 
@@ -16,7 +16,7 @@ export const slideUp = {
     transition: { duration: D.base, ease: E.in },
   },
   exit: {
-    opacity: 1,
+    opacity: 0,
     y: '120vh',
     transition: { duration: D.out, ease: E.out },
   },

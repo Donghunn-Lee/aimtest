@@ -549,6 +549,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
             elapsedTime={gameState.elapsedTime}
             accuracy={gameState.accuracy}
             onRestart={handleGameStart}
+            animate={gameState.isGameOver && !isRankingOpen}
             onMenu={() => {
               gameActions.resetGame();
             }}
@@ -560,7 +561,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         {isRankingOpen && (
           <RankingBoard
             onClose={() => setIsRankingOpen(false)}
-            animate={false}
+            animate={true}
           />
         )}
       </AnimatePresence>

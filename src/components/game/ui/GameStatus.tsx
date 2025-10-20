@@ -22,11 +22,7 @@ export const GameStatus = ({
       initial="hidden"
       animate="show"
       exit="exit"
-      className={`absolute right-4 top-4 rounded bg-black bg-opacity-60 ${
-        gameMode === 'fullscreen'
-          ? 'w-[20vw] p-[1vw] text-[1.2vw]'
-          : 'w-[20vw] p-[1vw] text-[1.2vw]'
-      }`}
+      className="absolute right-4 top-4 w-[20vw] rounded bg-black bg-opacity-60 p-[1vw] text-[1.2vw] backdrop-blur-sm"
     >
       <div className="mb-[0.5vw] flex justify-between">
         <span>경과 시간:</span>
