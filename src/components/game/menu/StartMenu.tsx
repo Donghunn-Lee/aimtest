@@ -5,9 +5,8 @@ import { PanelOverlay } from '@/components/common/PanelOverlay';
 import { ResolutionSettings } from '@/components/game/settings/ResolutionSettings';
 import VolumeSlider from '@/components/game/ui/VolumeSlider';
 
-import { Resolution } from '@/types/resolution';
+import { Resolution } from '@/types/image';
 import { VolumeStateType, VolumeActionsType } from '@/hooks/useVolume';
-import { slideUp } from '@/utils/motion';
 
 interface StartMenuProps {
   onStart: () => void;

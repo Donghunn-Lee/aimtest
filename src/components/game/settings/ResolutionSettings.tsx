@@ -1,6 +1,6 @@
 import Button from '@/components/common/Button';
-
-import { Resolution, RESOLUTIONS } from '@/types/resolution';
+import type { Resolution } from '@/types/image';
+import { RESOLUTIONS } from '@/utils/image';
 
 interface ResolutionSettingsProps {
   selectedResolution: Resolution;

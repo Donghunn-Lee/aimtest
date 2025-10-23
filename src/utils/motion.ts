@@ -1,6 +1,7 @@
 export const D = {
   base: 0.8,
   out: 0.5,
+  fast: 0.3,
 };
 
 export const E = {
@@ -46,6 +47,18 @@ export const slideRight = {
   exit: {
     opacity: 0,
     x: '20vw',
+    transition: { duration: D.out, ease: E.out },
+  },
+};
+
+export const loading = {
+  initial: { opacity: 0 },
+  animate: {
+    opacity: 1,
+    transition: { duration: D.fast, ease: E.in },
+  },
+  exit: {
+    opacity: 0,
     transition: { duration: D.out, ease: E.out },
   },
 };

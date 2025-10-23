@@ -22,16 +22,14 @@ import {
   updateFloatingScores,
 } from '@/components/game/core/renderers/floatingScoreRenderer';
 
-import { Resolution, DEFAULT_RESOLUTION } from '@/types/resolution';
 import type { Position, Size, MouseMovement } from '@/types/game';
 import { Target } from '@/types/target';
+import type { Resolution } from '@/types/image';
 
 import { useImageLoader } from '@hooks/useImageLoader';
 import { useGame } from '@/hooks/useGame';
 import useTargetManager from '@hooks/useTargetManager';
 import useVolume from '@/hooks/useVolume';
-
-// import { slideUp, slideRight, slideLeft } from '@/constants/motion';
 
 import {
   clearCanvas,
@@ -39,6 +37,8 @@ import {
   endCameraTransform,
   setCanvasSizeDPR,
 } from '@utils/canvas';
+import { DEFAULT_RESOLUTION } from '@/utils/image';
+import { LoadingOverlay } from '@/components/game/ui/LoadingOverlay';
 
 interface GameWorldProps {
   gameMode: 'fullscreen' | 'windowed';
@@ -68,7 +68,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     useState<Resolution>(DEFAULT_RESOLUTION);
   const [sensitivityDisplay, setSensitivityDisplay] = useState(1);
 
-  const image = useImageLoader({
+  const { image, imageStatus } = useImageLoader({
     src: '/map.svg',
     canvas: canvasRef.current,
     drawSize: drawSizeRef.current,
@@ -76,6 +76,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const [gameState, gameActions] = useGame();
   const [targetManagerState, targetManagerActions] = useTargetManager();
   const [volumeState, volumeActions] = useVolume();
+  const [showMenu, setShowMenu] = useState(false);
 
   // 게임 시작 핸들러
   const handleGameStart = () => {
@@ -420,7 +421,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = ctxRef.current;
-    if (!canvas || !ctx) return;
+    if (!canvas || !ctx || !showMenu) return;
 
     setCanvasSizeDPR(canvas);
 
@@ -493,7 +494,14 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     return () => {
       if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
     };
-  }, []);
+  }, [showMenu]);
+
+  // 맵 로딩 후 메뉴 렌더링
+  useEffect(() => {
+    if (imageStatus === 'loaded') {
+      setShowMenu(true);
+    }
+  }, [imageStatus]);
 
   return (
     <div
@@ -502,7 +510,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     >
       <canvas
         ref={canvasRef}
-        className={`block bg-black ${gameMode === 'fullscreen' ? 'h-auto w-auto' : 'max-h-[calc(100vh-48px)] max-w-[calc(100vw-48px)]'}`}
+        className={`block bg-[#1a1a1a] ${gameMode === 'fullscreen' ? 'h-auto w-auto' : 'max-h-[calc(100vh-48px)] max-w-[calc(100vw-48px)]'}`}
         style={{
           aspectRatio: selectedResolution.ratio,
         }}
@@ -528,7 +536,8 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       <AnimatePresence>
         {!gameState.isGameStarted &&
           !gameState.isGameOver &&
-          !isRankingOpen && (
+          !isRankingOpen &&
+          showMenu && (
             <StartMenu
               key="start"
               onStart={handleGameStart}
@@ -543,7 +552,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       </AnimatePresence>
 
       <AnimatePresence>
-        {gameState.isGameOver && !isRankingOpen && (
+        {gameState.isGameOver && (
           <ResultMenu
             score={gameState.score}
             elapsedTime={gameState.elapsedTime}
@@ -567,8 +576,12 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       </AnimatePresence>
 
       <AnimatePresence>
-        {!gameState.isGameStarted && !isRankingOpen && <GameGuide />}
+        {!gameState.isGameStarted && !isRankingOpen && showMenu && (
+          <GameGuide />
+        )}
       </AnimatePresence>
+
+      <LoadingOverlay imageStatus={imageStatus} />
     </div>
   );
 };
