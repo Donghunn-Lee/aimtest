@@ -12,6 +12,19 @@ interface ImageLoaderProps {
 export function useImageLoader({ src, canvas, drawSize }: ImageLoaderProps) {
   const imgRef = useRef<HTMLImageElement>(new Image());
   const [status, setStatus] = useState<LoadingStatus>('idle');
+  const [firstLoaded, setFirstLoaded] = useState(false);
+  const firstLoadedRef = useRef(false);
+
+  // src가 바뀌면 최초 로딩 플래그 리셋
+  const prevSrcRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (prevSrcRef.current !== src) {
+      prevSrcRef.current = src;
+      firstLoadedRef.current = false;
+      setFirstLoaded(false);
+      setStatus('idle');
+    }
+  }, [src]);
 
   const onLoad = () => {
     if (!canvas) return;
@@ -27,12 +40,17 @@ export function useImageLoader({ src, canvas, drawSize }: ImageLoaderProps) {
   useEffect(() => {
     const img = imgRef.current;
     let canceled = false;
-
     setStatus('loading');
 
     const handleLoad = () => {
       if (canceled) return;
       setStatus('loaded');
+
+      if (!firstLoadedRef.current) {
+        firstLoadedRef.current = true;
+        setTimeout(() => setFirstLoaded(true), 500);
+      }
+
       if (canvas) {
         calculateAspectFit(
           imgRef.current,
@@ -67,5 +85,5 @@ export function useImageLoader({ src, canvas, drawSize }: ImageLoaderProps) {
     };
   }, [src, onLoad, status]);
 
-  return { image: imgRef.current, imageStatus: status };
+  return { image: imgRef.current, status, firstLoaded };
 }

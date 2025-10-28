@@ -9,6 +9,13 @@ interface TargetManagerState {
   targetConfig: TargetConfig;
 }
 
+export type TargetContainer = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
 interface TargetManagerActions {
   init: (
     gameArea: { width: number; height: number },
@@ -24,14 +31,7 @@ interface TargetManagerActions {
   updateGameArea: (width: number, height: number) => void;
   clearTargets: () => void;
   syncTargets: (onTrigger?: () => void) => void;
-  drawTargetContainer: (
-    onDraw: (bounds: {
-      x: number;
-      y: number;
-      width: number;
-      height: number;
-    }) => void
-  ) => void;
+  drawTargetContainer: (onDraw: (bounds: TargetContainer) => void) => void;
   getTargetSize: () => number | null;
 }
 

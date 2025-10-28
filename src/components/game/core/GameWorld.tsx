@@ -4,9 +4,10 @@ import {
   useState,
   type MouseEvent,
   useCallback,
+  useMemo,
 } from 'react';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 
 import { Crosshair } from '@components/game/ui/Crosshair';
 import { renderTargets } from '@/components/game/core/renderers/targetRenderer';
@@ -22,13 +23,15 @@ import {
   updateFloatingScores,
 } from '@/components/game/core/renderers/floatingScoreRenderer';
 
-import type { Position, Size, MouseMovement } from '@/types/game';
+import type { Size } from '@/types/game';
 import { Target } from '@/types/target';
 import type { Resolution } from '@/types/image';
 
 import { useImageLoader } from '@hooks/useImageLoader';
 import { useGame } from '@/hooks/useGame';
-import useTargetManager from '@hooks/useTargetManager';
+import useTargetManager, {
+  type TargetContainer,
+} from '@hooks/useTargetManager';
 import useVolume from '@/hooks/useVolume';
 
 import {
@@ -39,6 +42,7 @@ import {
 } from '@utils/canvas';
 import { DEFAULT_RESOLUTION } from '@/utils/image';
 import { LoadingOverlay } from '@/components/game/ui/LoadingOverlay';
+import { useCanvasRenderLoop } from '@/hooks/useCanvasRenderLoop';
 
 interface GameWorldProps {
   gameMode: 'fullscreen' | 'windowed';
@@ -47,8 +51,6 @@ interface GameWorldProps {
 
 export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
-  const rafIdRef = useRef<number | null>(null);
   const targetsRef = useRef<Target[]>([]);
   const gameRef = useRef({
     graceStartAt: null as number | null,
@@ -56,10 +58,8 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   });
   const containerRef = useRef<HTMLDivElement>(null);
   const isPointerLocked = useRef(false);
-  const mouseMovement = useRef<MouseMovement>({ x: 0, y: 0 });
-  const position = useRef<Position>({ x: 0, y: 100 });
   const drawSizeRef = useRef<Size>({ width: 0, height: 0 });
-  const borderOpacity = useRef(0.7);
+  const borderOpacityRef = useRef(0.7);
   const fadeAnimationFrame = useRef<number | null>(null);
   const mouseSensitivity = useRef(1);
 
@@ -68,7 +68,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     useState<Resolution>(DEFAULT_RESOLUTION);
   const [sensitivityDisplay, setSensitivityDisplay] = useState(1);
 
-  const { image, imageStatus } = useImageLoader({
+  const { image, firstLoaded: showMenu } = useImageLoader({
     src: '/map.svg',
     canvas: canvasRef.current,
     drawSize: drawSizeRef.current,
@@ -76,7 +76,35 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const [gameState, gameActions] = useGame();
   const [targetManagerState, targetManagerActions] = useTargetManager();
   const [volumeState, volumeActions] = useVolume();
-  const [showMenu, setShowMenu] = useState(false);
+
+  const services = useMemo(() => {
+    const getTargetSize = () => targetManagerActions.getTargetSize() ?? 50;
+    const drawTargetContainer = (onDraw: (bounds: TargetContainer) => void) => {
+      targetManagerActions.drawTargetContainer?.(onDraw);
+    };
+
+    return {
+      clearCanvas,
+      applyCameraTransform,
+      endCameraTransform,
+      renderMapAndBounds,
+      renderTargets,
+      updateFloatingScores,
+      drawFloatingScores,
+      getTargetSize,
+      drawTargetContainer,
+    };
+  }, [targetManagerActions]);
+
+  const loop = useCanvasRenderLoop({
+    canvasRef,
+    image,
+    drawSizeRef,
+    targetsRef,
+    gameRef,
+    borderOpacityRef,
+    services: services,
+  });
 
   // 게임 시작 핸들러
   const handleGameStart = () => {
@@ -115,10 +143,8 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const handleMouseMove = (event: MouseEvent) => {
     if (!gameState.isGameStarted) return;
     if (isPointerLocked.current) {
-      mouseMovement.current = {
-        x: event.movementX,
-        y: event.movementY,
-      };
+      const sens = mouseSensitivity.current;
+      loop.nudgeCamera(-event.movementX * sens, -event.movementY * sens);
     }
   };
 
@@ -129,39 +155,39 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
     if (!isPointerLocked.current) {
       // 게임이 시작된 상태에서만 포인터락 요청
-      if (gameState.isGameStarted) {
-        try {
-          canvasRef.current.requestPointerLock();
-        } catch (error) {
-          // 포인터락 요청 실패 시 무시
-        }
+      try {
+        canvasRef.current.requestPointerLock();
+      } catch {
+        // 포인터락 요청 실패 시 무시
       }
-    } else if (targetManagerState) {
-      const screenX = -position.current.x;
-      const screenY = -position.current.y;
+      return;
+    }
 
-      const isHited = targetManagerActions.checkHit(
-        screenX,
-        screenY,
-        (target) => {
-          gameActions.handleHit();
-          gameActions.addScore(target.score || 0);
+    const cam = loop.getCamera();
+    const screenX = -cam.x;
+    const screenY = -cam.y;
 
-          addFloatingScore(
-            target.x,
-            target.y,
-            target.score || 0,
-            target.score == 3
-          );
-        }
-      );
+    const isHited = targetManagerActions.checkHit(
+      screenX,
+      screenY,
+      (target) => {
+        gameActions.handleHit();
+        gameActions.addScore(target.score || 0);
 
-      if (isHited) {
-        volumeActions.playHitSound();
-      } else {
-        volumeActions.playMissSound();
-        gameActions.handleClick();
+        addFloatingScore(
+          target.x,
+          target.y,
+          target.score || 0,
+          target.score == 3
+        );
       }
+    );
+
+    if (isHited) {
+      volumeActions.playHitSound();
+    } else {
+      volumeActions.playMissSound();
+      gameActions.handleClick();
     }
   };
 
@@ -174,10 +200,10 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       const elapsed = Date.now() - startTime;
       if (elapsed < duration) {
         // 1초 동안 0.7에서 0으로 선형적으로 감소
-        borderOpacity.current = 0.7 * (1 - elapsed / duration);
+        borderOpacityRef.current = 0.7 * (1 - elapsed / duration);
         fadeAnimationFrame.current = requestAnimationFrame(animate);
       } else {
-        borderOpacity.current = 0;
+        borderOpacityRef.current = 0;
       }
     };
 
@@ -189,15 +215,8 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     if (fadeAnimationFrame.current) {
       fadeAnimationFrame.current = null;
     }
-    borderOpacity.current = 0.7;
+    borderOpacityRef.current = 0.7;
   };
-
-  // Canvas context 초기화
-  useEffect(() => {
-    if (canvasRef.current) {
-      ctxRef.current = canvasRef.current.getContext('2d');
-    }
-  }, [canvasRef.current]);
 
   // 초기 타겟 매니저 초기화
   useEffect(() => {
@@ -264,7 +283,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       setCanvasSizeDPR(canvas);
 
       if (targetManagerState) {
-        targetManagerActions.updateGameArea(displayWidth, displayHeight);
+        targetManagerActions.updateGameArea(canvas.width, canvas.height);
       }
     };
 
@@ -417,91 +436,16 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     };
   }, [handleKeyDown]);
 
-  // 렌더링
+  // 렌더 루프
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = ctxRef.current;
-    if (!canvas || !ctx || !showMenu) return;
+    const ready = showMenu && !!canvas && canvas.width > 0 && canvas.height > 0;
 
-    setCanvasSizeDPR(canvas);
+    if (ready) loop.start();
+    else loop.stop();
 
-    let last = performance.now();
-
-    const render = () => {
-      clearCanvas(ctx, canvas);
-
-      if (!image || !drawSizeRef.current.width) {
-        requestAnimationFrame(render);
-        return;
-      }
-
-      // 위치 업데이트
-      if (isPointerLocked.current) {
-        // 마우스 움직임의 반대 방향으로 이동 (민감도 적용)
-        position.current.x -=
-          mouseMovement.current.x * mouseSensitivity.current;
-        position.current.y -=
-          mouseMovement.current.y * mouseSensitivity.current;
-
-        // 이동 제한을 맵 크기에 맞게 조정 (범위 조정)
-        const maxX = (drawSizeRef.current.width - canvas.width) * 0.5;
-        const maxY = (drawSizeRef.current.height - canvas.height) * 0.5;
-        position.current.x = Math.max(
-          -maxX,
-          Math.min(maxX, position.current.x)
-        );
-        position.current.y = Math.max(
-          -maxY,
-          Math.min(maxY, position.current.y)
-        );
-
-        mouseMovement.current = { x: 0, y: 0 };
-      }
-
-      applyCameraTransform(ctx, canvas, position.current);
-
-      const now = performance.now();
-      const dt = now - last;
-      last = now;
-      updateFloatingScores(dt);
-
-      renderMapAndBounds(ctx, {
-        image,
-        width: canvas.width,
-        height: canvas.height,
-        drawSize: drawSizeRef.current,
-        borderOpacity: borderOpacity.current,
-        drawTargetContainer: (onDraw) =>
-          targetManagerActions.drawTargetContainer(onDraw),
-      });
-
-      renderTargets({
-        ctx,
-        targets: targetsRef.current,
-        graceStartAt: gameRef.current.graceStartAt,
-        isGameOver: gameRef.current.isGameOver,
-      });
-
-      const targetSize = targetManagerActions.getTargetSize() ?? 50;
-      drawFloatingScores(ctx, targetSize);
-
-      endCameraTransform(ctx);
-
-      rafIdRef.current = requestAnimationFrame(render);
-    };
-
-    rafIdRef.current = requestAnimationFrame(render);
-    return () => {
-      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
-    };
-  }, [showMenu]);
-
-  // 맵 로딩 후 메뉴 렌더링
-  useEffect(() => {
-    if (imageStatus === 'loaded') {
-      setShowMenu(true);
-    }
-  }, [imageStatus]);
+    return () => loop.stop();
+  }, [loop, showMenu]);
 
   return (
     <div
@@ -581,7 +525,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         )}
       </AnimatePresence>
 
-      <LoadingOverlay imageStatus={imageStatus} />
+      <LoadingOverlay show={showMenu} />
     </div>
   );
 };

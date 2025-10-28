@@ -1,15 +1,10 @@
-import type { LoadingStatus } from '@/types/image';
 import { loading as loadingVariants } from '@/utils/motion';
 import { AnimatePresence, motion } from 'framer-motion';
 
-export const LoadingOverlay = ({
-  imageStatus: status,
-}: {
-  imageStatus: LoadingStatus;
-}) => {
+export const LoadingOverlay = ({ show }: { show: boolean }) => {
   return (
     <AnimatePresence>
-      {status !== 'loaded' && (
+      {!show && (
         <motion.div
           className="absolute inset-0 z-50"
           variants={loadingVariants}

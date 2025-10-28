@@ -1,23 +1,24 @@
+export type RenderMapAndBoundsArgs = {
+  image: HTMLImageElement;
+  width: number;
+  height: number;
+  drawSize: { width: number; height: number };
+  borderOpacity: number;
+  drawTargetContainer: (
+    onDraw: (bounds: {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    }) => void
+  ) => void;
+};
+
 export const renderMapAndBounds = (
   ctx: CanvasRenderingContext2D,
-  args: {
-    image: HTMLImageElement;
-    width: number;
-    height: number;
-    drawSize: { width: number; height: number };
-    borderOpacity: number;
-    drawTargetContainer: (
-      onDraw: (bounds: {
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-      }) => void
-    ) => void;
-  }
+  args: RenderMapAndBoundsArgs
 ) => {
-  const { image, width, height, drawSize, borderOpacity, drawTargetContainer } =
-    args;
+  const { image, drawSize, borderOpacity, drawTargetContainer } = args;
 
   // 맵
   ctx.drawImage(
