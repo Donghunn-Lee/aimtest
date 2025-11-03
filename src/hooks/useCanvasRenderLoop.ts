@@ -83,7 +83,7 @@ export function useCanvasRenderLoop(
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const rafIdRef = useRef<number | null>(null);
   const runningRef = useRef(false); // start/stop idempotent 보장
-  const cameraRef = useRef<Camera>({ x: 0, y: 0 });
+  const cameraRef = useRef<Camera>({ x: 0, y: 90 });
   const pendingDeltaRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 }); // 입력 누적(프레임 시작 시 적용)
 
   // 프레임 타이밍/통계
