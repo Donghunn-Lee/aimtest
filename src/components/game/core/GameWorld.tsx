@@ -43,6 +43,7 @@ import {
 import { DEFAULT_RESOLUTION } from '@/utils/image';
 import { LoadingOverlay } from '@/components/game/ui/LoadingOverlay';
 import { useCanvasRenderLoop } from '@/hooks/useCanvasRenderLoop';
+import { useResizeCanvas } from '@/hooks/useResizeCanvas';
 
 interface GameWorldProps {
   gameMode: 'fullscreen' | 'windowed';
@@ -104,6 +105,19 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     gameRef,
     borderOpacityRef,
     services: services,
+  });
+
+  // Resize 로직
+  const { displayWidth, displayHeight, recalc } = useResizeCanvas({
+    canvasRef,
+    mode: gameMode,
+    ratio: selectedResolution.ratio,
+    windowPadding: 48,
+    onGameAreaChange: (w, h) => {
+      // targetManager가 초기화 되었다면 타겟 영역 갱신
+      targetManagerActions.updateGameArea(w, h);
+    },
+    deps: [selectedResolution.ratio, image],
   });
 
   // 게임 시작 핸들러
@@ -239,61 +253,6 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       }
     };
   }, [selectedResolution]);
-
-  // 캔버스 크기 설정
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const resizeCanvas = () => {
-      let displayWidth: number;
-      let displayHeight: number;
-
-      if (gameMode === 'fullscreen') {
-        const resolutionRatio = selectedResolution.ratio;
-        const screenRatio = window.innerWidth / window.innerHeight;
-
-        if (screenRatio > resolutionRatio) {
-          displayHeight = window.innerHeight;
-          displayWidth = displayHeight * resolutionRatio;
-        } else {
-          displayWidth = window.innerWidth;
-          displayHeight = displayWidth / resolutionRatio;
-        }
-      } else {
-        const maxWidth = window.innerWidth - 48;
-        const maxHeight = window.innerHeight - 48;
-
-        const targetRatio = selectedResolution.ratio;
-        let width = maxWidth;
-        let height = width / targetRatio;
-
-        if (height > maxHeight) {
-          height = maxHeight;
-          width = height * targetRatio;
-        }
-
-        displayWidth = width;
-        displayHeight = height;
-      }
-
-      canvas.style.width = `${displayWidth}px`;
-      canvas.style.height = `${displayHeight}px`;
-
-      setCanvasSizeDPR(canvas);
-
-      if (targetManagerState) {
-        targetManagerActions.updateGameArea(canvas.width, canvas.height);
-      }
-    };
-
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-
-    return () => {
-      window.removeEventListener('resize', resizeCanvas);
-    };
-  }, [gameMode, selectedResolution]);
 
   // 전체화면 모드 처리
   useEffect(() => {
