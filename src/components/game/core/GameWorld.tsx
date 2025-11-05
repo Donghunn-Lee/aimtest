@@ -44,6 +44,7 @@ import { DEFAULT_RESOLUTION } from '@/utils/image';
 import { LoadingOverlay } from '@/components/game/ui/LoadingOverlay';
 import { useCanvasRenderLoop } from '@/hooks/useCanvasRenderLoop';
 import { useResizeCanvas } from '@/hooks/useResizeCanvas';
+import { usePointerLock } from '@/hooks/usePointerLock';
 
 interface GameWorldProps {
   gameMode: 'fullscreen' | 'windowed';
@@ -58,7 +59,6 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     isGameOver: false,
   });
   const containerRef = useRef<HTMLDivElement>(null);
-  const isPointerLocked = useRef(false);
   const drawSizeRef = useRef<Size>({ width: 0, height: 0 });
   const borderOpacityRef = useRef(0.7);
   const fadeAnimationFrame = useRef<number | null>(null);
@@ -97,6 +97,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     };
   }, [targetManagerActions]);
 
+  // 캔버스 렌더링 루프 (게임 오브젝트, 맵, 점수 등 모든 프레임 단위 렌더 관리)
   const loop = useCanvasRenderLoop({
     canvasRef,
     image,
@@ -107,7 +108,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     services: services,
   });
 
-  // Resize 로직
+  // 화면 크기 및 해상도 관리 (모드 전환/리사이즈 대응)
   const { displayWidth, displayHeight, recalc } = useResizeCanvas({
     canvasRef,
     mode: gameMode,
@@ -120,6 +121,13 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     deps: [selectedResolution.ratio, image],
   });
 
+  // 포인터 잠금 상태 관리 (PointerLock API - 조준/해제 제어)
+  const pointer = usePointerLock({
+    canvasRef: canvasRef,
+    enabled: !gameState.isGameOver,
+    onUnlock: () => gameActions.endGame(),
+  });
+
   // 게임 시작 핸들러
   const handleGameStart = () => {
     gameActions.startGame();
@@ -130,50 +138,22 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       },
       selectedResolution.ratio
     );
-    // 고정 틱 누적 기반 스폰 시작
-    if (gameState.startTime) {
-      targetManagerActions.startSpawner(gameState.startTime);
-    }
-    try {
-      canvasRef.current?.requestPointerLock();
-    } catch (error) {
-      // 포인터락 요청 실패 시 게임 시작 취소
-      gameActions.resetGame();
-    }
-  };
 
-  // 포인터 잠금 상태 변경 핸들러
-  const handlePointerLockChange = () => {
-    if (!canvasRef.current) return;
-    isPointerLocked.current = document.pointerLockElement === canvasRef.current;
-
-    // 포인터락이 해제되었을 때 게임 상태 처리
-    if (!isPointerLocked.current && gameState.isGameStarted) {
-      gameActions.endGame();
-    }
+    void pointer.request();
   };
 
   // 마우스 이동 핸들러
   const handleMouseMove = (event: MouseEvent) => {
-    if (!gameState.isGameStarted) return;
-    if (isPointerLocked.current) {
-      const sens = mouseSensitivity.current;
-      loop.nudgeCamera(-event.movementX * sens, -event.movementY * sens);
-    }
+    if (!gameState.isGameStarted || !pointer.isLocked) return;
+    const sens = mouseSensitivity.current;
+    loop.nudgeCamera(-event.movementX * sens, -event.movementY * sens);
   };
 
   // 마우스 클릭 핸들러
   const handleMouseDown = (event: MouseEvent) => {
     if (!gameState.isGameStarted) return;
-    if (!canvasRef.current) return;
-
-    if (!isPointerLocked.current) {
-      // 게임이 시작된 상태에서만 포인터락 요청
-      try {
-        canvasRef.current.requestPointerLock();
-      } catch {
-        // 포인터락 요청 실패 시 무시
-      }
+    if (!pointer.isLocked) {
+      void pointer.request();
       return;
     }
 
@@ -327,17 +307,6 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
     return () => clearInterval(timer);
   }, [gameState.isGameStarted, gameState.isGameOver, gameActions]);
-
-  // 포인터락 이벤트 리스너 설정
-  useEffect(() => {
-    document.addEventListener('pointerlockchange', handlePointerLockChange);
-    return () => {
-      document.removeEventListener(
-        'pointerlockchange',
-        handlePointerLockChange
-      );
-    };
-  }, [gameState.isGameStarted]);
 
   // gameRef 동기화
   useEffect(() => {
