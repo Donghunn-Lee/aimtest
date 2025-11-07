@@ -1,11 +1,4 @@
-import {
-  useRef,
-  useEffect,
-  useState,
-  type MouseEvent,
-  useCallback,
-  useMemo,
-} from 'react';
+import { useRef, useEffect, useState, useMemo } from 'react';
 
 import { AnimatePresence } from 'framer-motion';
 
@@ -38,13 +31,13 @@ import {
   clearCanvas,
   applyCameraTransform,
   endCameraTransform,
-  setCanvasSizeDPR,
 } from '@utils/canvas';
 import { DEFAULT_RESOLUTION } from '@/utils/image';
 import { LoadingOverlay } from '@/components/game/ui/LoadingOverlay';
 import { useCanvasRenderLoop } from '@/hooks/useCanvasRenderLoop';
 import { useResizeCanvas } from '@/hooks/useResizeCanvas';
 import { usePointerLock } from '@/hooks/usePointerLock';
+import { useInputController } from '@/hooks/useInputController';
 
 interface GameWorldProps {
   gameMode: 'fullscreen' | 'windowed';
@@ -62,12 +55,10 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const drawSizeRef = useRef<Size>({ width: 0, height: 0 });
   const borderOpacityRef = useRef(0.7);
   const fadeAnimationFrame = useRef<number | null>(null);
-  const mouseSensitivity = useRef(1);
 
   const [isRankingOpen, setIsRankingOpen] = useState(false);
   const [selectedResolution, setSelectedResolution] =
     useState<Resolution>(DEFAULT_RESOLUTION);
-  const [sensitivityDisplay, setSensitivityDisplay] = useState(1);
 
   const { image, firstLoaded: showMenu } = useImageLoader({
     src: '/map.svg',
@@ -78,6 +69,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const [targetManagerState, targetManagerActions] = useTargetManager();
   const [volumeState, volumeActions] = useVolume();
 
+  // 캔버스 랜더링 객체
   const services = useMemo(() => {
     const getTargetSize = () => targetManagerActions.getTargetSize() ?? 50;
     const drawTargetContainer = (onDraw: (bounds: TargetContainer) => void) => {
@@ -109,7 +101,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   });
 
   // 화면 크기 및 해상도 관리 (모드 전환/리사이즈 대응)
-  const { displayWidth, displayHeight, recalc } = useResizeCanvas({
+  useResizeCanvas({
     canvasRef,
     mode: gameMode,
     ratio: selectedResolution.ratio,
@@ -128,6 +120,22 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     onUnlock: () => gameActions.endGame(),
   });
 
+  // 키보드, 마우스 입력 관리
+  const { onMouseMove, onMouseDown, sensitivity, setSensitivity } =
+    useInputController({
+      pointer,
+      loop,
+      gameState,
+      gameActions,
+      targetManagerActions,
+      volumeActions,
+      initialSensitivity: 1,
+      minSensitivity: 0.1,
+      maxSensitivity: 5.0,
+      selectedRatio: selectedResolution.ratio,
+      onScore: (t) => addFloatingScore(t.x, t.y, t.score || 0, t.score === 3),
+    });
+
   // 게임 시작 핸들러
   const handleGameStart = () => {
     gameActions.startGame();
@@ -140,49 +148,6 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     );
 
     void pointer.request();
-  };
-
-  // 마우스 이동 핸들러
-  const handleMouseMove = (event: MouseEvent) => {
-    if (!gameState.isGameStarted || !pointer.isLocked) return;
-    const sens = mouseSensitivity.current;
-    loop.nudgeCamera(-event.movementX * sens, -event.movementY * sens);
-  };
-
-  // 마우스 클릭 핸들러
-  const handleMouseDown = (event: MouseEvent) => {
-    if (!gameState.isGameStarted) return;
-    if (!pointer.isLocked) {
-      void pointer.request();
-      return;
-    }
-
-    const cam = loop.getCamera();
-    const screenX = -cam.x;
-    const screenY = -cam.y;
-
-    const isHited = targetManagerActions.checkHit(
-      screenX,
-      screenY,
-      (target) => {
-        gameActions.handleHit();
-        gameActions.addScore(target.score || 0);
-
-        addFloatingScore(
-          target.x,
-          target.y,
-          target.score || 0,
-          target.score == 3
-        );
-      }
-    );
-
-    if (isHited) {
-      volumeActions.playHitSound();
-    } else {
-      volumeActions.playMissSound();
-      gameActions.handleClick();
-    }
   };
 
   // 타겟 컨테이너 페이드아웃 애니메이션
@@ -207,6 +172,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   // 타겟 컨테이너 테두리 표시
   const showBorder = () => {
     if (fadeAnimationFrame.current) {
+      cancelAnimationFrame(fadeAnimationFrame.current);
       fadeAnimationFrame.current = null;
     }
     borderOpacityRef.current = 0.7;
@@ -334,36 +300,6 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     };
   }, []);
 
-  // 키보드 이벤트 핸들러
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent) => {
-      if (!gameState.isGameStarted) return;
-
-      if (event.key === '[') {
-        // 민감도 감소 (최소 0.1)
-        const newSensitivity = Math.max(0.1, mouseSensitivity.current - 0.1);
-        mouseSensitivity.current = newSensitivity;
-        setSensitivityDisplay(newSensitivity);
-      } else if (event.key === ']') {
-        // 민감도 증가 (최대 5.0)
-        const newSensitivity = Math.min(5.0, mouseSensitivity.current + 0.1);
-        mouseSensitivity.current = newSensitivity;
-        setSensitivityDisplay(newSensitivity);
-      } else if (event.key === '`') {
-        gameActions.endGame();
-      }
-    },
-    [gameState.isGameStarted]
-  );
-
-  // 키보드 이벤트 리스너 설정
-  useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [handleKeyDown]);
-
   // 렌더 루프
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -386,8 +322,8 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         style={{
           aspectRatio: selectedResolution.ratio,
         }}
-        onMouseMove={handleMouseMove}
-        onMouseDown={handleMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseDown={onMouseDown}
       />
 
       <Crosshair />
@@ -399,7 +335,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
             elapsedTime={gameState.elapsedTime}
             score={gameState.score}
             accuracy={gameState.accuracy}
-            sensitivity={sensitivityDisplay}
+            sensitivity={sensitivity}
             gameMode={gameMode}
           />
         ) : null}

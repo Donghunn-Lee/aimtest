@@ -4,7 +4,7 @@ import { TargetManager } from '@/components/game/core/target/TargetManager';
 
 import type { Target, TargetConfig } from '@/types/target';
 
-interface TargetManagerState {
+export interface TargetManagerState {
   targets: Target[];
   targetConfig: TargetConfig;
 }
@@ -16,7 +16,7 @@ export type TargetContainer = {
   height: number;
 };
 
-interface TargetManagerActions {
+export interface TargetManagerActions {
   init: (
     gameArea: { width: number; height: number },
     resolution: number

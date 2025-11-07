@@ -1,4 +1,3 @@
-import { CANVAS_COLORS } from '@/constants/canvas';
 import { useState, useCallback, useEffect, useRef } from 'react';
 
 export interface GameState {
@@ -14,7 +13,7 @@ export interface GameState {
   graceStartAt: number | null;
 }
 
-interface GameStateActions {
+export interface GameStateActions {
   startGame: () => void;
   endGame: () => void;
   resetGame: () => void;
