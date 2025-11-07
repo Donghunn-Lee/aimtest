@@ -16,7 +16,7 @@ import {
   updateFloatingScores,
 } from '@/components/game/core/renderers/floatingScoreRenderer';
 
-import type { Size } from '@/types/game';
+import type { GameMode, Size } from '@/types/game';
 import { Target } from '@/types/target';
 import type { Resolution } from '@/types/image';
 
@@ -40,8 +40,8 @@ import { usePointerLock } from '@/hooks/usePointerLock';
 import { useInputController } from '@/hooks/useInputController';
 
 interface GameWorldProps {
-  gameMode: 'fullscreen' | 'windowed';
-  onGameModeChange?: (mode: 'fullscreen' | 'windowed') => void;
+  gameMode: GameMode;
+  onGameModeChange?: (mode: GameMode) => void;
 }
 
 export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {

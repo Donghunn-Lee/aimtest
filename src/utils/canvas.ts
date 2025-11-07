@@ -1,11 +1,11 @@
-export const setCanvasSizeDPR = (canvas: HTMLCanvasElement) => {
+export function setCanvasSizeDPR(canvas: HTMLCanvasElement) {
   const dpr = window.devicePixelRatio || 1;
   const { clientWidth, clientHeight } = canvas;
   canvas.width = Math.floor(clientWidth * dpr);
   canvas.height = Math.floor(clientHeight * dpr);
   const ctx = canvas.getContext('2d');
   if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // 아이덴티티×DPR
-};
+}
 
 export function clearCanvas(
   ctx: CanvasRenderingContext2D,
@@ -18,11 +18,11 @@ export function clearCanvas(
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 
-export const applyCameraTransform = (
+export function applyCameraTransform(
   ctx: CanvasRenderingContext2D,
   canvas: HTMLCanvasElement,
   position: { x: number; y: number }
-) => {
+) {
   // 필수: 루프 한 곳만 변환을 관리
   ctx.save();
   // 화면 중심 기준으로 카메라 이동
@@ -31,13 +31,13 @@ export const applyCameraTransform = (
     canvas.height / (2 * (window.devicePixelRatio || 1))
   );
   ctx.translate(position.x, position.y);
-};
+}
 
 export function endCameraTransform(ctx: CanvasRenderingContext2D) {
   ctx.restore();
 }
 
-export const drawCircle = (
+export function drawCircle(
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
@@ -45,7 +45,7 @@ export const drawCircle = (
   fillStyle: string,
   strokeStyle: string = '#333333',
   lineWidth: number = Math.max(Math.floor(radius * 0.1), 1)
-) => {
+) {
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
 
@@ -57,4 +57,4 @@ export const drawCircle = (
   ctx.strokeStyle = strokeStyle;
   ctx.lineWidth = lineWidth;
   ctx.stroke();
-};
+}

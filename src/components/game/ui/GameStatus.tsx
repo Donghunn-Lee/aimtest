@@ -1,3 +1,4 @@
+import type { GameMode } from '@/types/game';
 import { slideRight } from '@/utils/motion';
 import { motion } from 'framer-motion';
 
@@ -6,7 +7,7 @@ interface GameStatusProps {
   score: number;
   accuracy: number | undefined;
   sensitivity: number;
-  gameMode: 'fullscreen' | 'windowed';
+  gameMode: GameMode;
 }
 
 export const GameStatus = ({

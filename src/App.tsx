@@ -1,22 +1,18 @@
 import { useState, useCallback } from 'react';
 
 import { GameWorld } from '@/components/game/core/GameWorld';
+import type { GameMode } from '@/types/game';
 
 function App() {
-  const [gameMode, setGameMode] = useState<'fullscreen' | 'windowed' | null>(
-    null
-  );
+  const [gameMode, setGameMode] = useState<GameMode | null>(null);
 
-  const startGame = useCallback((mode: 'fullscreen' | 'windowed') => {
+  const startGame = useCallback((mode: GameMode) => {
     setGameMode(mode);
   }, []);
 
-  const handleGameModeChange = useCallback(
-    (newMode: 'windowed' | 'fullscreen') => {
-      setGameMode(newMode);
-    },
-    []
-  );
+  const handleGameModeChange = useCallback((newMode: GameMode) => {
+    setGameMode(newMode);
+  }, []);
 
   return (
     <div className="flex h-full min-h-screen w-full flex-col items-center justify-center bg-[#1a1a1a] p-8 text-white">

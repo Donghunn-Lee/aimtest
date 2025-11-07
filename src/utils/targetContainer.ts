@@ -18,10 +18,10 @@ export interface ContainerConfig {
   heightScaleRatio: number;
 }
 
-export const calculateContainerBounds = (
+export function calculateContainerBounds(
   gameArea: GameArea,
   config: ContainerConfig
-): ContainerBounds => {
+): ContainerBounds {
   let mapWidth: number;
   let mapHeight: number;
 
@@ -48,9 +48,9 @@ export const calculateContainerBounds = (
     width: targetAreaWidth / config.widthScaleRatio,
     height: targetAreaHeight / config.heightScaleRatio,
   };
-};
+}
 
-export const getDefaultConfig = (resolution: number): ContainerConfig => {
+export function getDefaultConfig(resolution: number): ContainerConfig {
   if (resolution === 16 / 9) {
     return {
       mapAspectRatio: 16 / 9,
@@ -76,4 +76,4 @@ export const getDefaultConfig = (resolution: number): ContainerConfig => {
       heightScaleRatio: 5.26,
     };
   }
-};
+}

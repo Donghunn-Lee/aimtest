@@ -49,7 +49,7 @@ export interface UseInputControllerReturn {
  * - 마우스 클릭 → 포인터락 요청/타겟 히트 판정/사운드/스코어 처리
  * - 키보드 → 감도 조절('[' , ']') 및 즉시 종료(`)
  */
-export function useInputController({
+export const useInputController = ({
   pointer,
   loop,
   gameState,
@@ -61,7 +61,7 @@ export function useInputController({
   maxSensitivity = 5.0,
   selectedRatio,
   onScore,
-}: UseInputControllerParams): UseInputControllerReturn {
+}: UseInputControllerParams): UseInputControllerReturn => {
   const sensRef = useRef(initialSensitivity);
   const [sensitivity, _setSensitivity] = useState(initialSensitivity);
 
@@ -144,4 +144,4 @@ export function useInputController({
     () => ({ onMouseMove, onMouseDown, sensitivity, setSensitivity }),
     [onMouseMove, onMouseDown, sensitivity, setSensitivity]
   );
-}
+};

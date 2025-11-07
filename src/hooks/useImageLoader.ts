@@ -9,7 +9,7 @@ interface ImageLoaderProps {
   drawSize: { width: number; height: number };
 }
 
-export function useImageLoader({ src, canvas, drawSize }: ImageLoaderProps) {
+export const useImageLoader = ({ src, canvas, drawSize }: ImageLoaderProps) => {
   const imgRef = useRef<HTMLImageElement>(new Image());
   const [status, setStatus] = useState<LoadingStatus>('idle');
   const [firstLoaded, setFirstLoaded] = useState(false);
@@ -86,4 +86,4 @@ export function useImageLoader({ src, canvas, drawSize }: ImageLoaderProps) {
   }, [src, onLoad, status]);
 
   return { image: imgRef.current, status, firstLoaded };
-}
+};

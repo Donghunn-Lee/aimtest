@@ -14,10 +14,10 @@ export type RenderMapAndBoundsArgs = {
   ) => void;
 };
 
-export const renderMapAndBounds = (
+export function renderMapAndBounds(
   ctx: CanvasRenderingContext2D,
   args: RenderMapAndBoundsArgs
-) => {
+) {
   const { image, drawSize, borderOpacity, drawTargetContainer } = args;
 
   // 맵
@@ -35,4 +35,4 @@ export const renderMapAndBounds = (
     ctx.lineWidth = 3;
     ctx.strokeRect(b.x, b.y, b.width, b.height);
   });
-};
+}

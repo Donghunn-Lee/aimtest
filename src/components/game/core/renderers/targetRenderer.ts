@@ -3,19 +3,19 @@ import { Target } from '@/types/target';
 import { drawCircle } from '@/utils/canvas';
 import { decideTargetColor } from '@/utils/target';
 
-type renderTargetsParams = {
+type RenderTargetsParams = {
   ctx: CanvasRenderingContext2D;
   targets: Target[];
   graceStartAt: number | null;
   isGameOver: boolean;
 };
 
-export const renderTargets = ({
+export function renderTargets({
   ctx,
   targets,
   graceStartAt,
   isGameOver,
-}: renderTargetsParams) => {
+}: RenderTargetsParams) {
   const targetColor = decideTargetColor(isGameOver, graceStartAt);
 
   for (const t of targets) {
@@ -26,4 +26,4 @@ export const renderTargets = ({
     drawCircle(ctx, x, y, t.size / 3, targetColor);
     drawCircle(ctx, x, y, t.size / 6, '#FF0000');
   }
-};
+}

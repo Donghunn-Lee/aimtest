@@ -1,10 +1,10 @@
 import { CANVAS_COLORS } from '@/constants/canvas';
 
 // 종료 유예 시간 타겟 색상 결정
-export const decideTargetColor = (
+export function decideTargetColor(
   isGameOver: boolean,
   graceStartAt: number | null
-) => {
+) {
   if (isGameOver) return CANVAS_COLORS.target.expired;
 
   if (graceStartAt !== null) {
@@ -15,4 +15,4 @@ export const decideTargetColor = (
   }
 
   return CANVAS_COLORS.target.base; // 기본
-};
+}

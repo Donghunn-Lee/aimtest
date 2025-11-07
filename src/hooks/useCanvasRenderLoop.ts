@@ -66,9 +66,9 @@ export type CanvasRenderLoopApi = {
   getCamera: () => Camera;
 };
 
-export function useCanvasRenderLoop(
+export const useCanvasRenderLoop = (
   props: CanvasRenderLoopProps
-): CanvasRenderLoopApi {
+): CanvasRenderLoopApi => {
   const {
     canvasRef,
     image,
@@ -217,4 +217,4 @@ export function useCanvasRenderLoop(
   const getCamera = useCallback(() => ({ ...cameraRef.current }), []);
 
   return { start, stop, nudgeCamera, setCamera, getCamera };
-}
+};

@@ -21,12 +21,12 @@ export interface UsePointerLockReturn {
   lockedElement: HTMLCanvasElement | null;
 }
 
-export function usePointerLock({
+export const usePointerLock = ({
   canvasRef,
   enabled = true,
   onLock,
   onUnlock,
-}: UsePointerLockOptions): UsePointerLockReturn {
+}: UsePointerLockOptions): UsePointerLockReturn => {
   const [lockedElement, setLockedElement] = useState<HTMLCanvasElement | null>(
     null
   );
@@ -102,4 +102,4 @@ export function usePointerLock({
     () => ({ isLocked, request, exit, lockedElement }),
     [isLocked, request, exit, lockedElement]
   );
-}
+};

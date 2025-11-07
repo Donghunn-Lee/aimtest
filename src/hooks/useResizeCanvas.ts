@@ -1,11 +1,11 @@
 import { setCanvasSizeDPR } from '@/utils/canvas';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-type Mode = 'fullscreen' | 'windowed';
+export type GameMode = 'fullscreen' | 'windowed';
 
 export interface UseResizeCanvasParams {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
-  mode: Mode;
+  mode: GameMode;
   ratio: number;
   windowPadding?: number;
   onGameAreaChange: (width: number, height: number) => void;

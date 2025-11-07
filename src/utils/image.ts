@@ -1,12 +1,12 @@
 import type { Resolution } from '@/types/image';
 
-export const calculateAspectFit = (
+export function calculateAspectFit(
   img: HTMLImageElement | null,
   canvasH: number,
   canvasW: number,
   drawSizeRef: { width: number; height: number },
   scale = 1
-) => {
+) {
   if (!img) return;
 
   const imageAspect = img.width / img.height;
@@ -22,7 +22,7 @@ export const calculateAspectFit = (
 
   drawSizeRef.width = w * scale;
   drawSizeRef.height = h * scale;
-};
+}
 
 export const RESOLUTIONS: Resolution[] = [
   {
