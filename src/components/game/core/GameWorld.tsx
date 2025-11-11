@@ -8,13 +8,15 @@ import StartMenu from '@components/game/menu/StartMenu';
 import ResultMenu from '@components/game/menu/ResultMenu';
 import RankingBoard from '@components/game/ranking/RankingBoard';
 import { GameStatus } from '@/components/game/ui/GameStatus';
-import { renderMapAndBounds } from '@/components/game/core/renderers/mapRenderer';
 import GameGuide from '@components/game/ui/GameGuide';
+import { LoadingOverlay } from '@/components/game/ui/LoadingOverlay';
+
 import {
   addFloatingScore,
   drawFloatingScores,
   updateFloatingScores,
 } from '@/components/game/core/renderers/floatingScoreRenderer';
+import { renderMapAndBounds } from '@/components/game/core/renderers/mapRenderer';
 
 import type { GameMode, Size } from '@/types/game';
 import { Target } from '@/types/target';
@@ -26,6 +28,10 @@ import useTargetManager, {
   type TargetContainer,
 } from '@hooks/useTargetManager';
 import useVolume from '@/hooks/useVolume';
+import { useCanvasRenderLoop } from '@/hooks/useCanvasRenderLoop';
+import { useResizeCanvas } from '@/hooks/useResizeCanvas';
+import { usePointerLock } from '@/hooks/usePointerLock';
+import { useInputController } from '@/hooks/useInputController';
 
 import {
   clearCanvas,
@@ -33,11 +39,8 @@ import {
   endCameraTransform,
 } from '@utils/canvas';
 import { DEFAULT_RESOLUTION } from '@/utils/image';
-import { LoadingOverlay } from '@/components/game/ui/LoadingOverlay';
-import { useCanvasRenderLoop } from '@/hooks/useCanvasRenderLoop';
-import { useResizeCanvas } from '@/hooks/useResizeCanvas';
-import { usePointerLock } from '@/hooks/usePointerLock';
-import { useInputController } from '@/hooks/useInputController';
+
+import { GAMEPLAY, INPUT, UI } from '@/constants/game';
 
 interface GameWorldProps {
   gameMode: GameMode;
@@ -105,7 +108,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     canvasRef,
     mode: gameMode,
     ratio: selectedResolution.ratio,
-    windowPadding: 48,
+    windowPadding: UI.WINDOW_PADDING,
     onGameAreaChange: (w, h) => {
       // targetManager가 초기화 되었다면 타겟 영역 갱신
       targetManagerActions.updateGameArea(w, h);
@@ -129,9 +132,9 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       gameActions,
       targetManagerActions,
       volumeActions,
-      initialSensitivity: 1,
-      minSensitivity: 0.1,
-      maxSensitivity: 5.0,
+      initialSensitivity: INPUT.SENSITIVITY_DEFAULT,
+      minSensitivity: INPUT.SENSITIVITY_MIN,
+      maxSensitivity: INPUT.SENSITIVITY_MAX,
       selectedRatio: selectedResolution.ratio,
       onScore: (t) => addFloatingScore(t.x, t.y, t.score || 0, t.score === 3),
     });
@@ -153,13 +156,13 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   // 타겟 컨테이너 페이드아웃 애니메이션
   const startFadeOut = () => {
     const startTime = Date.now();
-    const duration = 1000;
+    const duration = UI.BORDER_FADE_MS;
 
     const animate = () => {
       const elapsed = Date.now() - startTime;
       if (elapsed < duration) {
         // 1초 동안 0.7에서 0으로 선형적으로 감소
-        borderOpacityRef.current = 0.7 * (1 - elapsed / duration);
+        borderOpacityRef.current = UI.BORDER_OPACITY * (1 - elapsed / duration);
         fadeAnimationFrame.current = requestAnimationFrame(animate);
       } else {
         borderOpacityRef.current = 0;
@@ -175,7 +178,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       cancelAnimationFrame(fadeAnimationFrame.current);
       fadeAnimationFrame.current = null;
     }
-    borderOpacityRef.current = 0.7;
+    borderOpacityRef.current = UI.BORDER_OPACITY;
   };
 
   // 초기 타겟 매니저 초기화
@@ -254,7 +257,9 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     if (!gameState.isGameStarted) return;
 
     const cleanup = targetManagerActions.syncTargets(() => {
-      if (targetManagerState.targets.length >= 10) {
+      if (
+        targetManagerState.targets.length >= GAMEPLAY.GRACE_TARGET_THRESHOLD
+      ) {
         gameActions.triggerGraceTimer();
       } else {
         gameActions.cancelGraceTimer();
@@ -269,7 +274,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
 
     const timer = setInterval(() => {
       gameActions.updatePlayTime();
-    }, 100);
+    }, GAMEPLAY.ELAPSED_TICK_MS);
 
     return () => clearInterval(timer);
   }, [gameState.isGameStarted, gameState.isGameOver, gameActions]);

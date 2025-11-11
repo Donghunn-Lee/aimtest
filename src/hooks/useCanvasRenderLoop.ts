@@ -1,7 +1,12 @@
-import type { RenderMapAndBoundsArgs } from '@/components/game/core/renderers/mapRenderer';
-import type { Target } from '@/types/target';
-import { setCanvasSizeDPR } from '@/utils/canvas';
 import { useCallback, useEffect, useRef } from 'react';
+
+import type { RenderMapAndBoundsArgs } from '@/components/game/core/renderers/mapRenderer';
+
+import type { Target } from '@/types/target';
+
+import { setCanvasSizeDPR } from '@/utils/canvas';
+
+import { CAMERA } from '@/constants/render';
 
 export type Camera = { x: number; y: number };
 
@@ -83,7 +88,7 @@ export const useCanvasRenderLoop = (
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const rafIdRef = useRef<number | null>(null);
   const runningRef = useRef(false); // start/stop idempotent 보장
-  const cameraRef = useRef<Camera>({ x: 0, y: 90 });
+  const cameraRef = useRef<Camera>(CAMERA.INITIAL);
   const pendingDeltaRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 }); // 입력 누적(프레임 시작 시 적용)
 
   // 프레임 타이밍/통계
@@ -161,7 +166,7 @@ export const useCanvasRenderLoop = (
       isGameOver: !!gameRef.current?.isGameOver,
     });
 
-    const targetSize = Math.max(1, services.getTargetSize());
+    const targetSize = services.getTargetSize();
     services.drawFloatingScores(ctx, targetSize);
 
     // 8) 캔버스 상태 복원

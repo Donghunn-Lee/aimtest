@@ -4,6 +4,8 @@ import { TargetManager } from '@/components/game/core/target/TargetManager';
 
 import type { Target, TargetConfig } from '@/types/target';
 
+import { SPAWN, SYNC, TARGET_DEFAULT } from '@/constants/target';
+
 export interface TargetManagerState {
   targets: Target[];
   targetConfig: TargetConfig;
@@ -35,12 +37,7 @@ export interface TargetManagerActions {
   getTargetSize: () => number | null;
 }
 
-const initialTargetConfig: TargetConfig = {
-  size: 50,
-  margin: 0,
-  maxTargets: 200,
-  spawnInterval: 1000,
-};
+const initialTargetConfig: TargetConfig = { ...TARGET_DEFAULT };
 
 const useTargetManager = (): [TargetManagerState, TargetManagerActions] => {
   const targetManagerRef = useRef<TargetManager | null>(null);
@@ -93,7 +90,9 @@ const useTargetManager = (): [TargetManagerState, TargetManagerActions] => {
   const computeSpawnInterval = useCallback((startTime: number) => {
     const elapsedSeconds = (Date.now() - startTime) / 1000;
     // 330ms 최소 간격, 1.8%씩 지수적 감소
-    return Math.max(330, 1000 * Math.pow(0.982, elapsedSeconds));
+    const interval =
+      SPAWN.BASE_INTERVAL_MS * Math.pow(SPAWN.DECAY_PER_SEC, elapsedSeconds);
+    return Math.max(SPAWN.MIN_INTERVAL_MS, interval);
   }, []);
 
   const spawnerTick = useCallback(() => {
@@ -103,7 +102,7 @@ const useTargetManager = (): [TargetManagerState, TargetManagerActions] => {
     }
     const now = performance.now();
     const last = lastTsRef.current ?? now;
-    const dt = Math.min(now - last, 100); // 100ms 이상은 무시(스톨 방지)
+    const dt = Math.min(now - last, SPAWN.STALL_CLAMP_MS); // 100ms 이상은 무시(스톨 방지)
     lastTsRef.current = now;
     accumMsRef.current += dt;
 
@@ -116,7 +115,6 @@ const useTargetManager = (): [TargetManagerState, TargetManagerActions] => {
         setTargets(targetManagerRef.current.getTargets());
       }
     }
-
     spawnerRef.current = requestAnimationFrame(spawnerTick);
   }, [computeSpawnInterval]);
 
@@ -153,7 +151,7 @@ const useTargetManager = (): [TargetManagerState, TargetManagerActions] => {
       const updatedTargets = targetManagerRef.current?.getTargets() || [];
       setTargets(updatedTargets);
       onTrigger?.();
-    }, 8);
+    }, SYNC.INTERVAL_MS);
 
     return () => clearInterval(syncInterval);
   }, []);

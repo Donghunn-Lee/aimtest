@@ -1,7 +1,8 @@
-import { setCanvasSizeDPR } from '@/utils/canvas';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-export type GameMode = 'fullscreen' | 'windowed';
+import type { GameMode } from '@/types/game';
+
+import { setCanvasSizeDPR } from '@/utils/canvas';
 
 export interface UseResizeCanvasParams {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;

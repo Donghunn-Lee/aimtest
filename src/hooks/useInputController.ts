@@ -7,11 +7,12 @@ import {
   type MouseEvent,
 } from 'react';
 
+import type { Target } from '@/types/target';
+
 import type { UsePointerLockReturn as PointerApi } from '@/hooks/usePointerLock';
 import type { CanvasRenderLoopApi as LoopApi } from '@/hooks/useCanvasRenderLoop';
 import type { GameState, GameStateActions } from '@/hooks/useGame';
 import type { TargetManagerActions } from '@/hooks/useTargetManager';
-import type { Target } from '@/types/target';
 import type { VolumeActionsType } from '@/hooks/useVolume';
 
 type MouseEventLike = Pick<MouseEvent, 'movementX' | 'movementY'>;
@@ -25,9 +26,9 @@ export interface UseInputControllerParams {
   volumeActions: VolumeActionsType;
 
   /** 선택: 초기/최소/최대 민감도 설정 */
-  initialSensitivity?: number; // default 1.0
-  minSensitivity?: number; // default 0.1
-  maxSensitivity?: number; // default 5.0
+  initialSensitivity: number;
+  minSensitivity: number;
+  maxSensitivity: number;
 
   /** 선택: 해상도 비율 및 캔버스 초기화 시 사용 */
   selectedRatio?: number;
@@ -56,10 +57,9 @@ export const useInputController = ({
   gameActions,
   targetManagerActions,
   volumeActions,
-  initialSensitivity = 1,
-  minSensitivity = 0.1,
-  maxSensitivity = 5.0,
-  selectedRatio,
+  initialSensitivity,
+  minSensitivity,
+  maxSensitivity,
   onScore,
 }: UseInputControllerParams): UseInputControllerReturn => {
   const sensRef = useRef(initialSensitivity);

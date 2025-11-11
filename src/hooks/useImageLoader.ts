@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { calculateAspectFit } from '@/utils/image';
 import type { LoadingStatus } from '@/types/image';
+
+import { calculateAspectFit } from '@/utils/image';
 
 interface ImageLoaderProps {
   src: string;
