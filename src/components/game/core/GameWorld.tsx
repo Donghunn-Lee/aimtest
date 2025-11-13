@@ -32,6 +32,8 @@ import { useCanvasRenderLoop } from '@/hooks/useCanvasRenderLoop';
 import { useResizeCanvas } from '@/hooks/useResizeCanvas';
 import { usePointerLock } from '@/hooks/usePointerLock';
 import { useInputController } from '@/hooks/useInputController';
+import { useBorderFade } from '@/hooks/useBorderFade';
+import { useFullscreen } from '@/hooks/useFullscreen';
 
 import {
   clearCanvas,
@@ -41,7 +43,6 @@ import {
 import { DEFAULT_RESOLUTION } from '@/utils/image';
 
 import { GAMEPLAY, INPUT, UI } from '@/constants/game';
-import { useBorderFade } from '@/hooks/useBorderFade';
 
 interface GameWorldProps {
   gameMode: GameMode;
@@ -140,8 +141,16 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       onScore: (t) => addFloatingScore(t.x, t.y, t.score || 0, t.score === 3),
     });
 
+  // 타겟 컨테이너 페이드 효과 처리
   const { start: fadeOutBorder, show: showBorder } =
     useBorderFade(borderOpacityRef);
+
+  // 전체화면 모드 관리
+  useFullscreen({
+    containerRef,
+    gameMode,
+    onExit: () => onGameModeChange?.('windowed'),
+  });
 
   // 게임 시작 핸들러
   const handleGameStart = () => {
@@ -178,41 +187,6 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       }
     };
   }, [selectedResolution]);
-
-  // 전체화면 모드 처리
-  useEffect(() => {
-    if (!containerRef.current) return;
-
-    const handleFullscreenChange = () => {
-      if (!document.fullscreenElement && gameMode === 'fullscreen') {
-        onGameModeChange?.('windowed');
-      }
-    };
-
-    const handleClick = () => {
-      if (
-        gameMode === 'fullscreen' &&
-        containerRef.current &&
-        !document.fullscreenElement
-      ) {
-        requestAnimationFrame(() => {
-          try {
-            containerRef.current?.requestFullscreen();
-          } catch (error) {
-            // 오류 무시: Chrome 브라우저에서 전체화면 모드 변경 시 버그 존재
-          }
-        });
-      }
-    };
-
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    document.addEventListener('click', handleClick);
-
-    return () => {
-      document.removeEventListener('fullscreenchange', handleFullscreenChange);
-      document.removeEventListener('click', handleClick);
-    };
-  }, [gameMode, onGameModeChange]);
 
   // targetsRef 동기화
   useEffect(() => {
