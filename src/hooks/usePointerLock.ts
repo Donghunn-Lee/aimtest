@@ -80,7 +80,7 @@ export const usePointerLock = ({
 
   const request = useCallback(async (): Promise<boolean> => {
     const el = canvasRef.current;
-    if (!enabled || !el) return false;
+    if (!el) return false;
     try {
       // 일부 브라우저는 프로미스 반환 X
       // @ts-ignore
