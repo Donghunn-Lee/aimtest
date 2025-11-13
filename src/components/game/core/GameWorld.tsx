@@ -41,6 +41,7 @@ import {
 import { DEFAULT_RESOLUTION } from '@/utils/image';
 
 import { GAMEPLAY, INPUT, UI } from '@/constants/game';
+import { useBorderFade } from '@/hooks/useBorderFade';
 
 interface GameWorldProps {
   gameMode: GameMode;
@@ -139,6 +140,9 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       onScore: (t) => addFloatingScore(t.x, t.y, t.score || 0, t.score === 3),
     });
 
+  const { start: fadeOutBorder, show: showBorder } =
+    useBorderFade(borderOpacityRef);
+
   // 게임 시작 핸들러
   const handleGameStart = () => {
     gameActions.startGame();
@@ -151,34 +155,6 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     );
 
     void pointer.request();
-  };
-
-  // 타겟 컨테이너 페이드아웃 애니메이션
-  const startFadeOut = () => {
-    const startTime = Date.now();
-    const duration = UI.BORDER_FADE_MS;
-
-    const animate = () => {
-      const elapsed = Date.now() - startTime;
-      if (elapsed < duration) {
-        // 1초 동안 0.7에서 0으로 선형적으로 감소
-        borderOpacityRef.current = UI.BORDER_OPACITY * (1 - elapsed / duration);
-        fadeAnimationFrame.current = requestAnimationFrame(animate);
-      } else {
-        borderOpacityRef.current = 0;
-      }
-    };
-
-    animate();
-  };
-
-  // 타겟 컨테이너 테두리 표시
-  const showBorder = () => {
-    if (fadeAnimationFrame.current) {
-      cancelAnimationFrame(fadeAnimationFrame.current);
-      fadeAnimationFrame.current = null;
-    }
-    borderOpacityRef.current = UI.BORDER_OPACITY;
   };
 
   // 초기 타겟 매니저 초기화
@@ -289,7 +265,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   useEffect(() => {
     if (gameState.isGameStarted) {
       volumeActions.playBGM();
-      startFadeOut();
+      fadeOutBorder();
     } else {
       showBorder();
       volumeActions.stopBGM();
