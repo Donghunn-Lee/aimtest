@@ -13,7 +13,7 @@ export interface GameState {
   graceStartAt: number | null;
 }
 
-export interface GameStateActions {
+export interface GameActions {
   startGame: () => void;
   endGame: () => void;
   resetGame: () => void;
@@ -26,7 +26,7 @@ export interface GameStateActions {
   cancelGraceTimer: () => void;
 }
 
-export const useGame = (): [GameState, GameStateActions] => {
+export const useGame = (): [GameState, GameActions] => {
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
   const [score, setScore] = useState(0);
@@ -133,7 +133,7 @@ export const useGame = (): [GameState, GameStateActions] => {
     graceStartAt,
   };
 
-  const actions: GameStateActions = {
+  const gameActions: GameActions = {
     startGame,
     endGame,
     resetGame,
@@ -146,5 +146,5 @@ export const useGame = (): [GameState, GameStateActions] => {
     cancelGraceTimer,
   };
 
-  return [gameState, actions];
+  return [gameState, gameActions];
 };

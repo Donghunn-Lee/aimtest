@@ -1,8 +1,8 @@
-import { VolumeStateType, VolumeActionsType } from '@/hooks/useVolume';
+import { VolumeState, VolumeActions } from '@/hooks/useVolume';
 
 interface VolumeSliderProps {
-  volumeState: VolumeStateType;
-  volumeActions: VolumeActionsType;
+  volumeState: VolumeState;
+  volumeActions: VolumeActions;
 }
 
 const VolumeSlider = ({ volumeState, volumeActions }: VolumeSliderProps) => {

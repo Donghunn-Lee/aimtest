@@ -1,13 +1,13 @@
 import { useRef, useState } from 'react';
 
-export interface VolumeStateType {
+export interface VolumeState {
   efVolume: number;
   bgVolume: number;
   isEfMuted: boolean;
   isBgMuted: boolean;
 }
 
-export interface VolumeActionsType {
+export interface VolumeActions {
   setEfVolume: (volume: number) => void;
   setBgVolume: (volume: number) => void;
   toggleEfMute: () => void;
@@ -18,7 +18,7 @@ export interface VolumeActionsType {
   stopBGM: () => void;
 }
 
-const useVolume = (): [VolumeStateType, VolumeActionsType] => {
+const useVolume = (): [VolumeState, VolumeActions] => {
   const [efVolume, setEfVolume] = useState(30);
   const [bgVolume, setBgVolume] = useState(30);
   const bgSoundRef = useRef<HTMLAudioElement>(null);

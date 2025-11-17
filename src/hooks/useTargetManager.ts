@@ -32,7 +32,7 @@ export interface TargetManagerActions {
   ) => Target | null;
   updateGameArea: (width: number, height: number) => void;
   clearTargets: () => void;
-  syncTargets: (onTrigger?: () => void) => void;
+  syncTargets: () => void;
   drawTargetContainer: (onDraw: (bounds: TargetContainer) => void) => void;
   getTargetSize: () => number | null;
 }
@@ -144,13 +144,12 @@ const useTargetManager = (): [TargetManagerState, TargetManagerActions] => {
     targetManagerRef.current.clearTargets();
   }, []);
 
-  const syncTargets = useCallback((onTrigger?: () => void) => {
+  const syncTargets = useCallback(() => {
     if (!targetManagerRef.current) return;
 
     const syncInterval = setInterval(() => {
       const updatedTargets = targetManagerRef.current?.getTargets() || [];
       setTargets(updatedTargets);
-      onTrigger?.();
     }, SYNC.INTERVAL_MS);
 
     return () => clearInterval(syncInterval);

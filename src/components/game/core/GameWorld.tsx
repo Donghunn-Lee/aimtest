@@ -43,16 +43,22 @@ import {
 import { DEFAULT_RESOLUTION } from '@/utils/image';
 
 import { GAMEPLAY, INPUT, UI } from '@/constants/game';
+import { useGameRuntime } from '@/hooks/useGameRuntime';
 
-interface GameWorldProps {
+export interface GameWorldProps {
   gameMode: GameMode;
   onGameModeChange?: (mode: GameMode) => void;
+}
+
+export interface GameRuntimeRef {
+  graceStartAt: number | null;
+  isGameOver: boolean;
 }
 
 export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const targetsRef = useRef<Target[]>([]);
-  const gameRef = useRef({
+  const gameRuntimeRef = useRef<GameRuntimeRef>({
     graceStartAt: null as number | null,
     isGameOver: false,
   });
@@ -100,7 +106,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     image,
     drawSizeRef,
     targetsRef,
-    gameRef,
+    gameRef: gameRuntimeRef,
     borderOpacityRef,
     services: services,
   });
@@ -142,8 +148,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     });
 
   // 타겟 컨테이너 페이드 효과 처리
-  const { start: fadeOutBorder, show: showBorder } =
-    useBorderFade(borderOpacityRef);
+  const borderFade = useBorderFade(borderOpacityRef);
 
   // 전체화면 모드 관리
   useFullscreen({
@@ -193,58 +198,15 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     targetsRef.current = targetManagerState.targets;
   }, [targetManagerState.targets]);
 
-  // 타겟 생성 간격 점진적 감소
-  useEffect(() => {
-    if (gameState.isGameStarted && gameState.startTime) {
-      targetManagerActions.startSpawner(gameState.startTime);
-      return () => targetManagerActions.stopSpawner();
-    }
-    targetManagerActions.stopSpawner();
-  }, [gameState.isGameStarted, gameState.startTime]);
-
-  // 타겟 상태 동기화 (프레임 간격)
-  useEffect(() => {
-    if (!gameState.isGameStarted) return;
-
-    const cleanup = targetManagerActions.syncTargets(() => {
-      if (
-        targetManagerState.targets.length >= GAMEPLAY.GRACE_TARGET_THRESHOLD
-      ) {
-        gameActions.triggerGraceTimer();
-      } else {
-        gameActions.cancelGraceTimer();
-      }
-    });
-    return cleanup;
-  }, [gameState.isGameStarted, gameActions]);
-
-  // 경과 시간 업데이트 (100ms 간격)
-  useEffect(() => {
-    if (!gameState.isGameStarted || gameState.isGameOver) return;
-
-    const timer = setInterval(() => {
-      gameActions.updatePlayTime();
-    }, GAMEPLAY.ELAPSED_TICK_MS);
-
-    return () => clearInterval(timer);
-  }, [gameState.isGameStarted, gameState.isGameOver, gameActions]);
-
-  // gameRef 동기화
-  useEffect(() => {
-    gameRef.current.graceStartAt = gameState.graceStartAt;
-    gameRef.current.isGameOver = gameState.isGameOver;
-  }, [gameState.graceStartAt, gameState.isGameOver]);
-
-  // 게임 시작 및 종료 테두리 표시, 배경음악 관리
-  useEffect(() => {
-    if (gameState.isGameStarted) {
-      volumeActions.playBGM();
-      fadeOutBorder();
-    } else {
-      showBorder();
-      volumeActions.stopBGM();
-    }
-  }, [gameState.isGameStarted]);
+  useGameRuntime({
+    gameState,
+    gameActions,
+    targetManagerState,
+    targetManagerActions,
+    volumeActions,
+    borderFade,
+    gameRuntimeRef,
+  });
 
   // 컴포넌트 언마운트 시 애니메이션 프레임 정리
   useEffect(() => {

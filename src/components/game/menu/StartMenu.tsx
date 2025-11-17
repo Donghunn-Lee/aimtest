@@ -6,7 +6,7 @@ import { ResolutionSettings } from '@/components/game/settings/ResolutionSetting
 import VolumeSlider from '@/components/game/ui/VolumeSlider';
 
 import { Resolution } from '@/types/image';
-import { VolumeStateType, VolumeActionsType } from '@/hooks/useVolume';
+import { VolumeState, VolumeActions } from '@/hooks/useVolume';
 
 interface StartMenuProps {
   onStart: () => void;
@@ -14,8 +14,8 @@ interface StartMenuProps {
   selectedResolution: Resolution;
   onResolutionChange: (resolution: Resolution) => void;
   animate: boolean;
-  volumeState: VolumeStateType;
-  volumeActions: VolumeActionsType;
+  volumeState: VolumeState;
+  volumeActions: VolumeActions;
 }
 
 const StartMenu = ({

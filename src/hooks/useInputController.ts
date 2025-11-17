@@ -11,9 +11,9 @@ import type { Target } from '@/types/target';
 
 import type { UsePointerLockReturn as PointerApi } from '@/hooks/usePointerLock';
 import type { CanvasRenderLoopApi as LoopApi } from '@/hooks/useCanvasRenderLoop';
-import type { GameState, GameStateActions } from '@/hooks/useGame';
+import type { GameState, GameActions } from '@/hooks/useGame';
 import type { TargetManagerActions } from '@/hooks/useTargetManager';
-import type { VolumeActionsType } from '@/hooks/useVolume';
+import type { VolumeActions } from '@/hooks/useVolume';
 
 type MouseEventLike = Pick<MouseEvent, 'movementX' | 'movementY'>;
 
@@ -21,9 +21,9 @@ export interface UseInputControllerParams {
   pointer: PointerApi;
   loop: LoopApi;
   gameState: GameState;
-  gameActions: GameStateActions;
+  gameActions: GameActions;
   targetManagerActions: TargetManagerActions;
-  volumeActions: VolumeActionsType;
+  volumeActions: VolumeActions;
 
   /** 선택: 초기/최소/최대 민감도 설정 */
   initialSensitivity: number;

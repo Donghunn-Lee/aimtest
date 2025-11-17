@@ -2,7 +2,14 @@ import { useCallback, useEffect, useRef } from 'react';
 
 import { UI } from '@/constants/game';
 
-export const useBorderFade = (borderOpacityRef: React.RefObject<number>) => {
+export interface UseBorderFadeApi {
+  start: () => void;
+  show: () => void;
+}
+
+export const useBorderFade = (
+  borderOpacityRef: React.RefObject<number>
+): UseBorderFadeApi => {
   const rafRef = useRef<number | null>(null);
 
   const start = useCallback(() => {
