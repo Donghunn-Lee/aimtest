@@ -24,7 +24,8 @@ import type { Resolution } from '@/types/image';
 
 import { useImageLoader } from '@hooks/useImageLoader';
 import { useGame } from '@/hooks/useGame';
-import useTargetManager, {
+import {
+  useTargetManager,
   type TargetContainer,
 } from '@hooks/useTargetManager';
 import useVolume from '@/hooks/useVolume';
@@ -42,8 +43,9 @@ import {
 } from '@utils/canvas';
 import { DEFAULT_RESOLUTION } from '@/utils/image';
 
-import { GAMEPLAY, INPUT, UI } from '@/constants/game';
+import { INPUT, UI } from '@/constants/game';
 import { useGameRuntime } from '@/hooks/useGameRuntime';
+import { TARGET_DEFAULT } from '@/constants/target';
 
 export interface GameWorldProps {
   gameMode: GameMode;
@@ -65,7 +67,6 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const drawSizeRef = useRef<Size>({ width: 0, height: 0 });
   const borderOpacityRef = useRef(0.7);
-  const fadeAnimationFrame = useRef<number | null>(null);
 
   const [isRankingOpen, setIsRankingOpen] = useState(false);
   const [selectedResolution, setSelectedResolution] =
@@ -80,9 +81,11 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const [targetManagerState, targetManagerActions] = useTargetManager();
   const [volumeState, volumeActions] = useVolume();
 
-  // 캔버스 랜더링 객체
+  // 캔버스 렌더링 서비스
+  // - 루프 내부에서 사용하는 렌더/헬퍼 함수들을 모아서 넘김
   const services = useMemo(() => {
-    const getTargetSize = () => targetManagerActions.getTargetSize() ?? 50;
+    const getTargetSize = () =>
+      targetManagerActions.getTargetSize() ?? TARGET_DEFAULT.size;
     const drawTargetContainer = (onDraw: (bounds: TargetContainer) => void) => {
       targetManagerActions.drawTargetContainer?.(onDraw);
     };
@@ -100,7 +103,8 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     };
   }, [targetManagerActions]);
 
-  // 캔버스 렌더링 루프 (게임 오브젝트, 맵, 점수 등 모든 프레임 단위 렌더 관리)
+  // 캔버스 렌더링 루프
+  // - rAF 기반으로 맵/타겟/스코어 등을 그리는 순수 캔버스 렌더 담당 (React 렌더와 분리)
   const loop = useCanvasRenderLoop({
     canvasRef,
     image,
@@ -108,30 +112,32 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     targetsRef,
     gameRef: gameRuntimeRef,
     borderOpacityRef,
-    services: services,
+    services,
   });
 
-  // 화면 크기 및 해상도 관리 (모드 전환/리사이즈 대응)
+  // 화면 크기 및 해상도 관리
+  // - 모드 전환/윈도우 리사이즈/해상도 변경 시 캔버스 크기 계산 + TargetManager 게임 영역 갱신
   useResizeCanvas({
     canvasRef,
     mode: gameMode,
     ratio: selectedResolution.ratio,
     windowPadding: UI.WINDOW_PADDING,
     onGameAreaChange: (w, h) => {
-      // targetManager가 초기화 되었다면 타겟 영역 갱신
       targetManagerActions.updateGameArea(w, h);
     },
     deps: [selectedResolution.ratio, image],
   });
 
-  // 포인터 잠금 상태 관리 (PointerLock API - 조준/해제 제어)
+  // 포인터 잠금 상태 관리 (조준/해제)
+  // - 게임 진행 중에만 PointerLock 활성화, 해제 시 게임 종료
   const pointer = usePointerLock({
-    canvasRef: canvasRef,
-    enabled: !gameState.isGameOver,
+    canvasRef,
+    enabled: gameState.isGameStarted && !gameState.isGameOver,
     onUnlock: () => gameActions.endGame(),
   });
 
-  // 키보드, 마우스 입력 관리
+  // 입력 제어 (키보드/마우스 → 게임 액션)
+  // - 마우스 이동/클릭을 조준, 타겟 히트, 감도 조정 등으로 매핑
   const { onMouseMove, onMouseDown, sensitivity, setSensitivity } =
     useInputController({
       pointer,
@@ -147,10 +153,12 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       onScore: (t) => addFloatingScore(t.x, t.y, t.score || 0, t.score === 3),
     });
 
-  // 타겟 컨테이너 페이드 효과 처리
+  // 타겟 컨테이너 테두리 페이드 효과
+  // - 게임 시작/종료 시 테두리 opacity를 rAF 기반으로 페이드 인/아웃
   const borderFade = useBorderFade(borderOpacityRef);
 
   // 전체화면 모드 관리
+  // - fullscreen 모드 전환 및 브라우저 fullscreen 이벤트 대응
   useFullscreen({
     containerRef,
     gameMode,
@@ -158,6 +166,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   });
 
   // 게임 시작 핸들러
+  // - 상태 초기화 + 타겟 매니저 초기화 + 포인터락 요청
   const handleGameStart = () => {
     gameActions.startGame();
     targetManagerActions.init(
@@ -171,7 +180,8 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     void pointer.request();
   };
 
-  // 초기 타겟 매니저 초기화
+  // 초기 타겟 매니저 설정
+  // - 아직 게임이 시작되지 않은 상태에서 캔버스 크기/해상도 기준으로 TargetManager 인스턴스 준비
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -191,13 +201,16 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         targetManagerActions.clearTargets();
       }
     };
-  }, [selectedResolution]);
+  }, [selectedResolution, gameState.isGameStarted, targetManagerActions]);
 
-  // targetsRef 동기화
+  // TargetManager 내부 타겟 배열 → 렌더 루프용 ref 동기화
   useEffect(() => {
     targetsRef.current = targetManagerState.targets;
   }, [targetManagerState.targets]);
 
+  // 런타임 부수효과 통합 관리
+  // - 타이머, 스포너, BGM, 그레이스 타이머, 런타임 ref 동기화 등
+  //   "게임이 진행되는 동안만" 필요한 사이드 이펙트를 한 곳에서 관리
   useGameRuntime({
     gameState,
     gameActions,
@@ -208,16 +221,8 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
     gameRuntimeRef,
   });
 
-  // 컴포넌트 언마운트 시 애니메이션 프레임 정리
-  useEffect(() => {
-    return () => {
-      if (fadeAnimationFrame.current) {
-        cancelAnimationFrame(fadeAnimationFrame.current);
-      }
-    };
-  }, []);
-
-  // 렌더 루프
+  // 렌더 루프 시작/정지
+  // - 맵 이미지/캔버스 준비가 끝났을 때만 루프를 돌리고, 조건이 깨지면 정지
   useEffect(() => {
     const canvas = canvasRef.current;
     const ready = showMenu && !!canvas && canvas.width > 0 && canvas.height > 0;

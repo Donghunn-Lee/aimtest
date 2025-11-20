@@ -1,4 +1,4 @@
-import { useCallback, useState, useRef } from 'react';
+import { useCallback, useState, useRef, useMemo } from 'react';
 
 import { TargetManager } from '@/components/game/core/target/TargetManager';
 
@@ -39,7 +39,10 @@ export interface TargetManagerActions {
 
 const initialTargetConfig: TargetConfig = { ...TARGET_DEFAULT };
 
-const useTargetManager = (): [TargetManagerState, TargetManagerActions] => {
+export const useTargetManager = (): [
+  TargetManagerState,
+  TargetManagerActions,
+] => {
   const targetManagerRef = useRef<TargetManager | null>(null);
   const [targetConfig, setTargetConfig] =
     useState<TargetConfig>(initialTargetConfig);
@@ -181,19 +184,30 @@ const useTargetManager = (): [TargetManagerState, TargetManagerActions] => {
     targetConfig,
   };
 
-  const actions: TargetManagerActions = {
-    init,
-    startSpawner,
-    stopSpawner,
-    checkHit,
-    updateGameArea,
-    clearTargets,
-    syncTargets,
-    drawTargetContainer,
-    getTargetSize,
-  };
+  const actions: TargetManagerActions = useMemo(
+    () => ({
+      init,
+      startSpawner,
+      stopSpawner,
+      checkHit,
+      updateGameArea,
+      clearTargets,
+      syncTargets,
+      drawTargetContainer,
+      getTargetSize,
+    }),
+    [
+      init,
+      startSpawner,
+      stopSpawner,
+      checkHit,
+      updateGameArea,
+      clearTargets,
+      syncTargets,
+      drawTargetContainer,
+      getTargetSize,
+    ]
+  );
 
   return [state, actions];
 };
-
-export default useTargetManager;
