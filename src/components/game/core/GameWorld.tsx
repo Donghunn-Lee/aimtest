@@ -72,7 +72,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const [selectedResolution, setSelectedResolution] =
     useState<Resolution>(DEFAULT_RESOLUTION);
 
-  const { image, firstLoaded: showMenu } = useImageLoader({
+  const { image, firstLoaded: isMapReady } = useImageLoader({
     src: '/map.svg',
     canvas: canvasRef.current,
     drawSize: drawSizeRef.current,
@@ -225,16 +225,17 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   // - 맵 이미지/캔버스 준비가 끝났을 때만 루프를 돌리고, 조건이 깨지면 정지
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ready = showMenu && !!canvas && canvas.width > 0 && canvas.height > 0;
+    const ready =
+      isMapReady && !!canvas && canvas.width > 0 && canvas.height > 0;
 
     if (ready) loop.start();
     else loop.stop();
 
     return () => loop.stop();
-  }, [loop, showMenu]);
+  }, [loop, isMapReady]);
 
   return (
-    <div
+    <main
       ref={containerRef}
       className={`relative flex h-full w-full items-center justify-center overflow-hidden bg-black`}
     >
@@ -251,7 +252,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       <Crosshair />
 
       <AnimatePresence>
-        {gameState.isGameStarted && !gameState.isGameOver ? (
+        {gameState.isGameStarted && !gameState.isGameOver && (
           <GameStatus
             key="status"
             elapsedTime={gameState.elapsedTime}
@@ -260,58 +261,52 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
             sensitivity={sensitivity}
             gameMode={gameMode}
           />
-        ) : null}
-      </AnimatePresence>
+        )}
 
-      <AnimatePresence>
         {!gameState.isGameStarted &&
           !gameState.isGameOver &&
           !isRankingOpen &&
-          showMenu && (
+          isMapReady && (
             <StartMenu
               key="start"
               onStart={handleGameStart}
               onRanking={() => setIsRankingOpen(true)}
               selectedResolution={selectedResolution}
               onResolutionChange={setSelectedResolution}
-              animate={true}
               volumeState={volumeState}
               volumeActions={volumeActions}
+              animate={true}
             />
           )}
-      </AnimatePresence>
 
-      <AnimatePresence>
-        {gameState.isGameOver && (
+        {gameState.isGameOver && !isRankingOpen && (
           <ResultMenu
+            key="result"
             score={gameState.score}
             elapsedTime={gameState.elapsedTime}
             accuracy={gameState.accuracy}
             onRestart={handleGameStart}
-            animate={gameState.isGameOver && !isRankingOpen}
+            animate={true}
             onMenu={() => {
               gameActions.resetGame();
             }}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
         {isRankingOpen && (
           <RankingBoard
+            key="ranking"
             onClose={() => setIsRankingOpen(false)}
             animate={true}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
-        {!gameState.isGameStarted && !isRankingOpen && showMenu && (
-          <GameGuide />
+        {!gameState.isGameStarted && !isRankingOpen && isMapReady && (
+          <GameGuide key="guide" />
         )}
-      </AnimatePresence>
 
-      <LoadingOverlay show={showMenu} />
-    </div>
+        {!isMapReady && <LoadingOverlay key={'loading'} />}
+      </AnimatePresence>
+    </main>
   );
 };
