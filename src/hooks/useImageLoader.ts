@@ -4,13 +4,22 @@ import type { LoadingStatus } from '@/types/image';
 
 import { calculateAspectFit } from '@/utils/image';
 
-interface ImageLoaderProps {
+export interface UseImageLoaderOptions {
   src: string;
   canvas: HTMLCanvasElement | null;
   drawSize: { width: number; height: number };
 }
 
-export const useImageLoader = ({ src, canvas, drawSize }: ImageLoaderProps) => {
+export type UseImageLoaderResult = {
+  image: HTMLImageElement | null;
+  status: LoadingStatus;
+  firstLoaded: boolean;
+};
+
+export const useImageLoader = (
+  options: UseImageLoaderOptions
+): UseImageLoaderResult => {
+  const { src, canvas, drawSize } = options;
   const imgRef = useRef<HTMLImageElement>(new Image());
   const [status, setStatus] = useState<LoadingStatus>('idle');
   const [firstLoaded, setFirstLoaded] = useState(false);

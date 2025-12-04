@@ -11,14 +11,12 @@ export interface UsePointerLockOptions {
   onUnlock?: () => void;
 }
 
-export interface UsePointerLockReturn {
+export interface UsePointerLockApi {
   isLocked: boolean;
   /** elementRef 대상으로 포인터락 요청 */
   request: () => Promise<boolean>;
   /** 현재 포인터락 해제 */
   exit: () => void;
-  /** 잠금 대상 엘리먼트(디버깅/조건 분기용) */
-  lockedElement: HTMLCanvasElement | null;
 }
 
 export const usePointerLock = ({
@@ -26,11 +24,8 @@ export const usePointerLock = ({
   enabled = true,
   onLock,
   onUnlock,
-}: UsePointerLockOptions): UsePointerLockReturn => {
-  const [lockedElement, setLockedElement] = useState<HTMLCanvasElement | null>(
-    null
-  );
-  const isLocked = !!lockedElement;
+}: UsePointerLockOptions): UsePointerLockApi => {
+  const [isLocked, setIsLocked] = useState(false);
   const lastLockedRef = useRef<HTMLCanvasElement | null>(null);
 
   const syncState = useCallback(() => {
@@ -41,23 +36,22 @@ export const usePointerLock = ({
       current === target ? target : null
     ) as HTMLCanvasElement | null;
 
-    setLockedElement(curCanvas);
+    const nextLocked = !!curCanvas;
+    const prevLocked = !!lastLockedRef.current;
 
-    // onLock / onUnlock 콜백
-    const isLocked = !!curCanvas;
-    const wasLocked = !!lastLockedRef.current;
-    if (isLocked && !wasLocked) onLock?.();
-    if (!isLocked && wasLocked) onUnlock?.();
+    // 락/언락 이벤트 감지
+    if (nextLocked && !prevLocked) onLock?.();
+    if (!nextLocked && prevLocked) onUnlock?.();
+
     lastLockedRef.current = curCanvas;
+    setIsLocked(nextLocked);
   }, [canvasRef, onLock, onUnlock]);
 
-  // pointerlockchange / error 리스너
+  // pointerlockchange / error 발생 시 상태 동기화
   useEffect(() => {
     const onChange = () => syncState();
-    const onError = () => {
-      // 실패 케이스에서도 상태 동기화만
-      syncState();
-    };
+    const onError = () => syncState();
+
     document.addEventListener('pointerlockchange', onChange);
     document.addEventListener('pointerlockerror', onError);
 
@@ -99,7 +93,7 @@ export const usePointerLock = ({
   }, []);
 
   return useMemo(
-    () => ({ isLocked, request, exit, lockedElement }),
-    [isLocked, request, exit, lockedElement]
+    () => ({ isLocked, request, exit }),
+    [isLocked, request, exit]
   );
 };

@@ -1,11 +1,10 @@
-import { AnimatePresence, motion } from 'framer-motion';
-
 import Button from '@/components/common/Button';
 import { PanelOverlay } from '@/components/common/PanelOverlay';
 import { ResolutionSettings } from '@/components/game/settings/ResolutionSettings';
 import VolumeSlider from '@/components/game/ui/VolumeSlider';
 
 import { Resolution } from '@/types/image';
+
 import { VolumeState, VolumeActions } from '@/hooks/useVolume';
 
 interface StartMenuProps {

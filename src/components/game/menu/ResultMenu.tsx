@@ -10,8 +10,6 @@ import {
   formatPlayTime,
   getScoreRank,
 } from '@/services/rankingService';
-import { motion } from 'framer-motion';
-import { slideUp } from '@/utils/motion';
 
 interface ResultMenuProps {
   score: number;

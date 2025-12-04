@@ -1,5 +1,6 @@
-import { slideLeft } from '@/utils/motion';
 import { motion } from 'framer-motion';
+
+import { slideLeft } from '@/utils/motion';
 
 const styles = {
   listItem:

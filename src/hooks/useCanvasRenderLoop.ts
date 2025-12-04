@@ -47,7 +47,7 @@ export type CanvasRenderServices = {
   ) => void;
 };
 
-export type CanvasRenderLoopProps = {
+export type CanvasRenderLoopOptions = {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
   image: HTMLImageElement | null;
   drawSizeRef: React.RefObject<{ width: number; height: number }>;
@@ -72,7 +72,7 @@ export type CanvasRenderLoopApi = {
 };
 
 export const useCanvasRenderLoop = (
-  props: CanvasRenderLoopProps
+  props: CanvasRenderLoopOptions
 ): CanvasRenderLoopApi => {
   const {
     canvasRef,

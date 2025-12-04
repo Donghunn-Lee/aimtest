@@ -1,5 +1,6 @@
-import { loading as loadingVariants } from '@/utils/motion';
 import { motion } from 'framer-motion';
+
+import { loading as loadingVariants } from '@/utils/motion';
 
 export const LoadingOverlay = () => {
   return (

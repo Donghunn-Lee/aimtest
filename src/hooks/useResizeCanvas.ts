@@ -4,7 +4,7 @@ import type { GameMode } from '@/types/game';
 
 import { setCanvasSizeDPR } from '@/utils/canvas';
 
-export interface UseResizeCanvasParams {
+export interface UseResizeCanvasOptions {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
   mode: GameMode;
   ratio: number;
@@ -19,20 +19,22 @@ export interface UseResizeCanvasReturn {
   recalc: () => void;
 }
 
-export const useResizeCanvas = ({
-  canvasRef,
-  mode,
-  ratio,
-  windowPadding = 48,
-  onGameAreaChange,
-  deps = [],
-}: UseResizeCanvasParams) => {
+export const useResizeCanvas = (options: UseResizeCanvasOptions) => {
+  const {
+    canvasRef,
+    mode,
+    ratio,
+    windowPadding = 48,
+    onGameAreaChange,
+    deps = [],
+  } = options;
   const rafRef = useRef<number | null>(null);
   const [displaySize, setDisplaySize] = useState({ width: 0, height: 0 });
 
   const computeDisplaySize = useCallback(() => {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
+
     if (mode === 'fullscreen') {
       const screenRatio = vw / vh;
       // 가로가 더 길 경우 -> 높이에 맞추고 좌우 레터박스

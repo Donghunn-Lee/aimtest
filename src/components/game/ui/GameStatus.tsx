@@ -1,6 +1,8 @@
-import type { GameMode } from '@/types/game';
-import { slideRight } from '@/utils/motion';
 import { motion } from 'framer-motion';
+
+import type { GameMode } from '@/types/game';
+
+import { slideRight } from '@/utils/motion';
 
 interface GameStatusProps {
   elapsedTime: number;

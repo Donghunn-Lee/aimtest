@@ -35,6 +35,7 @@ import { usePointerLock } from '@/hooks/usePointerLock';
 import { useInputController } from '@/hooks/useInputController';
 import { useBorderFade } from '@/hooks/useBorderFade';
 import { useFullscreen } from '@/hooks/useFullscreen';
+import { useGameRuntime } from '@/hooks/useGameRuntime';
 
 import {
   clearCanvas,
@@ -44,7 +45,7 @@ import {
 import { DEFAULT_RESOLUTION } from '@/utils/image';
 
 import { INPUT, UI } from '@/constants/game';
-import { useGameRuntime } from '@/hooks/useGameRuntime';
+
 import { TARGET_DEFAULT } from '@/constants/target';
 
 export interface GameWorldProps {
