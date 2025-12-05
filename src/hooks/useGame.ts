@@ -10,6 +10,8 @@ export interface GameState {
   hitCount: number;
   totalClick: number;
   mouseSensitivity: number;
+
+  /** 타겟 과부하 시 패배 카운트다운이 시작된 시각(ms) */
   graceStartAt: number | null;
 }
 
@@ -26,6 +28,14 @@ export interface GameActions {
   cancelGraceTimer: () => void;
 }
 
+/**
+ * 게임 상태 및 상태 변경 액션 관리 훅
+ * - 시작/종료/리셋: 게임 라이프사이클 제어
+ * - 타이머·정확도·스코어 업데이트
+ * - 명중/클릭 이벤트에 따른 통계 처리
+ * - 클리어 타임(그레이스 타이머) 처리 및 자동 종료
+ * - PointerLock 해제 등 종료 시 부수효과 포함
+ */
 export const useGame = (): [GameState, GameActions] => {
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
@@ -39,7 +49,7 @@ export const useGame = (): [GameState, GameActions] => {
   const [graceStartAt, setGraceStartAt] = useState<number | null>(null);
   const endTimeoutRef = useRef<number | null>(null);
 
-  // 정확도 계산을 useEffect로 분리
+  // 사격 정확도 계산
   useEffect(() => {
     if (totalClick > 0) {
       setAccuracy((hitCount / totalClick) * 100);

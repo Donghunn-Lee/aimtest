@@ -5,7 +5,11 @@ interface VolumeSliderProps {
   volumeActions: VolumeActions;
 }
 
-const VolumeSlider = ({ volumeState, volumeActions }: VolumeSliderProps) => {
+// 효과음/배경음 볼륨 및 음소거 UI 컨트롤러
+export const VolumeSlider = ({
+  volumeState,
+  volumeActions,
+}: VolumeSliderProps) => {
   return (
     <div className="m-0 h-fit items-center p-0">
       <div>
@@ -57,5 +61,3 @@ const VolumeSlider = ({ volumeState, volumeActions }: VolumeSliderProps) => {
     </div>
   );
 };
-
-export default VolumeSlider;

@@ -18,6 +18,11 @@ export interface VolumeActions {
   stopBGM: () => void;
 }
 
+/**
+ * 효과음/배경음 볼륨 및 재생 상태 관리 훅
+ * - 효과음 볼륨/뮤트 및 히트/미스 사운드 재생
+ * - BGM 지연 재생, 루프, 볼륨, 정지 제어
+ */
 const useVolume = (): [VolumeState, VolumeActions] => {
   const [efVolume, setEfVolume] = useState(30);
   const [bgVolume, setBgVolume] = useState(30);

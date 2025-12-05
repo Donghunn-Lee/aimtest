@@ -25,15 +25,16 @@ export interface UseInputControllerOptions {
   targetManagerActions: TargetManagerActions;
   volumeActions: VolumeActions;
 
-  /** 선택: 초기/최소/최대 민감도 설정 */
+  /** 초기 마우스 감도 값 */
   initialSensitivity: number;
+
+  /** 감도 하한 (클램프용) */
   minSensitivity: number;
+
+  /** 감도 상한 (클램프용) */
   maxSensitivity: number;
 
-  /** 선택: 해상도 비율 및 캔버스 초기화 시 사용 */
-  selectedRatio?: number;
-
-  /** 선택: 점수 플로팅 등 후처리 콜백 */
+  /** 타겟 히트 시 추가 UI/로그 처리용 콜백 */
   onScore?: (t: Target) => void;
 }
 

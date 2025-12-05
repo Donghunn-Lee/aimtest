@@ -11,32 +11,49 @@ import { CAMERA } from '@/constants/render';
 export type Camera = { x: number; y: number };
 
 export type CanvasRenderServices = {
+  /** 프레임 시작 시 캔버스 초기화 */
   clearCanvas: (
     ctx: CanvasRenderingContext2D,
     canvas: HTMLCanvasElement
   ) => void;
+
+  /** 카메라 위치 기반으로 캔버스 변환 적용 */
   applyCameraTransform: (
     ctx: CanvasRenderingContext2D,
     canvas: HTMLCanvasElement,
     cam: Camera
   ) => void;
+
+  /** applyCameraTransform 이전 상태로 복원 */
   endCameraTransform: (ctx: CanvasRenderingContext2D) => void;
+
+  /** 맵 배경 + 테두리(경계) 렌더링 */
   renderMapAndBounds: (
     ctx: CanvasRenderingContext2D,
     args: RenderMapAndBoundsArgs
   ) => void;
+
+  /** 활성 타겟 리스트 렌더링 */
   renderTargets: (args: {
     ctx: CanvasRenderingContext2D;
     targets: Target[];
     graceStartAt: number | null;
     isGameOver: boolean;
   }) => void;
+
+  /** 플로팅 스코어 위치·수명 업데이트 */
   updateFloatingScores: (dtMs: number) => void;
+
+  /** 플로팅 스코어 시각적 렌더링 */
   drawFloatingScores: (
     ctx: CanvasRenderingContext2D,
     targetSize: number
   ) => void;
+
+  /** 현재 타겟 크기(px) 계산 */
   getTargetSize: () => number;
+
+  /** 타겟 컨테이너(bounds) 계산 후 콜백에 전달 */
   drawTargetContainer: (
     onDraw: (bounds: {
       x: number;
@@ -48,14 +65,25 @@ export type CanvasRenderServices = {
 };
 
 export type CanvasRenderLoopOptions = {
+  /** 렌더링 대상 캔버스 ref */
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
+
+  /** 맵/배경 이미지 */
   image: HTMLImageElement | null;
+
+  /** calculateAspectFit 으로 계산된 실제 드로잉 영역 크기 */
   drawSizeRef: React.RefObject<{ width: number; height: number }>;
+
+  /** 렌더링할 타겟 배열 ref */
   targetsRef: React.RefObject<Target[]>;
+
+  /** 게임 상태 일부(graceStartAt, isGameOver)를 루프에서 참조하기 위한 최소 정보 */
   gameRef: React.RefObject<{
     graceStartAt: number | null;
     isGameOver: boolean;
   }>;
+
+  /** 경계 테두리(fade 효과) 투명도 ref */
   borderOpacityRef: React.RefObject<number>;
   services: CanvasRenderServices;
   options?: {
@@ -71,8 +99,14 @@ export type CanvasRenderLoopApi = {
   getCamera: () => Camera;
 };
 
+/**
+ * 캔버스 기반 게임 렌더 루프 관리 훅
+ * - rAF(requestAnimationFrame) 루프로 맵/타겟/플로팅 스코어 프레임별 렌더링
+ * - 카메라 위치/클램프 및 입력 누적(nudgeCamera) 처리
+ * - 실제 그리기/계산은 services로 위임하고, 루프·카메라·타이밍만 책임
+ */
 export const useCanvasRenderLoop = (
-  props: CanvasRenderLoopOptions
+  options: CanvasRenderLoopOptions
 ): CanvasRenderLoopApi => {
   const {
     canvasRef,
@@ -82,7 +116,7 @@ export const useCanvasRenderLoop = (
     gameRef,
     borderOpacityRef,
     services,
-  } = props;
+  } = options;
 
   // 엔진 내부 상태
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);

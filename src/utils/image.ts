@@ -1,5 +1,6 @@
 import type { Resolution } from '@/types/image';
 
+// 이미지 비율을 유지하며 캔버스 내에서 fit되도록 drawSizeRef 갱신
 export function calculateAspectFit(
   img: HTMLImageElement | null,
   canvasH: number,

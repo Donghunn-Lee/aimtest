@@ -7,6 +7,8 @@ import { calculateAspectFit } from '@/utils/image';
 export interface UseImageLoaderOptions {
   src: string;
   canvas: HTMLCanvasElement | null;
+
+  /** calculateAspectFit 결과로 캔버스에 실제로 그릴 영역 크기 저장 */
   drawSize: { width: number; height: number };
 }
 
@@ -16,6 +18,12 @@ export type UseImageLoaderResult = {
   firstLoaded: boolean;
 };
 
+/**
+ * 캔버스용 배경 이미지 로더 훅
+ * - src 변경 시 이미지 로딩 상태(loading/loaded/error) 관리
+ * - 최초 로딩 완료 여부(firstLoaded) 플래그 제공(페이드인·로딩 UI 등에 사용)
+ * - canvas 크기/리사이즈에 맞춰 이미지 비율 유지(calculateAspectFit) 후 drawSize 갱신
+ */
 export const useImageLoader = (
   options: UseImageLoaderOptions
 ): UseImageLoaderResult => {

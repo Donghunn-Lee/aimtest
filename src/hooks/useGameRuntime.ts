@@ -19,6 +19,12 @@ export interface UseGameRuntimeOptions {
   gameRuntimeRef: React.RefObject<GameRuntimeRef>;
 }
 
+/**
+ * 게임 런타임 사이드이펙트 관리 훅
+ * - 타이머·BGM·경계 테두리·타겟 스포너 등 게임 진행 중 발생하는 효과 처리
+ * - gameState 변화에 따라 타겟 동기화·그레이스 타이머 트리거
+ * - GameWorld 외부에서 필요로 하는 runtime ref 값(graceStartAt, isGameOver) 갱신
+ */
 export const useGameRuntime = (options: UseGameRuntimeOptions) => {
   const {
     gameState,

@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 
 import { loading as loadingVariants } from '@/utils/motion';
 
+// 맵 로딩 중 표시되는 전체 화면 로딩 오버레이
 export const LoadingOverlay = () => {
   return (
     <motion.div

@@ -12,6 +12,7 @@ interface GameStatusProps {
   gameMode: GameMode;
 }
 
+// 게임 진행 중 우측 상단에 표시되는 실시간 상태 패널
 export const GameStatus = ({
   elapsedTime,
   score,

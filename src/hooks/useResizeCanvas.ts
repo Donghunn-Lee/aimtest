@@ -8,8 +8,14 @@ export interface UseResizeCanvasOptions {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
   mode: GameMode;
   ratio: number;
+
+  /** windowed 모드에서 양쪽 여백으로 남겨둘 최소 패딩(px) */
   windowPadding?: number;
+
+  /** 캔버스 실제 픽셀 크기 변경 시 호출 (타겟 매니저 등 외부 동기화용) */
   onGameAreaChange: (width: number, height: number) => void;
+
+  /** 사이즈 재계산 트리거로 함께 묶고 싶은 외부 의존성들 */
   deps?: React.DependencyList;
 }
 
@@ -19,6 +25,12 @@ export interface UseResizeCanvasReturn {
   recalc: () => void;
 }
 
+/**
+ * 게임 캔버스 리사이즈 및 DPR 적용 훅
+ * - 윈도우 크기 / 게임 모드(fullscreen/windowed)에 맞춰 캔버스 표시 크기 계산
+ * - setCanvasSizeDPR로 실제 픽셀 크기(canvas.width/height) 설정
+ * - 리사이즈/의존성 변경 시 onGameAreaChange로 실제 게임 영역 크기 전달
+ */
 export const useResizeCanvas = (options: UseResizeCanvasOptions) => {
   const {
     canvasRef,
@@ -37,6 +49,7 @@ export const useResizeCanvas = (options: UseResizeCanvasOptions) => {
 
     if (mode === 'fullscreen') {
       const screenRatio = vw / vh;
+
       // 가로가 더 길 경우 -> 높이에 맞추고 좌우 레터박스
       if (screenRatio > ratio) {
         const h = vh;

@@ -17,7 +17,6 @@ interface ResultMenuProps {
   onRestart: () => void;
   onMenu: () => void;
   accuracy: number;
-  animate: boolean;
 }
 
 const ResultMenu = ({
@@ -25,7 +24,6 @@ const ResultMenu = ({
   accuracy,
   elapsedTime,
   onRestart,
-  animate,
   onMenu,
 }: ResultMenuProps) => {
   const [isSaving, setIsSaving] = useState(false);
@@ -149,7 +147,7 @@ const ResultMenu = ({
   }, [score, showMenu]);
 
   return (
-    <PanelOverlay animate={animate}>
+    <PanelOverlay>
       <div
         className={`flex flex-col items-center justify-center space-y-3 px-4 transition-all duration-1000 md:space-y-4 xl:space-y-5 ${
           showMenu ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'

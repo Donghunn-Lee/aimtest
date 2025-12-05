@@ -1,3 +1,5 @@
+// Framer Motion 변수 프리셋
+
 export const D = {
   base: 0.8,
   out: 0.5,

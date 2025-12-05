@@ -18,6 +18,7 @@ export interface ContainerConfig {
   heightScaleRatio: number;
 }
 
+// 각 해상도별 타겟 컨테이너 경계 계산
 export function calculateContainerBounds(
   gameArea: GameArea,
   config: ContainerConfig

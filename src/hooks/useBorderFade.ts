@@ -7,6 +7,12 @@ export interface UseBorderFadeApi {
   show: () => void;
 }
 
+/**
+ * 게임 테두리(Border) 페이드 효과 관리 훅
+ * - start: 일정 시간(UI.BORDER_FADE_MS)에 걸쳐 서서히 투명해짐
+ * - show: 즉시 최대 불투명도(UI.BORDER_OPACITY)로 복구
+ * - requestAnimationFrame 기반으로 부드러운 페이드 처리
+ */
 export const useBorderFade = (
   borderOpacityRef: React.RefObject<number>
 ): UseBorderFadeApi => {

@@ -19,26 +19,49 @@ export type TargetContainer = {
 };
 
 export interface TargetManagerActions {
+  /** 게임 영역/해상도 변경 시 TargetManager 재초기화 */
   init: (
     gameArea: { width: number; height: number },
     resolution: number
   ) => void;
+
+  /** 게임 시작 시점 기준으로 스폰 난이도 곡선 초기화 후 rAF 스폰 루프 시작 */
   startSpawner: (startTime: number) => void;
+
+  /** 스폰 루프 중단 및 내부 타이밍 상태 리셋 */
   stopSpawner: () => void;
+
+  /** 화면 좌표(x, y) 기준 히트 판정, 맞으면 onHit 콜백 호출 */
   checkHit: (
     x: number,
     y: number,
     onHit?: (target: Target) => void
   ) => Target | null;
+
+  /** 캔버스/맵 크기 변경 시 게임 영역 반영 */
   updateGameArea: (width: number, height: number) => void;
+
   clearTargets: () => void;
+
+  /** TargetManager 내부 타겟 배열을 주기적으로 React state와 동기화(setInterval) */
   syncTargets: () => void;
+
+  /** 타겟 컨테이너(bounds)를 계산해 콜백에 전달(렌더러에서 사용) */
   drawTargetContainer: (onDraw: (bounds: TargetContainer) => void) => void;
+
+  /** 현재 타겟 픽셀 크기 조회(플로팅 스코어/히트 영역 계산 등에서 사용) */
   getTargetSize: () => number | null;
 }
 
 const initialTargetConfig: TargetConfig = { ...TARGET_DEFAULT };
 
+/**
+ * 타겟 스폰/관리 엔진(TargetManager)을 React 상태/액션 형태로 감싸는 훅
+ * - TargetManager 인스턴스 생성/초기화 및 게임 영역 갱신
+ * - rAF 기반 스폰 루프(start/stopSpawner)로 난이도 곡선 적용
+ * - setInterval 기반 타겟 배열 동기화(syncTargets)
+ * - 히트 판정(checkHit), 컨테이너 bounds, 타겟 크기 조회 등 렌더러/게임 로직에 필요한 API 제공
+ */
 export const useTargetManager = (): [
   TargetManagerState,
   TargetManagerActions,

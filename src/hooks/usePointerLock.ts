@@ -19,6 +19,12 @@ export interface UsePointerLockApi {
   exit: () => void;
 }
 
+/**
+ * Canvas 대상 브라우저 Pointer Lock 상태 관리 훅
+ * - pointerlockchange 이벤트 기반으로 잠금 상태 동기화
+ * - enabled=false 시 현재 잠금 강제 해제
+ * - request/exit API로 게임 로직에서 포인터락 제어
+ */
 export const usePointerLock = ({
   canvasRef,
   enabled = true,
@@ -29,7 +35,7 @@ export const usePointerLock = ({
   const lastLockedRef = useRef<HTMLCanvasElement | null>(null);
 
   const syncState = useCallback(() => {
-    // Strinct - 메인 캔버스 잠금만 확인
+    // Strict - 메인 캔버스 잠금만 확인
     const current = document.pointerLockElement ?? null;
     const target = canvasRef.current;
     const curCanvas = (
@@ -84,7 +90,7 @@ export const usePointerLock = ({
     } catch {
       return false;
     }
-  }, [canvasRef, enabled]);
+  }, [canvasRef]);
 
   const exit = useCallback(() => {
     if (document.pointerLockElement) {

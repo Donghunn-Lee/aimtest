@@ -6,6 +6,12 @@ import {
   ContainerConfig,
 } from '@/utils/targetContainer';
 
+/**
+ * 타겟 생성/배치/히트 판정/맵 경계 관리 책임을 가지는 도메인 매니저
+ * - 컨테이너(bounds)와 해상도에 맞춰 타겟 크기/위치 계산
+ * - maxTargets, margin 조건을 적용하며 랜덤 생성
+ * - 원형 거리 기반 점수(1~3점)와 히트 처리
+ */
 export class TargetManager {
   private targets: Target[] = [];
   private targetConfig: TargetConfig;
@@ -30,6 +36,7 @@ export class TargetManager {
     this.targetConfig = { ...config, size: this.mapBounds.width / 18 };
   }
 
+  /** maxTargets를 넘지 않는 선에서, 겹치지 않는 위치의 새 타겟을 생성 (실패 시 null) */
   createTarget(): Target | null {
     if (this.targets.length >= this.targetConfig.maxTargets) {
       return null;
@@ -73,6 +80,7 @@ export class TargetManager {
     };
   }
 
+  /** 기존 타겟들과의 최소 거리 제약을 만족하는지 검사 */
   private isValidPosition(target: Target): boolean {
     return !this.targets.some((existingTarget) => {
       const distance = Math.sqrt(
@@ -83,6 +91,11 @@ export class TargetManager {
     });
   }
 
+  /**
+   * 주어진 좌표(x, y) 기준 원형 히트 판정 및 점수 부여
+   * - 중심에 가까울수록 높은 점수(3 → 2 → 1점)
+   * - 맞은 타겟은 배열에서 제거 후 반환
+   */
   checkHit(x: number, y: number): Target | null {
     for (let i = 0; i < this.targets.length; i++) {
       const target = this.targets[i];
@@ -137,6 +150,7 @@ export class TargetManager {
     }
   }
 
+  /** 게임 영역 크기 변경 시 컨테이너 bounds 재계산 */
   updateGameArea(width: number, height: number): void {
     this.gameArea = { width, height };
     this.mapBounds = calculateContainerBounds(

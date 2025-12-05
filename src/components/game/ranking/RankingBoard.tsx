@@ -12,7 +12,6 @@ import {
 
 interface RankingBoardProps {
   onClose: () => void;
-  animate?: boolean;
 }
 
 const styles = {
@@ -27,7 +26,7 @@ const styles = {
   rank3: '!text-amber-500 font-bold',
 };
 
-const RankingBoard = ({ onClose, animate = true }: RankingBoardProps) => {
+const RankingBoard = ({ onClose }: RankingBoardProps) => {
   const [ranking, setRanking] = useState<RankingResponse[]>([]);
 
   useEffect(() => {
@@ -53,7 +52,7 @@ const RankingBoard = ({ onClose, animate = true }: RankingBoardProps) => {
   };
 
   return (
-    <PanelOverlay animate={animate}>
+    <PanelOverlay>
       <div className="mx-auto w-full max-w-[600px] space-y-1 p-0.5 md:space-y-1.5 md:p-0.5 lg:space-y-2 lg:p-1">
         <div className="flex items-center justify-between">
           <h1 className="text-base font-bold text-white md:text-lg lg:text-xl">

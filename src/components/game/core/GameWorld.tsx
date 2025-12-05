@@ -58,6 +58,10 @@ export interface GameRuntimeRef {
   isGameOver: boolean;
 }
 
+/**
+ * 게임 창을 관리하는 메인 컴포넌트
+ *
+ */
 export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const targetsRef = useRef<Target[]>([]);
@@ -82,8 +86,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   const [targetManagerState, targetManagerActions] = useTargetManager();
   const [volumeState, volumeActions] = useVolume();
 
-  // 캔버스 렌더링 서비스
-  // - 루프 내부에서 사용하는 렌더/헬퍼 함수들을 모아서 넘김
+  // 캔버스 렌더 루프에 전달되는 렌더 서비스 집합
   const services = useMemo(() => {
     const getTargetSize = () =>
       targetManagerActions.getTargetSize() ?? TARGET_DEFAULT.size;
@@ -150,7 +153,6 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
       initialSensitivity: INPUT.SENSITIVITY_DEFAULT,
       minSensitivity: INPUT.SENSITIVITY_MIN,
       maxSensitivity: INPUT.SENSITIVITY_MAX,
-      selectedRatio: selectedResolution.ratio,
       onScore: (t) => addFloatingScore(t.x, t.y, t.score || 0, t.score === 3),
     });
 
@@ -276,7 +278,6 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
               onResolutionChange={setSelectedResolution}
               volumeState={volumeState}
               volumeActions={volumeActions}
-              animate={true}
             />
           )}
 
@@ -287,7 +288,6 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
             elapsedTime={gameState.elapsedTime}
             accuracy={gameState.accuracy}
             onRestart={handleGameStart}
-            animate={true}
             onMenu={() => {
               gameActions.resetGame();
             }}
@@ -298,7 +298,6 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
           <RankingBoard
             key="ranking"
             onClose={() => setIsRankingOpen(false)}
-            animate={true}
           />
         )}
 

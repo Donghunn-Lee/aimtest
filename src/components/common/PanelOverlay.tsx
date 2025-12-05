@@ -19,7 +19,7 @@ export const PanelOverlay = ({
         <motion.div
           variants={slideUp}
           initial="hidden"
-          animate="show"
+          animate={animate ? 'show' : false}
           exit="exit"
           className={`transform rounded-lg bg-black bg-opacity-60 p-4 text-white shadow-lg backdrop-blur-sm lg:p-6 xl:p-8 ${
             className ?? ''
