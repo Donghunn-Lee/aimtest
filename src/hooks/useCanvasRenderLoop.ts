@@ -150,6 +150,7 @@ export const useCanvasRenderLoop = (
     // 6) 업데이트(상태 변화) → 7) 그리기(시각화) 순서 유지
     services.updateFloatingScores(dt);
 
+    // 7) 타겟 컨테이너 및 타겟 렌더링
     services.renderMapAndBounds(ctx, {
       image: imageSrc,
       width: canvas.width,
