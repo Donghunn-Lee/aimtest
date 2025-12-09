@@ -204,7 +204,9 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
         targetManagerActions.clearTargets();
       }
     };
-  }, [selectedResolution, gameState.isGameStarted, targetManagerActions]);
+
+    // isGameStarted을 의존성에서 제거하여 게임 종료 후에도 타겟이 남아있도록 구현
+  }, [selectedResolution, targetManagerActions]);
 
   // TargetManager 내부 타겟 배열 → 렌더 루프용 ref 동기화
   useEffect(() => {
