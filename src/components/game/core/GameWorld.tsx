@@ -242,11 +242,11 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   return (
     <main
       ref={containerRef}
-      className={`relative flex h-full w-full items-center justify-center overflow-hidden bg-black`}
+      className={`relative flex h-full w-auto items-center justify-center overflow-hidden bg-black`}
     >
       <canvas
         ref={canvasRef}
-        className={`block bg-[#1a1a1a] ${gameMode === 'fullscreen' ? 'h-auto w-auto' : 'max-h-[calc(100vh-48px)] max-w-[calc(100vw-48px)]'}`}
+        className={`block bg-[#1a1a1a] ${gameMode === 'fullscreen' ? 'h-auto w-auto' : 'max-h-[100vh] max-w-[100vw]'}`}
         style={{
           aspectRatio: selectedResolution.ratio,
         }}

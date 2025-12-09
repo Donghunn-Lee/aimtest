@@ -15,9 +15,9 @@ function App() {
   }, []);
 
   return (
-    <div className="flex h-full min-h-screen w-full flex-col items-center justify-center bg-[#1a1a1a] p-8 text-white">
+    <div className="flex h-full min-h-screen w-full flex-col items-center justify-center bg-[#1a1a1a] text-white">
       {!gameMode ? (
-        <div className="absolute inset-0 flex h-full flex-col items-center justify-center p-8 text-center">
+        <div className="absolute inset-0 flex h-full flex-col items-center justify-center text-center">
           <h1 className="mb-8 text-5xl font-bold text-[#00ff00] [text-shadow:0_0_10px_rgba(0,255,0,0.5)]">
             FPS Aim Test
           </h1>
