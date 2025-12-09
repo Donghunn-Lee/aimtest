@@ -56,9 +56,9 @@ export function getDefaultConfig(resolution: number): ContainerConfig {
     return {
       mapAspectRatio: 16 / 9,
       targetAreaRatio: 1,
-      verticalOffsetRatio: 0.246,
-      widthScaleRatio: 2.438,
-      heightScaleRatio: 4.124,
+      verticalOffsetRatio: 0.242,
+      widthScaleRatio: 2.4,
+      heightScaleRatio: 4.098,
     };
   } else if (resolution === 16 / 10) {
     return {
