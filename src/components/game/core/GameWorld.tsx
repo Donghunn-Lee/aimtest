@@ -242,73 +242,75 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   return (
     <main
       ref={containerRef}
-      className={`relative flex h-full w-auto items-center justify-center overflow-hidden bg-black`}
+      className={`relative flex h-full w-full items-center justify-center overflow-hidden bg-black`}
     >
-      <canvas
-        ref={canvasRef}
-        className={`block bg-[#1a1a1a] ${gameMode === 'fullscreen' ? 'h-auto w-auto' : 'max-h-[100vh] max-w-[100vw]'}`}
-        style={{
-          aspectRatio: selectedResolution.ratio,
-        }}
-        onMouseMove={onMouseMove}
-        onMouseDown={onMouseDown}
-      />
+      <div
+        className="relative flex h-full max-h-[100vh] w-auto max-w-[100vw] items-center justify-center"
+        style={{ aspectRatio: selectedResolution.ratio }}
+      >
+        <canvas
+          ref={canvasRef}
+          className={`relative h-full w-full bg-[#1a1a1a]`}
+          onMouseMove={onMouseMove}
+          onMouseDown={onMouseDown}
+        />
 
-      <Crosshair />
+        <Crosshair />
 
-      <AnimatePresence>
-        {gameState.isGameStarted && !gameState.isGameOver && (
-          <GameStatus
-            key="status"
-            elapsedTime={gameState.elapsedTime}
-            score={gameState.score}
-            accuracy={gameState.accuracy}
-            sensitivity={sensitivity}
-            gameMode={gameMode}
-          />
-        )}
-
-        {!gameState.isGameStarted &&
-          !gameState.isGameOver &&
-          !isRankingOpen &&
-          isMapReady && (
-            <StartMenu
-              key="start"
-              onStart={handleGameStart}
-              onRanking={() => setIsRankingOpen(true)}
-              selectedResolution={selectedResolution}
-              onResolutionChange={setSelectedResolution}
-              volumeState={volumeState}
-              volumeActions={volumeActions}
+        <AnimatePresence>
+          {gameState.isGameStarted && !gameState.isGameOver && (
+            <GameStatus
+              key="status"
+              elapsedTime={gameState.elapsedTime}
+              score={gameState.score}
+              accuracy={gameState.accuracy}
+              sensitivity={sensitivity}
+              gameMode={gameMode}
             />
           )}
 
-        {gameState.isGameOver && !isRankingOpen && (
-          <ResultMenu
-            key="result"
-            score={gameState.score}
-            elapsedTime={gameState.elapsedTime}
-            accuracy={gameState.accuracy}
-            onRestart={handleGameStart}
-            onMenu={() => {
-              gameActions.resetGame();
-            }}
-          />
-        )}
+          {!gameState.isGameStarted &&
+            !gameState.isGameOver &&
+            !isRankingOpen &&
+            isMapReady && (
+              <StartMenu
+                key="start"
+                onStart={handleGameStart}
+                onRanking={() => setIsRankingOpen(true)}
+                selectedResolution={selectedResolution}
+                onResolutionChange={setSelectedResolution}
+                volumeState={volumeState}
+                volumeActions={volumeActions}
+              />
+            )}
 
-        {isRankingOpen && (
-          <RankingBoard
-            key="ranking"
-            onClose={() => setIsRankingOpen(false)}
-          />
-        )}
+          {gameState.isGameOver && !isRankingOpen && (
+            <ResultMenu
+              key="result"
+              score={gameState.score}
+              elapsedTime={gameState.elapsedTime}
+              accuracy={gameState.accuracy}
+              onRestart={handleGameStart}
+              onMenu={() => {
+                gameActions.resetGame();
+              }}
+            />
+          )}
 
-        {!gameState.isGameStarted && !isRankingOpen && isMapReady && (
-          <GameGuide key="guide" />
-        )}
+          {isRankingOpen && (
+            <RankingBoard
+              key="ranking"
+              onClose={() => setIsRankingOpen(false)}
+            />
+          )}
 
-        {!isMapReady && <LoadingOverlay key={'loading'} />}
-      </AnimatePresence>
+          {!gameState.isGameStarted && !isRankingOpen && isMapReady && (
+            <GameGuide key="guide" />
+          )}
+
+          {!isMapReady && <LoadingOverlay key={'loading'} />}
+        </AnimatePresence>
+      </div>
     </main>
   );
 };
