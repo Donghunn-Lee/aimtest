@@ -247,7 +247,7 @@ export const GameWorld = ({
   return (
     <main
       ref={containerRef}
-      className={`overflow-hidde relative flex h-full w-full items-center justify-center`}
+      className={`relative flex h-full w-full items-center justify-center overflow-hidden`}
     >
       <div
         className="relative flex h-full max-h-[100vh] w-auto max-w-[100vw] items-center justify-center"
