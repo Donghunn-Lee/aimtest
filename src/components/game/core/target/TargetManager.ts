@@ -97,7 +97,7 @@ export class TargetManager {
    * - 맞은 타겟은 배열에서 제거 후 반환
    */
   checkHit(x: number, y: number): Target | null {
-    for (let i = 0; i < this.targets.length; i++) {
+    for (let i = this.targets.length - 1; i >= 0; i--) {
       const target = this.targets[i];
       if (target.hit) continue;
 
