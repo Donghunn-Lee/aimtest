@@ -10,6 +10,7 @@ import { VolumeState, VolumeActions } from '@/hooks/useVolume';
 interface StartMenuProps {
   onStart: () => void;
   onRanking: () => void;
+  onBackToMain: () => void;
   selectedResolution: Resolution;
   onResolutionChange: (resolution: Resolution) => void;
   volumeState: VolumeState;
@@ -19,6 +20,7 @@ interface StartMenuProps {
 const StartMenu = ({
   onStart,
   onRanking,
+  onBackToMain,
   selectedResolution,
   onResolutionChange,
   volumeState,
@@ -26,7 +28,13 @@ const StartMenu = ({
 }: StartMenuProps) => {
   return (
     <PanelOverlay>
-      <div className="flex flex-col items-center justify-center space-y-2 px-1 md:px-1 lg:space-y-4 lg:px-6 xl:space-y-6 xl:text-ellipsis xl:px-8">
+      <button
+        onClick={onBackToMain}
+        className="absolute left-4 top-2 text-xl font-extrabold text-gray-400 transition-colors hover:text-white"
+      >
+        ←
+      </button>
+      <div className="relative flex flex-col items-center justify-center space-y-2 px-1 md:px-1 lg:space-y-4 lg:px-6 xl:space-y-6 xl:text-ellipsis xl:px-8">
         <h2 className="mb-2 text-center text-lg font-bold text-white md:mb-3 md:text-lg lg:text-2xl xl:text-3xl">
           FPS Aim Test
         </h2>

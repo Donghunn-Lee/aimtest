@@ -33,17 +33,17 @@ const GameGuide = () => {
           조절할 수 있습니다
         </li>
         <li className={styles.listItem}>
-          타겟이 <span className={styles.highlight}>10개</span> 이상인 상태가{' '}
+          화면에 타겟이 <span className={styles.highlight}>10개</span> 이상{' '}
           <span className={styles.highlight}>3초</span>간 지속될 경우 게임이
           종료됩니다.
         </li>
         <li className={styles.listItem}>
           <span className={styles.highlight}>ESC</span> 또는{' '}
-          <span className={styles.highlight}>~</span>키를 눌러 게임을 즉시
+          <span className={styles.highlight}>~</span> 키를 눌러 게임을 즉시
           종료할 수 있습니다.
         </li>
         <li className={styles.listItem}>
-          <span className={styles.highlight}>F5</span>를 눌러 화면 모드를 다시
+          <span className={styles.highlight}>←</span> 키를 눌러 화면 모드를 다시
           선택할 수 있습니다.
         </li>
       </ul>

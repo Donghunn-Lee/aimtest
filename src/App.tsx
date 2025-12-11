@@ -14,6 +14,10 @@ function App() {
     setGameMode(newMode);
   }, []);
 
+  const handleBackToMain = useCallback(() => {
+    setGameMode(null);
+  }, []);
+
   return (
     <div className="flex h-full min-h-screen w-full flex-col items-center justify-center bg-[#1a1a1a] text-white">
       {!gameMode ? (
@@ -95,6 +99,7 @@ function App() {
         <GameWorld
           gameMode={gameMode}
           onGameModeChange={handleGameModeChange}
+          onBackToMain={handleBackToMain}
         />
       )}
     </div>

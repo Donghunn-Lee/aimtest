@@ -51,6 +51,7 @@ import { TARGET_DEFAULT } from '@/constants/target';
 export interface GameWorldProps {
   gameMode: GameMode;
   onGameModeChange?: (mode: GameMode) => void;
+  onBackToMain: () => void;
 }
 
 export interface GameRuntimeRef {
@@ -62,7 +63,11 @@ export interface GameRuntimeRef {
  * 게임 창을 관리하는 메인 컴포넌트
  *
  */
-export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
+export const GameWorld = ({
+  gameMode,
+  onGameModeChange,
+  onBackToMain,
+}: GameWorldProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const targetsRef = useRef<Target[]>([]);
   const gameRuntimeRef = useRef<GameRuntimeRef>({
@@ -242,7 +247,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
   return (
     <main
       ref={containerRef}
-      className={`relative flex h-full w-full items-center justify-center overflow-hidden bg-black`}
+      className={`overflow-hidde relative flex h-full w-full items-center justify-center`}
     >
       <div
         className="relative flex h-full max-h-[100vh] w-auto max-w-[100vw] items-center justify-center"
@@ -277,6 +282,7 @@ export const GameWorld = ({ gameMode, onGameModeChange }: GameWorldProps) => {
                 key="start"
                 onStart={handleGameStart}
                 onRanking={() => setIsRankingOpen(true)}
+                onBackToMain={onBackToMain}
                 selectedResolution={selectedResolution}
                 onResolutionChange={setSelectedResolution}
                 volumeState={volumeState}
