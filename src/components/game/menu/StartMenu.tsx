@@ -30,7 +30,7 @@ const StartMenu = ({
     <PanelOverlay>
       <button
         onClick={onBackToMain}
-        className="absolute left-4 top-2 text-xl font-extrabold text-gray-400 transition-colors hover:text-white"
+        className="absolute left-4 top-2 z-10 text-xl font-extrabold text-gray-400 transition-colors hover:text-white"
       >
         ←
       </button>

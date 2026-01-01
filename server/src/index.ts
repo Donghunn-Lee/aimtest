@@ -3,6 +3,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import rankingsRouter from './routes/rankings';
 
+import { checkHealth } from './controllers/rankingsController';
+
 dotenv.config();
 
 const app = express();
@@ -14,6 +16,8 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.json({ message: 'AIM TEST Server' });
 });
+
+app.get('/api/health', checkHealth);
 
 app.use('/api/rankings', rankingsRouter);
 

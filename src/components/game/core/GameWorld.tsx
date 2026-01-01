@@ -245,24 +245,24 @@ export const GameWorld = ({
   }, [loop, isMapReady]);
 
   return (
-    <main
+    <div
       ref={containerRef}
-      className={`relative flex h-full w-full items-center justify-center overflow-hidden`}
+      className={`relative flex h-full w-full items-center justify-center overflow-hidden bg-black`}
     >
       <div
-        className="relative flex h-full max-h-[100vh] w-auto max-w-[100vw] items-center justify-center"
+        className="relative flex h-fit max-h-[100vh] w-auto max-w-[100vw] items-center justify-center overflow-hidden"
         style={{ aspectRatio: selectedResolution.ratio }}
       >
         <canvas
           ref={canvasRef}
-          className={`relative h-full w-full bg-[#1a1a1a]`}
+          className={`relative h-full w-full`}
           onMouseMove={onMouseMove}
           onMouseDown={onMouseDown}
         />
 
-        <Crosshair />
-
         <AnimatePresence>
+          {isMapReady && <Crosshair />}
+
           {gameState.isGameStarted && !gameState.isGameOver && (
             <GameStatus
               key="status"
@@ -317,6 +317,6 @@ export const GameWorld = ({
           {!isMapReady && <LoadingOverlay key={'loading'} />}
         </AnimatePresence>
       </div>
-    </main>
+    </div>
   );
 };

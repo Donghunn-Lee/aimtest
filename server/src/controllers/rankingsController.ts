@@ -2,6 +2,24 @@ import { Request, Response } from 'express';
 import pool from '../database/db';
 import { RowDataPacket } from 'mysql2';
 
+// 서버 상태 및 DB 연결 확인 (Health Check)
+export const checkHealth = async (req: Request, res: Response) => {
+  try {
+    await pool.execute('SELECT 1');
+
+    res.status(200).json({
+      status: 'online',
+      message: 'Server and Database are healthy',
+    });
+  } catch (error) {
+    console.error('Health check failed:', error);
+    res.status(503).json({
+      status: 'offline',
+      error: 'Database connection failed',
+    });
+  }
+};
+
 // 랭킹 추가
 export const addRanking = async (req: Request, res: Response) => {
   try {

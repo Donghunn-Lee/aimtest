@@ -26,6 +26,20 @@ export async function addRanking(data: RankingData): Promise<void> {
   }
 }
 
+export async function checkHealth(): Promise<boolean> {
+  try {
+    const response = await axios.get(
+      `${process.env.REACT_APP_API_BASE_URL}/health`,
+      { timeout: 3000 }
+    );
+
+    // 상태 코드가 200번대면 정상
+    return response.status === 200;
+  } catch (error) {
+    return false;
+  }
+}
+
 export async function getRankings(): Promise<RankingResponse[]> {
   try {
     const response = await axios.get(

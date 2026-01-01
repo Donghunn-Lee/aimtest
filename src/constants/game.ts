@@ -1,4 +1,3 @@
-// constants/game.ts
 export const UI = {
   WINDOW_PADDING: 24, // px
   BORDER_OPACITY: 0.7,
