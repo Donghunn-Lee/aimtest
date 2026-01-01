@@ -4,7 +4,7 @@ interface IconProps {
 
 export const MouseIcon = ({ className = 'h-6 w-6' }: IconProps) => (
   <svg
-    className={className} // 여기서 외부 스타일을 받음
+    className={className}
     fill="none"
     viewBox="0 0 24 24"
     stroke="currentColor"

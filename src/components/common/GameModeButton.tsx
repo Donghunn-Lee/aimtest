@@ -1,6 +1,3 @@
-// [버튼 컴포넌트] 디자인 일관성을 위해 분리
-// group 클래스: 부모에 호버했을 때 자식(화살표)을 제어하기 위함
-
 import { ArrowRightIcon } from '@/components/common/Icons';
 
 interface GameModeButtonProps {

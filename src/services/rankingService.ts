@@ -33,7 +33,6 @@ export async function checkHealth(): Promise<boolean> {
       { timeout: 3000 }
     );
 
-    // 상태 코드가 200번대면 정상
     return response.status === 200;
   } catch (error) {
     return false;
