@@ -261,7 +261,11 @@ export const GameWorld = ({
         />
 
         <AnimatePresence>
-          {isMapReady && <Crosshair />}
+          {isMapReady && (
+            <Crosshair
+              isGaming={gameState.isGameStarted && !gameState.isGameOver}
+            />
+          )}
 
           {gameState.isGameStarted && !gameState.isGameOver && (
             <GameStatus
@@ -270,7 +274,6 @@ export const GameWorld = ({
               score={gameState.score}
               accuracy={gameState.accuracy}
               sensitivity={sensitivity}
-              gameMode={gameMode}
             />
           )}
 
