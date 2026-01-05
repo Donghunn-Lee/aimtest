@@ -1,12 +1,27 @@
 import { motion } from 'framer-motion';
-
 import { slideLeft } from '@/utils/motion';
+import {
+  InfoIcon,
+  LightningIcon,
+  MouseIcon,
+  AlertIcon,
+  ExitIcon,
+  ArrowLeftIcon,
+} from '@/components/common/Icons';
+import { Key } from '@/components/common/Key';
 
-const styles = {
-  listItem:
-    'text-[8px] leading-tight md:text-[9px] md:leading-snug lg:text-[10px] lg:leading-normal xl:text-xs xl:leading-relaxed',
-  highlight: 'text-[#00ff00] font-bold',
-} as const;
+const GuideRow = ({
+  icon,
+  text,
+}: {
+  icon: React.ReactNode;
+  text: React.ReactNode;
+}) => (
+  <li className="flex items-start gap-2 text-[10px] leading-tight text-gray-400 md:text-[11px]">
+    <span className="mt-0.5 shrink-0 text-[#00ff00] opacity-80">{icon}</span>
+    <span>{text}</span>
+  </li>
+);
 
 // 인게임 좌상단에 표시되는 고정 게임 가이드 UI
 const GameGuide = () => {
@@ -16,36 +31,63 @@ const GameGuide = () => {
       initial="hidden"
       animate="show"
       exit="exit"
-      className={`absolute left-4 top-4 max-w-[240px] space-y-2 rounded-lg bg-black bg-opacity-60 p-2 text-white backdrop-blur-sm md:left-4 md:top-4 md:max-w-[280px] md:p-2.5 lg:left-8 lg:top-8 lg:max-w-[320px] lg:p-3 xl:left-10 xl:top-10 xl:max-w-[360px] xl:p-3.5`}
+      className={`absolute bottom-4 left-4 z-0 max-w-[240px] rounded-xl border border-white/10 bg-black/80 p-4 shadow-xl backdrop-blur-md md:bottom-auto md:top-4 md:max-w-[260px] lg:left-8 lg:top-8 lg:max-w-[300px] lg:p-5 xl:left-10 xl:top-10`}
     >
-      <h2 className="text-[11px] font-bold text-[#00ff00] md:text-xs lg:text-sm xl:text-base">
-        Game Guide
-      </h2>
-      <ul className="list-inside list-disc space-y-1 text-xs md:space-y-1 lg:space-y-2 xl:space-y-2">
-        <li className={styles.listItem}>
-          타겟 중앙부터 <span className={styles.highlight}>3점</span>,{' '}
-          <span className={styles.highlight}>2점</span>,{' '}
-          <span className={styles.highlight}>1점</span>의 점수를 얻습니다
-        </li>
-        <li className={styles.listItem}>
-          게임 시작 후 <span className={styles.highlight}>[</span> 와{' '}
-          <span className={styles.highlight}>]</span> 키로 마우스 민감도를
-          조절할 수 있습니다
-        </li>
-        <li className={styles.listItem}>
-          화면에 타겟이 <span className={styles.highlight}>10개</span> 이상{' '}
-          <span className={styles.highlight}>3초</span>간 지속될 경우 게임이
-          종료됩니다.
-        </li>
-        <li className={styles.listItem}>
-          <span className={styles.highlight}>ESC</span> 또는{' '}
-          <span className={styles.highlight}>~</span> 키를 눌러 게임을 즉시
-          종료할 수 있습니다.
-        </li>
-        <li className={styles.listItem}>
-          <span className={styles.highlight}>←</span> 키를 눌러 화면 모드를 다시
-          선택할 수 있습니다.
-        </li>
+      <div className="mb-3 flex items-center gap-2 border-b border-white/10 pb-2">
+        <InfoIcon className="h-4 w-4 text-[#00ff00]" />
+        <h2 className="text-xs font-bold tracking-wider text-gray-200 md:text-sm">
+          GAME GUIDE
+        </h2>
+      </div>
+
+      <ul className="space-y-2.5">
+        <GuideRow
+          icon={<LightningIcon className="h-3 w-3" />}
+          text={
+            <>
+              타겟 점수 <span className="text-[#00ff00]">3점</span> ·{' '}
+              <span className="text-[#00cc00]">2점</span> ·{' '}
+              <span className="text-[#009900]">1점</span>
+            </>
+          }
+        />
+
+        <GuideRow
+          icon={<MouseIcon className="h-3 w-3" />}
+          text={
+            <>
+              <Key>[</Key> <Key>]</Key> 마우스 감도 조절
+            </>
+          }
+        />
+
+        <GuideRow
+          icon={<AlertIcon className="h-3 w-3" />}
+          text={
+            <>
+              타겟 <span className="font-bold text-gray-300">10개</span> 누적 시{' '}
+              <span className="font-bold text-red-400">GAME OVER</span>
+            </>
+          }
+        />
+
+        <GuideRow
+          icon={<ExitIcon className="h-3 w-3" />}
+          text={
+            <>
+              <Key>ESC</Key> or <Key>~</Key> 게임 종료
+            </>
+          }
+        />
+
+        <GuideRow
+          icon={<ArrowLeftIcon className="h-3 w-3" />}
+          text={
+            <>
+              <Key>←</Key> 모드 재선택
+            </>
+          }
+        />
       </ul>
     </motion.div>
   );

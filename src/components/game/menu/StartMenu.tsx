@@ -2,9 +2,9 @@ import Button from '@/components/common/Button';
 import { PanelOverlay } from '@/components/common/PanelOverlay';
 import { ResolutionSettings } from '@/components/game/settings/ResolutionSettings';
 import { VolumeSlider } from '@/components/game/ui/VolumeSlider';
+import { ArrowLeftIcon } from '@/components/common/Icons';
 
 import { Resolution } from '@/types/image';
-
 import { VolumeState, VolumeActions } from '@/hooks/useVolume';
 
 interface StartMenuProps {
@@ -30,35 +30,51 @@ const StartMenu = ({
     <PanelOverlay>
       <button
         onClick={onBackToMain}
-        className="absolute left-4 top-2 z-10 text-xl font-extrabold text-gray-400 transition-colors hover:text-white"
+        className="group absolute left-4 top-4 z-10 p-1 text-gray-500 transition-colors hover:text-[#00ff00]"
+        aria-label="Back"
       >
-        ←
+        <ArrowLeftIcon className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
       </button>
-      <div className="relative flex flex-col items-center justify-center space-y-2 px-1 md:px-1 lg:space-y-4 lg:px-6 xl:space-y-6 xl:text-ellipsis xl:px-8">
-        <h2 className="mb-2 text-center text-lg font-bold text-white md:mb-3 md:text-lg lg:text-2xl xl:text-3xl">
-          FPS Aim Test
-        </h2>
-        <div className="space-y-1 md:space-y-2">
-          <div className="w-full max-w-xs md:max-w-sm lg:max-w-md xl:max-w-lg">
+
+      <div className="relative flex flex-col items-center justify-center space-y-4 px-2 md:px-4 lg:space-y-6">
+        <div className="text-center">
+          <h2 className="text-xl font-black tracking-tighter text-white md:text-2xl lg:text-3xl">
+            GAME{' '}
+            <span className="bg-gradient-to-r from-[#00ff00] to-[#007700] bg-clip-text text-transparent">
+              SETUP
+            </span>
+          </h2>
+        </div>
+
+        <div className="flex w-full max-w-xs flex-col rounded-xl border border-white/5 bg-white/5 p-2 md:max-w-sm md:gap-2 md:px-4 md:py-2 lg:max-w-md lg:gap-4 lg:px-6 lg:py-4 xl:max-w-lg">
+          <div className="space-y-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 md:text-xs">
+              Resolution
+            </span>
             <ResolutionSettings
               selectedResolution={selectedResolution}
               onResolutionChange={onResolutionChange}
             />
           </div>
 
-          <div className="w-full max-w-xs md:max-w-sm lg:max-w-md xl:max-w-lg">
+          <div className="space-y-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 md:text-xs">
+              Volume
+            </span>
             <VolumeSlider
               volumeState={volumeState}
               volumeActions={volumeActions}
             />
           </div>
         </div>
-        <div className="w-full max-w-xs space-y-2 md:max-w-sm md:space-y-3 lg:max-w-md lg:space-y-4 xl:max-w-lg xl:space-y-5">
+
+        <div className="flex w-full max-w-xs flex-col gap-3 md:max-w-sm lg:max-w-md xl:max-w-lg">
           <Button
             onClick={onStart}
             variant="primary"
             size="md"
             fullWidth
+            className="font-bold tracking-widest"
           >
             START
           </Button>

@@ -1,7 +1,5 @@
 import Button from '@/components/common/Button';
-
 import type { Resolution } from '@/types/image';
-
 import { RESOLUTIONS } from '@/utils/image';
 
 interface ResolutionSettingsProps {
@@ -15,31 +13,26 @@ export const ResolutionSettings: React.FC<ResolutionSettingsProps> = ({
   onResolutionChange,
 }) => {
   return (
-    <div>
-      <label className="md:text-md mb-2 block text-sm font-medium text-gray-300 lg:text-lg">
-        해상도 설정
-      </label>
-      <div className="flex flex-wrap gap-2">
-        {RESOLUTIONS.map((resolution) => (
-          <Button
-            key={resolution.name}
-            onClick={() => onResolutionChange(resolution)}
-            variant={
-              selectedResolution.name === resolution.name
-                ? 'primary'
-                : 'secondary'
-            }
-            size="sm"
-            className={
-              selectedResolution.name === resolution.name
-                ? 'opacity-100'
-                : 'opacity-80 hover:opacity-100'
-            }
-          >
-            {resolution.name}
-          </Button>
-        ))}
-      </div>
+    <div className="grid grid-cols-3 gap-1.5">
+      {RESOLUTIONS.map((resolution) => (
+        <Button
+          key={resolution.name}
+          onClick={() => onResolutionChange(resolution)}
+          variant={
+            selectedResolution.name === resolution.name
+              ? 'primary'
+              : 'secondary'
+          }
+          size="sm"
+          className={`h-7 text-[10px] font-bold tracking-wide ${
+            selectedResolution.name === resolution.name
+              ? 'opacity-100 ring-1 ring-[#00ff00]/50'
+              : 'opacity-70 hover:opacity-100'
+          }`}
+        >
+          {resolution.name}
+        </Button>
+      ))}
     </div>
   );
 };
