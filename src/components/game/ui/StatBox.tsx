@@ -27,7 +27,7 @@ export const StatBox = ({
         className
       )}
     >
-      <span className="text-[8px] font-bold uppercase tracking-wider text-gray-500 md:text-[10px]">
+      <span className="text-[8px] font-bold uppercase tracking-wider text-gray-400/50 md:text-[10px]">
         {label}
       </span>
 
