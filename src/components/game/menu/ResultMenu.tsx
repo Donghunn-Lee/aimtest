@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 
 import Button from '@/components/common/Button';
 import { PanelOverlay } from '@/components/common/PanelOverlay';
+import { StatBox } from '@/components/game/ui/StatBox';
 
 import {
   addRanking,
@@ -33,6 +34,8 @@ const ResultMenu = ({
   const [userName, setUserName] = useState('');
   const [isNameValid, setIsNameValid] = useState(false);
   const [displayScore, setDisplayScore] = useState(0);
+
+  // 애니메이션 상태
   const [showAccuracy, setShowAccuracy] = useState(false);
   const [showTime, setShowTime] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -41,9 +44,9 @@ const ResultMenu = ({
   const [isRestartEnabled, setIsRestartEnabled] = useState(false);
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const name = e.target.value.trim();
+    const name = e.target.value;
     setUserName(name);
-    setIsNameValid(name.length >= 2 && name.length <= 10);
+    setIsNameValid(name.trim().length >= 2 && name.trim().length <= 10);
   };
 
   const onSave = async () => {
@@ -53,7 +56,7 @@ const ResultMenu = ({
       setIsSaving(true);
       setSaveStatus('idle');
       await addRanking({
-        user_name: userName,
+        user_name: userName.trim(),
         score,
         accuracy,
         play_time: elapsedTime,
@@ -69,7 +72,7 @@ const ResultMenu = ({
   useEffect(() => {
     const menuTimer = setTimeout(() => {
       setShowMenu(true);
-    }, 300);
+    }, 100);
 
     const showAnimation = (finalScore: number) => {
       setDisplayScore(score);
@@ -88,7 +91,7 @@ const ResultMenu = ({
                   setRank(rank);
                   setShowRank(true);
                 })
-                .catch((error) => {
+                .catch(() => {
                   setRank(-1);
                   setShowRank(true);
                 });
@@ -112,7 +115,7 @@ const ResultMenu = ({
     // 점수 카운트 업 애니메이션 적용
     let startTime: number;
     let animationFrameId: number;
-    const duration = 2000;
+    const duration = 1500;
 
     const easeOutExpo = (x: number): number => {
       return x === 1 ? 1 : 1 - Math.pow(2, -8 * x);
@@ -122,7 +125,6 @@ const ResultMenu = ({
       if (!startTime) startTime = currentTime;
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
-
       const easedProgress = easeOutExpo(progress);
       const currentValue = Math.floor(0 + (score - 0) * easedProgress);
 
@@ -147,111 +149,119 @@ const ResultMenu = ({
   }, [score, showMenu]);
 
   return (
-    <PanelOverlay>
+    <PanelOverlay className="w-[180px] p-3 md:w-[260px] md:p-5 lg:w-[320px]">
       <div
-        className={`flex flex-col items-center justify-center space-y-3 px-4 transition-all duration-1000 md:space-y-4 xl:space-y-5 ${
+        className={`relative flex w-full flex-col items-center justify-center space-y-2.5 transition-all duration-1000 md:space-y-4 lg:space-y-6 ${
           showMenu ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
         }`}
       >
-        <h2 className="mb-2 text-center text-lg font-bold text-white md:text-xl lg:text-2xl">
-          Game Over
-        </h2>
-        <div className="h-[110px] space-y-1 text-center text-white md:h-[130px] lg:h-[140px]">
-          <p className="text-base md:text-lg lg:text-xl">
-            Score : {formatRankingScore(displayScore)}
-          </p>
-          <p
-            className={`text-base transition-all duration-1000 md:text-lg lg:text-xl ${
-              showAccuracy
-                ? 'translate-y-0 opacity-100'
-                : 'translate-y-4 opacity-0'
-            }`}
-          >
-            Accuracy : {formatAccuracy(accuracy)}
-          </p>
-          <p
-            className={`text-base transition-all duration-1000 md:text-lg lg:text-xl ${
-              showTime ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-            }`}
-          >
-            Time : {formatPlayTime(elapsedTime)}
-          </p>
-          <p
-            className={`text-base transition-all duration-1000 md:text-lg lg:text-xl ${
-              showRank ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-            } text-white`}
-          >
-            Rank :{' '}
-            <span className={rank === -1 ? 'text-red-500' : 'text-white'}>
-              {rank === -1
-                ? 'Failed load'
+        <div className="pt-0.5 text-center">
+          <h2 className="text-lg font-black tracking-tighter text-white md:text-xl lg:text-4xl">
+            GAME{' '}
+            <span className="bg-gradient-to-r from-red-600 to-red-400 bg-clip-text text-transparent">
+              OVER
+            </span>
+          </h2>
+        </div>
+
+        <div className="grid w-full grid-cols-2 gap-1.5 md:gap-2">
+          <StatBox
+            label="Score"
+            value={formatRankingScore(displayScore)}
+            show={true}
+            highlight
+          />
+          <StatBox
+            label="Accuracy"
+            value={formatAccuracy(accuracy)}
+            show={showAccuracy}
+          />
+          <StatBox
+            label="Time"
+            value={formatPlayTime(elapsedTime)}
+            show={showTime}
+          />
+          <StatBox
+            label="Rank"
+            value={
+              rank === -1
+                ? 'ERROR'
                 : rank !== null
                   ? `#${rank.toLocaleString()}`
-                  : 'Unranked'}
-            </span>
-          </p>
+                  : 'UNRANKED'
+            }
+            show={showRank}
+            highlight={rank !== null && rank !== -1}
+          />
         </div>
+
         {score !== 0 && (
-          <>
+          <div className="w-full space-y-1.5 rounded-lg border border-white/5 bg-white/5 p-2 md:space-y-2 md:p-4">
             {(saveStatus === 'idle' || saveStatus === 'error') && (
-              <div className="space-y-1">
-                <input
-                  type="text"
-                  value={userName}
-                  onChange={handleNameChange}
-                  placeholder="이름 (2-10자)"
-                  className="w-full rounded-lg bg-gray-700 px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  maxLength={10}
-                />
-                <div className="min-h-6 py-1 text-center text-xs">
-                  {userName.length === 0 ? (
-                    <p className="py-0 text-center text-xs text-green-500">
-                      점수 기록을 위해 이름을 입력해주세요!
-                    </p>
-                  ) : !isNameValid ? (
-                    <p className="text-red-500">
-                      이름은 2~10자로 입력해주세요.
-                    </p>
-                  ) : null}
+              <>
+                <div className="space-y-1">
+                  <input
+                    type="text"
+                    value={userName}
+                    onChange={handleNameChange}
+                    placeholder="ENTER NAME"
+                    className="w-full rounded border border-white/10 bg-black/40 px-2 py-1 text-center text-[10px] font-bold text-white placeholder-gray-600 transition-colors focus:border-[#00ff00] focus:outline-none focus:ring-1 focus:ring-[#00ff00] md:rounded-md md:py-1.5 md:text-sm"
+                    maxLength={10}
+                  />
+
+                  <div className="min-h-[12px] text-center">
+                    {userName.length === 0 ? (
+                      <p className="text-[8px] text-gray-500 md:text-[9px]">
+                        Enter name to save record
+                      </p>
+                    ) : !isNameValid ? (
+                      <p className="text-[8px] text-red-500 md:text-[9px]">
+                        2-10 characters required
+                      </p>
+                    ) : (
+                      <p className="text-[8px] text-[#00ff00] md:text-[9px]">
+                        Ready to save
+                      </p>
+                    )}
+                  </div>
                 </div>
+
+                <Button
+                  onClick={onSave}
+                  disabled={!isNameValid || isSaving}
+                  variant="primary"
+                  size="sm"
+                  fullWidth
+                  className="h-6 text-[9px] font-bold tracking-wider md:h-9 md:text-xs"
+                >
+                  {isSaving
+                    ? 'SAVING...'
+                    : saveStatus === 'error'
+                      ? 'RETRY SAVE'
+                      : 'SAVE RECORD'}
+                </Button>
+              </>
+            )}
+
+            {saveStatus === 'success' && (
+              <div className="py-0.5 text-center">
+                <p className="text-[10px] font-bold text-[#00ff00] md:text-sm">
+                  RECORD SAVED!
+                </p>
               </div>
             )}
-            {(saveStatus === 'idle' || saveStatus === 'error') && (
-              <Button
-                onClick={onSave}
-                disabled={!isNameValid || isSaving}
-                variant="primary"
-                size="sm"
-                fullWidth
-              >
-                {isSaving
-                  ? 'Saving...'
-                  : saveStatus === 'error'
-                    ? 'RESAVE'
-                    : 'SAVE'}
-              </Button>
-            )}
-            {saveStatus === 'success' && (
-              <p className="text-center text-green-500">
-                기록이 저장되었습니다!
-              </p>
-            )}
-            {saveStatus === 'error' && (
-              <p className="text-center text-xs font-semibold text-red-500">
-                오류가 발생했습니다. 다시 시도해주세요.
-              </p>
-            )}
-          </>
+          </div>
         )}
-        <div className="flex w-full space-x-2">
+
+        <div className="flex w-full gap-1.5 md:gap-2">
           <Button
             onClick={isRestartEnabled ? onRestart : undefined}
             variant="primary"
             size="sm"
             fullWidth
             disabled={!isRestartEnabled}
-            className={`transition-all duration-500 ${
-              isRestartEnabled ? 'opacity-100' : 'opacity-50'
+            className={`h-7 text-[10px] font-bold transition-all duration-500 md:h-10 md:text-xs ${
+              isRestartEnabled ? 'opacity-100' : 'opacity-50 grayscale'
             }`}
           >
             RESTART
@@ -261,6 +271,7 @@ const ResultMenu = ({
             variant="secondary"
             size="sm"
             fullWidth
+            className="h-7 text-[10px] md:h-10 md:text-xs"
           >
             MENU
           </Button>
