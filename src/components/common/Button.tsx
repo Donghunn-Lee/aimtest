@@ -15,23 +15,23 @@ const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const baseStyles = `rounded-md font-medium focus:outline-none ${!disabled && 'transition-all duration-100 ease-in-out focus:ring-2 focus:ring-offset-2'} flex items-center justify-center leading-none`;
+  const baseStyles = `relative rounded-md font-bold focus:outline-none transition-all duration-200 ease-out flex items-center justify-center leading-none tracking-wide`;
 
   const variantStyles = {
-    primary: `bg-blue-600 text-white ${!disabled && 'hover:bg-blue-700 focus:ring-blue-500'} `,
-    secondary: `bg-gray-300 text-gray-900 ${!disabled && 'hover:bg-gray-400 focus:ring-gray-500'} `,
-    danger: `bg-red-600 text-white ${!disabled && 'hover:bg-red-700 focus:ring-red-500'} `,
-  };
+    primary: `bg-[#00ff00] text-black border border-transparent hover:bg-[#00cc00] hover:shadow-[0_0_15px_rgba(0,255,0,0.4)] disabled:bg-gray-600 disabled:text-gray-400`,
 
+    secondary: `bg-white/5 text-gray-200 border border-white/10 hover:bg-white/10 hover:border-white/30 hover:text-white disabled:opacity-50`,
+
+    danger: `bg-red-600/80 text-white border border-transparent hover:bg-red-600`,
+  };
   const sizeStyles = {
-    sm: 'px-2 py-1 text-xs md:px-3 md:py-1.5 md:text-xs lg:px-4 lg:py-2 lg:text-lg',
-    md: 'px-3 py-1.5 text-sm md:px-4 md:py-2 md:text-md lg:px-5 lg:py-2.5 lg:text-xl',
-    lg: 'px-4 py-2 text-lg md:px-5 md:py-2.5 md:text-xl lg:px-6 lg:py-3 lg:text-2xl',
+    sm: 'px-2 py-1 text-xs',
+    md: 'px-2 py-1 md:px-3 md:py-1.5 lg:px-4 lg:py-2 text-sm md:text-base',
+    lg: 'px-6 py-3 text-base md:text-lg',
   };
 
   const widthStyle = fullWidth ? 'w-full' : '';
-
-  const disabledStyle = disabled ? 'opacity-50 cursor-not-allowed' : '';
+  const disabledStyle = disabled ? 'cursor-not-allowed' : 'active:scale-95';
 
   return (
     <button
