@@ -1,13 +1,15 @@
-interface IconProps {
-  className: string;
-}
+import { type SVGProps } from 'react';
+import { twMerge } from 'tailwind-merge';
 
-export const MouseIcon = ({ className = 'h-6 w-6' }: IconProps) => (
+interface IconProps extends SVGProps<SVGSVGElement> {}
+
+export const MouseIcon = ({ className, ...props }: IconProps) => (
   <svg
-    className={className}
+    className={twMerge('h-6 w-6', className)}
     fill="none"
     viewBox="0 0 24 24"
     stroke="currentColor"
+    {...props}
   >
     <path
       strokeLinecap="round"
@@ -18,12 +20,13 @@ export const MouseIcon = ({ className = 'h-6 w-6' }: IconProps) => (
   </svg>
 );
 
-export const ArrowRightIcon = ({ className = 'h-6 w-6' }: IconProps) => (
+export const ArrowRightIcon = ({ className, ...props }: IconProps) => (
   <svg
-    className={className}
+    className={twMerge('h-6 w-6', className)}
     fill="none"
     viewBox="0 0 24 24"
     stroke="currentColor"
+    {...props}
   >
     <path
       strokeLinecap="round"
@@ -34,12 +37,13 @@ export const ArrowRightIcon = ({ className = 'h-6 w-6' }: IconProps) => (
   </svg>
 );
 
-export const ArrowLeftIcon = ({ className = 'h-6 w-6' }: IconProps) => (
+export const ArrowLeftIcon = ({ className, ...props }: IconProps) => (
   <svg
-    className={className}
+    className={twMerge('h-6 w-6', className)}
     fill="none"
     viewBox="0 0 24 24"
     stroke="currentColor"
+    {...props}
   >
     <path
       strokeLinecap="round"
@@ -50,12 +54,13 @@ export const ArrowLeftIcon = ({ className = 'h-6 w-6' }: IconProps) => (
   </svg>
 );
 
-export const InfoIcon = ({ className = 'h-6 w-6' }: IconProps) => (
+export const InfoIcon = ({ className, ...props }: IconProps) => (
   <svg
-    className={className}
+    className={twMerge('h-6 w-6', className)}
     fill="none"
     viewBox="0 0 24 24"
     stroke="currentColor"
+    {...props}
   >
     <path
       strokeLinecap="round"
@@ -66,12 +71,13 @@ export const InfoIcon = ({ className = 'h-6 w-6' }: IconProps) => (
   </svg>
 );
 
-export const LightningIcon = ({ className = 'h-6 w-6' }: IconProps) => (
+export const LightningIcon = ({ className, ...props }: IconProps) => (
   <svg
-    className={className}
+    className={twMerge('h-6 w-6', className)}
     fill="none"
     viewBox="0 0 24 24"
     stroke="currentColor"
+    {...props}
   >
     <path
       strokeLinecap="round"
@@ -82,12 +88,13 @@ export const LightningIcon = ({ className = 'h-6 w-6' }: IconProps) => (
   </svg>
 );
 
-export const AlertIcon = ({ className = 'h-6 w-6' }: IconProps) => (
+export const AlertIcon = ({ className, ...props }: IconProps) => (
   <svg
-    className={className}
+    className={twMerge('h-6 w-6', className)}
     fill="none"
     viewBox="0 0 24 24"
     stroke="currentColor"
+    {...props}
   >
     <path
       strokeLinecap="round"
@@ -98,12 +105,13 @@ export const AlertIcon = ({ className = 'h-6 w-6' }: IconProps) => (
   </svg>
 );
 
-export const ExitIcon = ({ className = 'h-6 w-6' }: IconProps) => (
+export const ExitIcon = ({ className, ...props }: IconProps) => (
   <svg
-    className={className}
+    className={twMerge('h-6 w-6', className)}
     fill="none"
     viewBox="0 0 24 24"
     stroke="currentColor"
+    {...props}
   >
     <path
       strokeLinecap="round"
