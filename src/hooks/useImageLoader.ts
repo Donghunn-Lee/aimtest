@@ -57,7 +57,7 @@ export const useImageLoader = (
 
   useEffect(() => {
     const img = imgRef.current;
-    let canceled = false;
+    const canceled = false;
     setStatus('loading');
 
     const handleLoad = () => {
