@@ -1,12 +1,9 @@
 import { useCallback, useEffect, useRef } from 'react';
 
 import type { RenderMapAndBoundsArgs } from '@/components/game/core/renderers/mapRenderer';
-
-import type { Target } from '@/types/target';
-
-import { setCanvasSizeDPR } from '@/utils/canvas';
-
 import { CAMERA } from '@/constants/render';
+import type { Target } from '@/types/target';
+import { setCanvasSizeDPR } from '@/utils/canvas';
 
 export type Camera = { x: number; y: number };
 

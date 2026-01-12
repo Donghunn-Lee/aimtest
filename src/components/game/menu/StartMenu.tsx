@@ -1,11 +1,10 @@
 import { Button } from '@/components/common/Button';
+import { ArrowLeftIcon } from '@/components/common/Icons';
 import { PanelOverlay } from '@/components/common/PanelOverlay';
 import { ResolutionSettings } from '@/components/game/settings/ResolutionSettings';
 import { VolumeSlider } from '@/components/game/ui/VolumeSlider';
-import { ArrowLeftIcon } from '@/components/common/Icons';
-
+import { VolumeActions, VolumeState } from '@/hooks/useVolume';
 import { Resolution } from '@/types/image';
-import { VolumeState, VolumeActions } from '@/hooks/useVolume';
 
 interface StartMenuProps {
   onStart: () => void;
@@ -17,7 +16,7 @@ interface StartMenuProps {
   volumeActions: VolumeActions;
 }
 
-const StartMenu = ({
+export const StartMenu = ({
   onStart,
   onRanking,
   onBackToMain,
@@ -91,5 +90,3 @@ const StartMenu = ({
     </PanelOverlay>
   );
 };
-
-export default StartMenu;

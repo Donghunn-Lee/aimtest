@@ -1,5 +1,4 @@
 import { Target } from '@/types/target';
-
 import { drawCircle } from '@/utils/canvas';
 import { decideTargetColor } from '@/utils/target';
 

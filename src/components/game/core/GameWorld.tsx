@@ -1,15 +1,5 @@
-import { useRef, useEffect, useState, useMemo } from 'react';
-
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
-
-import { Crosshair } from '@components/game/ui/Crosshair';
-import { renderTargets } from '@/components/game/core/renderers/targetRenderer';
-import StartMenu from '@components/game/menu/StartMenu';
-import { ResultMenu } from '@components/game/menu/ResultMenu';
-import { RankingBoard } from '@components/game/ranking/RankingBoard';
-import { GameStatus } from '@/components/game/ui/GameStatus';
-import { GameGuide } from '@components/game/ui/GameGuide';
-import { LoadingOverlay } from '@/components/game/ui/LoadingOverlay';
 
 import {
   addFloatingScore,
@@ -17,36 +7,39 @@ import {
   updateFloatingScores,
 } from '@/components/game/core/renderers/floatingScoreRenderer';
 import { renderMapAndBounds } from '@/components/game/core/renderers/mapRenderer';
-
-import type { GameMode, Size } from '@/types/game';
-import { Target } from '@/types/target';
-import type { Resolution } from '@/types/image';
-
-import { useImageLoader } from '@hooks/useImageLoader';
-import { useGame } from '@/hooks/useGame';
-import {
-  useTargetManager,
-  type TargetContainer,
-} from '@hooks/useTargetManager';
-import { useVolume } from '@/hooks/useVolume';
-import { useCanvasRenderLoop } from '@/hooks/useCanvasRenderLoop';
-import { useResizeCanvas } from '@/hooks/useResizeCanvas';
-import { usePointerLock } from '@/hooks/usePointerLock';
-import { useInputController } from '@/hooks/useInputController';
-import { useBorderFade } from '@/hooks/useBorderFade';
-import { useFullscreen } from '@/hooks/useFullscreen';
-import { useGameRuntime } from '@/hooks/useGameRuntime';
-
-import {
-  clearCanvas,
-  applyCameraTransform,
-  endCameraTransform,
-} from '@utils/canvas';
-import { DEFAULT_RESOLUTION } from '@/utils/image';
-
+import { renderTargets } from '@/components/game/core/renderers/targetRenderer';
+import { ResultMenu } from '@/components/game/menu/ResultMenu';
+import { StartMenu } from '@/components/game/menu/StartMenu';
+import { RankingBoard } from '@/components/game/ranking/RankingBoard';
+import { Crosshair } from '@/components/game/ui/Crosshair';
+import { GameGuide } from '@/components/game/ui/GameGuide';
+import { GameStatus } from '@/components/game/ui/GameStatus';
+import { LoadingOverlay } from '@/components/game/ui/LoadingOverlay';
 import { INPUT, UI } from '@/constants/game';
-
 import { TARGET_DEFAULT } from '@/constants/target';
+import { useBorderFade } from '@/hooks/useBorderFade';
+import { useCanvasRenderLoop } from '@/hooks/useCanvasRenderLoop';
+import { useFullscreen } from '@/hooks/useFullscreen';
+import { useGame } from '@/hooks/useGame';
+import { useGameRuntime } from '@/hooks/useGameRuntime';
+import { useImageLoader } from '@/hooks/useImageLoader';
+import { useInputController } from '@/hooks/useInputController';
+import { usePointerLock } from '@/hooks/usePointerLock';
+import { useResizeCanvas } from '@/hooks/useResizeCanvas';
+import {
+  type TargetContainer,
+  useTargetManager,
+} from '@/hooks/useTargetManager';
+import { useVolume } from '@/hooks/useVolume';
+import type { GameMode, Size } from '@/types/game';
+import type { Resolution } from '@/types/image';
+import type { Target } from '@/types/target';
+import {
+  applyCameraTransform,
+  clearCanvas,
+  endCameraTransform,
+} from '@/utils/canvas';
+import { DEFAULT_RESOLUTION } from '@/utils/image';
 
 export interface GameWorldProps {
   gameMode: GameMode;
@@ -60,8 +53,11 @@ export interface GameRuntimeRef {
 }
 
 /**
- * 게임 창을 관리하는 메인 컴포넌트
- *
+ * GameWorld: aimtest의 메인 런타임 허브 컴포넌트.
+ * - Canvas(rAF) 렌더 루프, 입력(pointer lock), 리사이즈/해상도, 게임 상태를 조립한다.
+ * - 실제 드로잉은 renderer/*, 타겟 생명주기는 TargetManager로 위임한다.
+ * - React 렌더 트리와 rAF 루프를 분리하여, 프레임 드롭 없이 UI/오버레이를 결합한다.
+ * - cleanup(루프/이벤트)은 훅에서 책임지고, GameWorld는 조건/경계만 정의한다.
  */
 export const GameWorld = ({
   gameMode,
@@ -78,10 +74,12 @@ export const GameWorld = ({
   const drawSizeRef = useRef<Size>({ width: 0, height: 0 });
   const borderOpacityRef = useRef(0.7);
 
+  // --- UI state (React에서만 사용) ---
   const [isRankingOpen, setIsRankingOpen] = useState(false);
   const [selectedResolution, setSelectedResolution] =
     useState<Resolution>(DEFAULT_RESOLUTION);
 
+  // --- Assets / Domain state ---
   const { image, firstLoaded: isMapReady } = useImageLoader({
     src: '/map.svg',
     canvas: canvasRef.current,
@@ -91,7 +89,7 @@ export const GameWorld = ({
   const [targetManagerState, targetManagerActions] = useTargetManager();
   const [volumeState, volumeActions] = useVolume();
 
-  // 캔버스 렌더 루프에 전달되는 렌더 서비스 집합
+  // --- Render services: rAF 루프에 주입되는 순수 함수 집합 (테스트/교체 용이) ---
   const services = useMemo(() => {
     const getTargetSize = () =>
       targetManagerActions.getTargetSize() ?? TARGET_DEFAULT.size;
@@ -112,8 +110,7 @@ export const GameWorld = ({
     };
   }, [targetManagerActions]);
 
-  // 캔버스 렌더링 루프
-  // - rAF 기반으로 맵/타겟/스코어 등을 그리는 순수 캔버스 렌더 담당 (React 렌더와 분리)
+  // --- rAF Render loop (Canvas 전용) ---
   const loop = useCanvasRenderLoop({
     canvasRef,
     image,

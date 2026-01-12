@@ -1,4 +1,5 @@
 import { twMerge } from 'tailwind-merge';
+
 import { ArrowRightIcon } from '@/components/common/Icons';
 
 interface GameModeButtonProps {

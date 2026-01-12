@@ -1,7 +1,7 @@
 import { type SVGProps } from 'react';
 import { twMerge } from 'tailwind-merge';
 
-interface IconProps extends SVGProps<SVGSVGElement> {}
+type IconProps = SVGProps<SVGSVGElement>;
 
 export const MouseIcon = ({ className, ...props }: IconProps) => (
   <svg

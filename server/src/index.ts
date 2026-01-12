@@ -1,9 +1,9 @@
-import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import rankingsRouter from './routes/rankings';
+import express from 'express';
 
 import { checkHealth } from './controllers/rankingsController';
+import rankingsRouter from './routes/rankings';
 
 dotenv.config();
 

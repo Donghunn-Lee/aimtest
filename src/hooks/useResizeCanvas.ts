@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import type { GameMode } from '@/types/game';
-
 import { setCanvasSizeDPR } from '@/utils/canvas';
 
 export interface UseResizeCanvasOptions {

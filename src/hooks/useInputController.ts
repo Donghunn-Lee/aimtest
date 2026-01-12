@@ -1,19 +1,18 @@
 import {
+  type MouseEvent,
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
-  type MouseEvent,
 } from 'react';
 
-import type { Target } from '@/types/target';
-
-import type { UsePointerLockApi as PointerApi } from '@/hooks/usePointerLock';
 import type { CanvasRenderLoopApi as LoopApi } from '@/hooks/useCanvasRenderLoop';
-import type { GameState, GameActions } from '@/hooks/useGame';
+import type { GameActions, GameState } from '@/hooks/useGame';
+import type { UsePointerLockApi as PointerApi } from '@/hooks/usePointerLock';
 import type { TargetManagerActions } from '@/hooks/useTargetManager';
 import type { VolumeActions } from '@/hooks/useVolume';
+import type { Target } from '@/types/target';
 
 type MouseEventLike = Pick<MouseEvent, 'movementX' | 'movementY'>;
 

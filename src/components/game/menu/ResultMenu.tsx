@@ -1,14 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/common/Button';
 import { PanelOverlay } from '@/components/common/PanelOverlay';
 import { StatBox } from '@/components/game/ui/StatBox';
-
 import {
   addRanking,
-  formatRankingScore,
   formatAccuracy,
   formatPlayTime,
+  formatRankingScore,
   getScoreRank,
 } from '@/services/rankingService';
 

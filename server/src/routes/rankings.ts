@@ -1,9 +1,10 @@
 import { Router } from 'express';
+
 import {
   addRanking,
   getRankings,
-  getUserRankings,
   getScoreRank,
+  getUserRankings,
 } from '../controllers/rankingsController';
 
 export const router = Router();

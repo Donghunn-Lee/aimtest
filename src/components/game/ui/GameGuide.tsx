@@ -1,14 +1,15 @@
 import { motion } from 'framer-motion';
-import { slideLeft } from '@/utils/motion';
+
 import {
+  AlertIcon,
+  ArrowLeftIcon,
+  ExitIcon,
   InfoIcon,
   LightningIcon,
   MouseIcon,
-  AlertIcon,
-  ExitIcon,
-  ArrowLeftIcon,
 } from '@/components/common/Icons';
 import { Key } from '@/components/common/Key';
+import { slideLeft } from '@/utils/motion';
 
 const GuideRow = ({
   icon,

@@ -1,10 +1,8 @@
-import { useCallback, useState, useRef, useMemo } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { TargetManager } from '@/components/game/core/target/TargetManager';
-
-import type { Target, TargetConfig } from '@/types/target';
-
 import { SPAWN, SYNC, TARGET_DEFAULT } from '@/constants/target';
+import type { Target, TargetConfig } from '@/types/target';
 
 export interface TargetManagerState {
   targets: Target[];

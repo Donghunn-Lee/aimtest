@@ -1,4 +1,4 @@
-import Button from '@/components/common/Button';
+import { Button } from '@/components/common/Button';
 import type { Resolution } from '@/types/image';
 import { RESOLUTIONS } from '@/utils/image';
 
@@ -11,7 +11,7 @@ interface ResolutionSettingsProps {
 export const ResolutionSettings: React.FC<ResolutionSettingsProps> = ({
   selectedResolution,
   onResolutionChange,
-}) => {
+}: ResolutionSettingsProps) => {
   return (
     <div className="grid grid-cols-3 gap-1.5">
       {RESOLUTIONS.map((resolution) => (

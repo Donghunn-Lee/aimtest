@@ -1,14 +1,11 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 
-import { motion, AnimatePresence } from 'framer-motion';
-
-import { GameWorld } from '@/components/game/core/GameWorld';
 import { GameModeButton } from '@/components/common/GameModeButton';
-
-import { checkHealth } from '@/services/rankingService';
-
-import type { GameMode } from '@/types/game';
 import { MouseIcon } from '@/components/common/Icons';
+import { GameWorld } from '@/components/game/core/GameWorld';
+import { checkHealth } from '@/services/rankingService';
+import type { GameMode } from '@/types/game';
 
 type ServerStatus = 'checking' | 'online' | 'offline';
 

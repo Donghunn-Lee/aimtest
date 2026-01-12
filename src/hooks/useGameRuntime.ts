@@ -1,13 +1,14 @@
+import { useEffect } from 'react';
+
 import type { GameRuntimeRef } from '@/components/game/core/GameWorld';
 import { GAMEPLAY } from '@/constants/game';
 import type { UseBorderFadeApi } from '@/hooks/useBorderFade';
-import type { GameState, GameActions } from '@/hooks/useGame';
+import type { GameActions, GameState } from '@/hooks/useGame';
 import type {
   TargetManagerActions,
   TargetManagerState,
 } from '@/hooks/useTargetManager';
 import type { VolumeActions } from '@/hooks/useVolume';
-import { useEffect } from 'react';
 
 export interface UseGameRuntimeOptions {
   gameState: GameState;

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
-import pool from '../database/db';
 import { RowDataPacket } from 'mysql2';
+
+import pool from '../database/db';
 
 // 서버 상태 및 DB 연결 확인 (Health Check)
 export const checkHealth = async (req: Request, res: Response) => {

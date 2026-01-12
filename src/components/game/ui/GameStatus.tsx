@@ -1,9 +1,8 @@
 import { motion } from 'framer-motion';
 
-import { slideRight } from '@/utils/motion';
-
-import { StatBox } from '@/components/game/ui/StatBox';
 import { Key } from '@/components/common/Key';
+import { StatBox } from '@/components/game/ui/StatBox';
+import { slideRight } from '@/utils/motion';
 
 interface GameStatusProps {
   elapsedTime: number;

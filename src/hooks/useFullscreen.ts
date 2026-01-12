@@ -1,5 +1,6 @@
-import type { GameMode } from '@/types/game';
 import { useEffect } from 'react';
+
+import type { GameMode } from '@/types/game';
 
 export interface UseFullscreenOptions {
   containerRef: React.RefObject<HTMLDivElement | null>;
