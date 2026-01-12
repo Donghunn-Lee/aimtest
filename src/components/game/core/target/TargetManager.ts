@@ -82,12 +82,13 @@ export class TargetManager {
 
   /** 기존 타겟들과의 최소 거리 제약을 만족하는지 검사 */
   private isValidPosition(target: Target): boolean {
-    return !this.targets.some((existingTarget) => {
-      const distance = Math.sqrt(
-        Math.pow(target.x - existingTarget.x, 2) +
-          Math.pow(target.y - existingTarget.y, 2)
-      );
-      return distance < target.size / 2;
+    const minDist = target.size / 2; // 게임성 위해 50% overlap 허용
+
+    return !this.targets.some((t) => {
+      const dx = target.x - t.x;
+      const dy = target.y - t.y;
+
+      return dx * dx + dy * dy < minDist;
     });
   }
 
