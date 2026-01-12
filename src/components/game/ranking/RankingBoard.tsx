@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import Button from '@/components/common/Button';
+import { Button } from '@/components/common/Button';
 import { PanelOverlay } from '@/components/common/PanelOverlay';
 
 import {
@@ -15,7 +15,7 @@ interface RankingBoardProps {
   onClose: () => void;
 }
 
-const RankingBoard = ({ onClose }: RankingBoardProps) => {
+export const RankingBoard = ({ onClose }: RankingBoardProps) => {
   const [ranking, setRanking] = useState<RankingResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -25,7 +25,7 @@ const RankingBoard = ({ onClose }: RankingBoardProps) => {
         setIsLoading(true);
         const data = await getRankings();
         setRanking(data);
-      } catch (error) {
+      } catch {
         console.error('Failed to fetch rankings');
       } finally {
         setIsLoading(false);
@@ -165,5 +165,3 @@ const RankingBoard = ({ onClose }: RankingBoardProps) => {
     </PanelOverlay>
   );
 };
-
-export default RankingBoard;

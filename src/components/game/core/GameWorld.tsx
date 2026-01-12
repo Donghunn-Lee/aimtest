@@ -5,10 +5,10 @@ import { AnimatePresence } from 'framer-motion';
 import { Crosshair } from '@components/game/ui/Crosshair';
 import { renderTargets } from '@/components/game/core/renderers/targetRenderer';
 import StartMenu from '@components/game/menu/StartMenu';
-import ResultMenu from '@components/game/menu/ResultMenu';
-import RankingBoard from '@components/game/ranking/RankingBoard';
+import { ResultMenu } from '@components/game/menu/ResultMenu';
+import { RankingBoard } from '@components/game/ranking/RankingBoard';
 import { GameStatus } from '@/components/game/ui/GameStatus';
-import GameGuide from '@components/game/ui/GameGuide';
+import { GameGuide } from '@components/game/ui/GameGuide';
 import { LoadingOverlay } from '@/components/game/ui/LoadingOverlay';
 
 import {
@@ -28,7 +28,7 @@ import {
   useTargetManager,
   type TargetContainer,
 } from '@hooks/useTargetManager';
-import useVolume from '@/hooks/useVolume';
+import { useVolume } from '@/hooks/useVolume';
 import { useCanvasRenderLoop } from '@/hooks/useCanvasRenderLoop';
 import { useResizeCanvas } from '@/hooks/useResizeCanvas';
 import { usePointerLock } from '@/hooks/usePointerLock';
@@ -147,19 +147,18 @@ export const GameWorld = ({
 
   // 입력 제어 (키보드/마우스 → 게임 액션)
   // - 마우스 이동/클릭을 조준, 타겟 히트, 감도 조정 등으로 매핑
-  const { onMouseMove, onMouseDown, sensitivity, setSensitivity } =
-    useInputController({
-      pointer,
-      loop,
-      gameState,
-      gameActions,
-      targetManagerActions,
-      volumeActions,
-      initialSensitivity: INPUT.SENSITIVITY_DEFAULT,
-      minSensitivity: INPUT.SENSITIVITY_MIN,
-      maxSensitivity: INPUT.SENSITIVITY_MAX,
-      onScore: (t) => addFloatingScore(t.x, t.y, t.score || 0, t.score === 3),
-    });
+  const { onMouseMove, onMouseDown, sensitivity } = useInputController({
+    pointer,
+    loop,
+    gameState,
+    gameActions,
+    targetManagerActions,
+    volumeActions,
+    initialSensitivity: INPUT.SENSITIVITY_DEFAULT,
+    minSensitivity: INPUT.SENSITIVITY_MIN,
+    maxSensitivity: INPUT.SENSITIVITY_MAX,
+    onScore: (t) => addFloatingScore(t.x, t.y, t.score || 0, t.score === 3),
+  });
 
   // 타겟 컨테이너 테두리 페이드 효과
   // - 게임 시작/종료 시 테두리 opacity를 rAF 기반으로 페이드 인/아웃

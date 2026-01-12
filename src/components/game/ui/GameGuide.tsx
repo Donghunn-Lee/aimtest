@@ -24,7 +24,7 @@ const GuideRow = ({
 );
 
 // 인게임 좌상단에 표시되는 고정 게임 가이드 UI
-const GameGuide = () => {
+export const GameGuide = () => {
   return (
     <motion.div
       variants={slideLeft}
@@ -92,5 +92,3 @@ const GameGuide = () => {
     </motion.div>
   );
 };
-
-export default GameGuide;

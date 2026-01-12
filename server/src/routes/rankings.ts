@@ -6,7 +6,7 @@ import {
   getScoreRank,
 } from '../controllers/rankingsController';
 
-const router = Router();
+export const router = Router();
 
 // 랭킹 추가
 router.post('/', addRanking);
@@ -19,5 +19,3 @@ router.get('/:userName', getUserRankings);
 
 // 특정 점수의 순위 조회
 router.get('/rank/:score', getScoreRank);
-
-export default router;

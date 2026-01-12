@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-import Button from '@/components/common/Button';
+import { Button } from '@/components/common/Button';
 import { PanelOverlay } from '@/components/common/PanelOverlay';
 import { StatBox } from '@/components/game/ui/StatBox';
 
@@ -20,7 +20,7 @@ interface ResultMenuProps {
   accuracy: number;
 }
 
-const ResultMenu = ({
+export const ResultMenu = ({
   score,
   accuracy,
   elapsedTime,
@@ -62,7 +62,7 @@ const ResultMenu = ({
         play_time: elapsedTime,
       });
       setSaveStatus('success');
-    } catch (error) {
+    } catch {
       setSaveStatus('error');
     } finally {
       setIsSaving(false);
@@ -280,5 +280,3 @@ const ResultMenu = ({
     </PanelOverlay>
   );
 };
-
-export default ResultMenu;

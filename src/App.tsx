@@ -12,7 +12,7 @@ import { MouseIcon } from '@/components/common/Icons';
 
 type ServerStatus = 'checking' | 'online' | 'offline';
 
-export function App() {
+export const App = () => {
   const [gameMode, setGameMode] = useState<GameMode | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [serverStatus, setServerStatus] = useState<ServerStatus>('checking');
@@ -235,6 +235,4 @@ export function App() {
       </AnimatePresence>
     </div>
   );
-}
-
-export default App;
+};

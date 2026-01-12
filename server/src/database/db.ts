@@ -5,7 +5,7 @@ if (process.env.NODE_ENV !== 'production') {
   dotenv.config();
 }
 
-const pool = mysql.createPool({
+export const pool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD,
@@ -25,5 +25,3 @@ pool
   .catch((error) => {
     console.error('Database connection failed:', error);
   });
-
-export default pool;
