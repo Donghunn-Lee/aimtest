@@ -1,15 +1,15 @@
-import { Target, TargetConfig } from '@/types/target';
+import { type Target, type TargetConfig } from '@/types/target';
 import {
   calculateContainerBounds,
-  ContainerConfig,
+  type ContainerConfig,
   getDefaultConfig,
 } from '@/utils/targetContainer';
 
 /**
- * 타겟 생성/배치/히트 판정/맵 경계 관리 책임을 가지는 도메인 매니저
- * - 컨테이너(bounds)와 해상도에 맞춰 타겟 크기/위치 계산
- * - maxTargets, margin 조건을 적용하며 랜덤 생성
- * - 원형 거리 기반 점수(1~3점)와 히트 처리
+ * 타겟 생성/배치/히트 판정의 단일 책임 매니저.
+ * - 해상도(resolution)로 컨테이너 설정을 고정하고, 그 결과(bounds)에 맞춰 타겟 파라미터를 파생한다.
+ * - 생성은 “겹침 제약 + 시도 횟수 상한” 계약으로 실패를 허용한다(null 반환).
+ * - 히트 판정은 중심 거리 기반이며, 맞은 타겟은 즉시 제거(단발성 소비)한다.
  */
 export class TargetManager {
   private targets: Target[] = [];
@@ -35,12 +35,16 @@ export class TargetManager {
     this.targetConfig = { ...config, size: this.mapBounds.width / 18 };
   }
 
-  /** maxTargets를 넘지 않는 선에서, 겹치지 않는 위치의 새 타겟을 생성 (실패 시 null) */
+  /**
+   * maxTargets를 넘지 않는 선에서, 겹치지 않는 위치의 새 타겟을 생성한다.
+   * - 시도 횟수 상한을 둬 “생성 실패(null)”를 정상 흐름으로 취급한다. (매우 낮은 가능성)
+   */
   createTarget(): Target | null {
     if (this.targets.length >= this.targetConfig.maxTargets) {
       return null;
     }
 
+    // 생성 실패를 허용하되, 무한 루프를 방지하기 위한 상한
     const loopCount = 100;
     let i = 0;
 
@@ -92,11 +96,12 @@ export class TargetManager {
   }
 
   /**
-   * 주어진 좌표(x, y) 기준 원형 히트 판정 및 점수 부여
+   * 주어진 좌표(x, y) 기준 원형 히트 판정 및 점수 부여.
    * - 중심에 가까울수록 높은 점수(3 → 2 → 1점)
-   * - 맞은 타겟은 배열에서 제거 후 반환
+   * - 맞은 타겟은 즉시 제거 후 반환(중복 히트 방지)
    */
   checkHit(x: number, y: number): Target | null {
+    // 제거(splice)가 있으므로 역순 순회로 인덱스 안정성 보장
     for (let i = this.targets.length - 1; i >= 0; i--) {
       const target = this.targets[i];
       if (target.hit) continue;

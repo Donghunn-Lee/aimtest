@@ -53,11 +53,12 @@ export interface GameRuntimeRef {
 }
 
 /**
- * GameWorld: aimtest의 메인 런타임 허브 컴포넌트.
- * - Canvas(rAF) 렌더 루프, 입력(pointer lock), 리사이즈/해상도, 게임 상태를 조립한다.
- * - 실제 드로잉은 renderer/*, 타겟 생명주기는 TargetManager로 위임한다.
- * - React 렌더 트리와 rAF 루프를 분리하여, 프레임 드롭 없이 UI/오버레이를 결합한다.
- * - cleanup(루프/이벤트)은 훅에서 책임지고, GameWorld는 조건/경계만 정의한다.
+ * GameWorld: aimtest 런타임 허브.
+ * - Canvas(rAF) 렌더 루프 구동
+ * - 입력/리사이즈/해상도 오케스트레이션
+ * - 드로잉(renderer)·도메인(TargetManager) 위임
+ * - UI(React)와 rAF(렌더) 분리
+ * - 루프/이벤트 cleanup은 훅 경계에서 처리
  */
 export const GameWorld = ({
   gameMode,
@@ -74,12 +75,12 @@ export const GameWorld = ({
   const drawSizeRef = useRef<Size>({ width: 0, height: 0 });
   const borderOpacityRef = useRef(0.7);
 
-  // --- UI state (React에서만 사용) ---
+  // UI 상태(렌더 전용)
   const [isRankingOpen, setIsRankingOpen] = useState(false);
   const [selectedResolution, setSelectedResolution] =
     useState<Resolution>(DEFAULT_RESOLUTION);
 
-  // --- Assets / Domain state ---
+  // 런타임/도메인 상태(훅으로 경계 분리)
   const { image, firstLoaded: isMapReady } = useImageLoader({
     src: '/map.svg',
     canvas: canvasRef.current,
@@ -89,7 +90,7 @@ export const GameWorld = ({
   const [targetManagerState, targetManagerActions] = useTargetManager();
   const [volumeState, volumeActions] = useVolume();
 
-  // --- Render services: rAF 루프에 주입되는 순수 함수 집합 (테스트/교체 용이) ---
+  // rAF 루프에 주입할 순수 함수 묶음(교체/테스트 가능하도록 메모이즈)
   const services = useMemo(() => {
     const getTargetSize = () =>
       targetManagerActions.getTargetSize() ?? TARGET_DEFAULT.size;
@@ -110,7 +111,7 @@ export const GameWorld = ({
     };
   }, [targetManagerActions]);
 
-  // --- rAF Render loop (Canvas 전용) ---
+  // Canvas 전용 rAF 루프(React 렌더와 분리된 실행 경계)
   const loop = useCanvasRenderLoop({
     canvasRef,
     image,
@@ -121,8 +122,7 @@ export const GameWorld = ({
     services,
   });
 
-  // 화면 크기 및 해상도 관리
-  // - 모드 전환/윈도우 리사이즈/해상도 변경 시 캔버스 크기 계산 + TargetManager 게임 영역 갱신
+  // 리사이즈/해상도 변경 시: 캔버스 크기 + 게임 영역 동기화(도메인 전제 유지)
   useResizeCanvas({
     canvasRef,
     mode: gameMode,
@@ -134,16 +134,14 @@ export const GameWorld = ({
     deps: [selectedResolution.ratio, image],
   });
 
-  // 포인터 잠금 상태 관리 (조준/해제)
-  // - 게임 진행 중에만 PointerLock 활성화, 해제 시 게임 종료
+  // pointer lock은 “게임 진행 중”에만 허용(해제는 즉시 종료로 취급)
   const pointer = usePointerLock({
     canvasRef,
     enabled: gameState.isGameStarted && !gameState.isGameOver,
     onUnlock: () => gameActions.endGame(),
   });
 
-  // 입력 제어 (키보드/마우스 → 게임 액션)
-  // - 마우스 이동/클릭을 조준, 타겟 히트, 감도 조정 등으로 매핑
+  // 입력 → 게임 액션 매핑(런타임에서만 필요한 계약을 한 곳에 고정)
   const { onMouseMove, onMouseDown, sensitivity } = useInputController({
     pointer,
     loop,
@@ -157,20 +155,17 @@ export const GameWorld = ({
     onScore: (t) => addFloatingScore(t.x, t.y, t.score || 0, t.score === 3),
   });
 
-  // 타겟 컨테이너 테두리 페이드 효과
-  // - 게임 시작/종료 시 테두리 opacity를 rAF 기반으로 페이드 인/아웃
+  // 경계 시각화(게임 시작/종료에 맞춰 opacity를 rAF로 제어)
   const borderFade = useBorderFade(borderOpacityRef);
 
-  // 전체화면 모드 관리
-  // - fullscreen 모드 전환 및 브라우저 fullscreen 이벤트 대응
+  // fullscreen 전환/브라우저 이벤트 대응(모드 상태와 UI를 일치시킴)
   useFullscreen({
     containerRef,
     gameMode,
     onExit: () => onGameModeChange?.('windowed'),
   });
 
-  // 게임 시작 핸들러
-  // - 상태 초기화 + 타겟 매니저 초기화 + 포인터락 요청
+  // 게임 시작: 상태 초기화 + 도메인 준비 + 포인터락 요청(실패는 훅에서 처리)
   const handleGameStart = () => {
     gameActions.startGame();
     targetManagerActions.init(
@@ -184,8 +179,7 @@ export const GameWorld = ({
     void pointer.request();
   };
 
-  // 초기 타겟 매니저 설정
-  // - 아직 게임이 시작되지 않은 상태에서 캔버스 크기/해상도 기준으로 TargetManager 인스턴스 준비
+  // 게임 미시작 상태에서만 TargetManager를 준비(해상도/캔버스 기준을 맞춰둠)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -206,17 +200,15 @@ export const GameWorld = ({
       }
     };
 
-    // isGameStarted을 의존성에서 제거하여 게임 종료 후에도 타겟이 남아있도록 구현
+    // 의도: 게임 종료 이후에는 타겟 상태를 유지(재진입 UX) → isGameStarted을 의존성에서 제외
   }, [selectedResolution, targetManagerActions]);
 
-  // TargetManager 내부 타겟 배열 → 렌더 루프용 ref 동기화
+  // TargetManager 상태를 rAF 루프(ref)로 동기화(React 렌더와 분리된 읽기 경계)
   useEffect(() => {
     targetsRef.current = targetManagerState.targets;
   }, [targetManagerState.targets]);
 
-  // 런타임 부수효과 통합 관리
-  // - 타이머, 스포너, BGM, 그레이스 타이머, 런타임 ref 동기화 등
-  //   "게임이 진행되는 동안만" 필요한 사이드 이펙트를 한 곳에서 관리
+  // 게임 진행 중에만 필요한 사이드 이펙트를 한 곳에서 조립(타이머/스포너/BGM 등)
   useGameRuntime({
     gameState,
     gameActions,
@@ -227,8 +219,7 @@ export const GameWorld = ({
     gameRuntimeRef,
   });
 
-  // 렌더 루프 시작/정지
-  // - 맵 이미지/캔버스 준비가 끝났을 때만 루프를 돌리고, 조건이 깨지면 정지
+  // 준비 완료 기준이 충족될 때만 루프 시작(깨지면 즉시 정지)
   useEffect(() => {
     const canvas = canvasRef.current;
     const ready =
