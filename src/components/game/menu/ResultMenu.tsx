@@ -34,7 +34,7 @@ export const ResultMenu = ({
   const [isNameValid, setIsNameValid] = useState(false);
   const [displayScore, setDisplayScore] = useState(0);
 
-  // 애니메이션 상태
+  // 단계적 표시 상태(점수→정확도→시간→랭크→버튼 활성화)
   const [showAccuracy, setShowAccuracy] = useState(false);
   const [showTime, setShowTime] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -53,7 +53,7 @@ export const ResultMenu = ({
 
     try {
       setIsSaving(true);
-      setSaveStatus('idle');
+      setSaveStatus('idle'); // 재시도 시 UI 상태를 즉시 초기화
       await addRanking({
         user_name: userName.trim(),
         score,
@@ -69,12 +69,15 @@ export const ResultMenu = ({
   };
 
   useEffect(() => {
+    // 메뉴 진입 애니메이션 트리거
     const menuTimer = setTimeout(() => {
       setShowMenu(true);
     }, 100);
 
     const showAnimation = (finalScore: number) => {
       setDisplayScore(score);
+
+      // 순차 공개 UX: 스탯 노출 → 랭크 조회 → RESTART 활성화
       setTimeout(() => {
         setShowAccuracy(true);
         setTimeout(() => {
@@ -102,6 +105,7 @@ export const ResultMenu = ({
           }, 300);
         }, 300);
       }, 300);
+
       return () => clearTimeout(menuTimer);
     };
 
@@ -111,7 +115,7 @@ export const ResultMenu = ({
       return () => clearTimeout(menuTimer);
     }
 
-    // 점수 카운트 업 애니메이션 적용
+    // 점수 카운트 업 애니메이션(requestAnimationFrame) 적용
     let startTime: number;
     let animationFrameId: number;
     const duration = 1500;
@@ -136,12 +140,13 @@ export const ResultMenu = ({
       }
     };
 
-    // 메뉴가 표시된 후에만 애니메이션 시작
+    // 메뉴가 표시된 후에만 애니메이션 시작(초기 진입 전 프레임 낭비 방지)
     if (showMenu) {
       animationFrameId = requestAnimationFrame(animate);
     }
 
     return () => {
+      // 경계: 타이머/RAF는 컴포넌트 재실행·언마운트 시 반드시 정리
       clearTimeout(menuTimer);
       cancelAnimationFrame(animationFrameId);
     };

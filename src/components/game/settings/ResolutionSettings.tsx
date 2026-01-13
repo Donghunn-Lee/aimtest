@@ -7,7 +7,6 @@ interface ResolutionSettingsProps {
   onResolutionChange: (resolution: Resolution) => void;
 }
 
-// 해상도 선택 UI
 export const ResolutionSettings: React.FC<ResolutionSettingsProps> = ({
   selectedResolution,
   onResolutionChange,

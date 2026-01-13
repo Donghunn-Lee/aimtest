@@ -34,7 +34,6 @@ export const RankingBoard = ({ onClose }: RankingBoardProps) => {
     fetchRanking();
   }, []);
 
-  // 랭킹별 텍스트 색상 (1, 2, 3위 강조)
   const getRankColor = (index: number) => {
     switch (index) {
       case 0:
@@ -42,7 +41,7 @@ export const RankingBoard = ({ onClose }: RankingBoardProps) => {
       case 1:
         return 'text-white font-bold';
       case 2:
-        return 'text-gray-400 font-bold'; // 3위: 회색
+        return 'text-gray-400 font-bold';
       default:
         return 'text-gray-500 font-medium';
     }
@@ -80,12 +79,12 @@ export const RankingBoard = ({ onClose }: RankingBoardProps) => {
             <div className="custom-scrollbar max-h-[300px] overflow-y-auto lg:max-h-[400px]">
               <table className="w-full min-w-full table-fixed text-left">
                 <colgroup>
-                  <col className="w-[12%] md:w-[10%]" /> {/* Rank */}
-                  <col className="w-[28%] md:w-[25%]" /> {/* Name */}
-                  <col className="w-[20%] md:w-[20%]" /> {/* Score */}
-                  <col className="w-[20%] md:w-[15%]" /> {/* Accuracy */}
-                  <col className="w-[20%] md:w-[15%]" /> {/* Time */}
-                  <col className="hidden md:block md:w-[15%]" />{' '}
+                  <col className="w-[12%] md:w-[10%]" />
+                  <col className="w-[28%] md:w-[25%]" />
+                  <col className="w-[20%] md:w-[20%]" />
+                  <col className="w-[20%] md:w-[15%]" />
+                  <col className="w-[20%] md:w-[15%]" />
+                  <col className="hidden md:block md:w-[15%]" />
                 </colgroup>
 
                 <thead className="sticky top-0 z-10 bg-black/80 backdrop-blur-sm">
