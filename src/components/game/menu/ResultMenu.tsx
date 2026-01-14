@@ -69,8 +69,17 @@ export const ResultMenu = ({
   };
 
   useEffect(() => {
-    // 메뉴 진입 애니메이션 트리거
-    const menuTimer = setTimeout(() => {
+    const timeouts: number[] = [];
+    let animationFrameId: number | undefined;
+
+    const pushTimeout = (fn: () => void, ms: number) => {
+      const id = window.setTimeout(fn, ms);
+      timeouts.push(id);
+      return id;
+    };
+
+    // 메뉴 진입 애니메이션 트리거(타이머는 cleanup으로 반드시 정리)
+    pushTimeout(() => {
       setShowMenu(true);
     }, 100);
 
@@ -78,11 +87,11 @@ export const ResultMenu = ({
       setDisplayScore(score);
 
       // 순차 공개 UX: 스탯 노출 → 랭크 조회 → RESTART 활성화
-      setTimeout(() => {
+      pushTimeout(() => {
         setShowAccuracy(true);
-        setTimeout(() => {
+        pushTimeout(() => {
           setShowTime(true);
-          setTimeout(() => {
+          pushTimeout(() => {
             // 0점은 Unranked로 표시
             if (finalScore === 0) {
               setRank(null);
@@ -99,25 +108,26 @@ export const ResultMenu = ({
                 });
             }
             // 모든 정보가 표시된 후 RESTART 버튼 활성화
-            setTimeout(() => {
+            pushTimeout(() => {
               setIsRestartEnabled(true);
             }, 300);
           }, 300);
         }, 300);
       }, 300);
-
-      return () => clearTimeout(menuTimer);
     };
 
     if (score === 0) {
       setDisplayScore(score);
       showAnimation(0);
-      return () => clearTimeout(menuTimer);
+      return () => {
+        timeouts.forEach((id) => clearTimeout(id));
+        if (animationFrameId !== undefined)
+          cancelAnimationFrame(animationFrameId);
+      };
     }
 
     // 점수 카운트 업 애니메이션(requestAnimationFrame) 적용
-    let startTime: number;
-    let animationFrameId: number;
+    let startTime: number | undefined;
     const duration = 1500;
 
     const easeOutExpo = (x: number): number => {
@@ -125,7 +135,7 @@ export const ResultMenu = ({
     };
 
     const animate = (currentTime: number) => {
-      if (!startTime) startTime = currentTime;
+      if (startTime === undefined) startTime = currentTime;
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
       const easedProgress = easeOutExpo(progress);
@@ -146,9 +156,9 @@ export const ResultMenu = ({
     }
 
     return () => {
-      // 경계: 타이머/RAF는 컴포넌트 재실행·언마운트 시 반드시 정리
-      clearTimeout(menuTimer);
-      cancelAnimationFrame(animationFrameId);
+      timeouts.forEach((id) => clearTimeout(id));
+      if (animationFrameId !== undefined)
+        cancelAnimationFrame(animationFrameId);
     };
   }, [score, showMenu]);
 
