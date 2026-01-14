@@ -91,7 +91,7 @@ export class TargetManager {
       const dx = target.x - t.x;
       const dy = target.y - t.y;
 
-      return dx * dx + dy * dy < minDist;
+      return dx * dx + dy * dy < minDist * minDist;
     });
   }
 
