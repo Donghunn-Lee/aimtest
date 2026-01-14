@@ -17,21 +17,24 @@ interface RankingBoardProps {
 export const RankingBoard = ({ onClose }: RankingBoardProps) => {
   const [ranking, setRanking] = useState<RankingResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  const fetchRanking = async () => {
+    try {
+      setIsLoading(true);
+      setError(false);
+      const data = await getRankings();
+      setRanking(data);
+    } catch {
+      setError(true);
+      console.error('Failed to fetch rankings');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchRanking = async () => {
-      try {
-        setIsLoading(true);
-        const data = await getRankings();
-        setRanking(data);
-      } catch {
-        console.error('Failed to fetch rankings');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchRanking();
+    void fetchRanking();
   }, []);
 
   const getRankColor = (index: number) => {
@@ -70,10 +73,23 @@ export const RankingBoard = ({ onClose }: RankingBoardProps) => {
         <div>
           <p className="text-xs text-gray-500">Top 100</p>
         </div>
+
         <div className="relative w-full overflow-hidden rounded-lg border border-white/5 bg-white/5">
           {isLoading ? (
             <div className="flex h-40 items-center justify-center text-xs text-gray-500">
               LOADING...
+            </div>
+          ) : error ? (
+            <div className="flex h-40 flex-col items-center justify-center gap-3 text-center">
+              <p className="text-xs font-bold text-gray-400">FAILED TO LOAD</p>
+              <Button
+                onClick={fetchRanking}
+                variant="secondary"
+                size="sm"
+                className="h-7 px-4 text-[10px] font-bold"
+              >
+                RETRY
+              </Button>
             </div>
           ) : (
             <div className="custom-scrollbar max-h-[300px] overflow-y-auto lg:max-h-[400px]">
