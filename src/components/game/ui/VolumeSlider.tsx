@@ -5,13 +5,12 @@ interface VolumeSliderProps {
   volumeActions: VolumeActions;
 }
 
-// 효과음/배경음 볼륨 및 음소거 UI 컨트롤러
 export const VolumeSlider = ({
   volumeState,
   volumeActions,
 }: VolumeSliderProps) => {
   const getBackgroundStyle = (volume: number, isMuted: boolean) => {
-    const percentage = isMuted ? 0 : volume; // 음소거면 0%로 표시
+    const percentage = isMuted ? 0 : volume;
     return {
       background: `linear-gradient(to right, #00ff00 0%, #00ff00 ${percentage}%, rgba(255, 255, 255, 0.1) ${percentage}%, rgba(255, 255, 255, 0.1) 100%)`,
     };
@@ -19,7 +18,6 @@ export const VolumeSlider = ({
 
   return (
     <div className="flex flex-col gap-2">
-      {/* SFX 컨트롤 */}
       <div className="space-y-1">
         <div className="flex justify-between text-[10px] font-bold uppercase text-gray-400">
           <span>SFX</span>
@@ -55,7 +53,6 @@ export const VolumeSlider = ({
         </div>
       </div>
 
-      {/* BGM 컨트롤 */}
       <div className="space-y-1">
         <div className="flex justify-between text-[10px] font-bold uppercase text-gray-400">
           <span>BGM</span>

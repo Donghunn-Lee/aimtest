@@ -11,20 +11,18 @@ import {
 import { Key } from '@/components/common/Key';
 import { slideLeft } from '@/utils/motion';
 
-const GuideRow = ({
-  icon,
-  text,
-}: {
+type GuideRowProps = {
   icon: React.ReactNode;
   text: React.ReactNode;
-}) => (
+};
+
+const GuideRow = ({ icon, text }: GuideRowProps) => (
   <li className="flex items-start gap-2 text-[10px] leading-tight text-gray-400 md:text-[11px]">
     <span className="mt-0.5 shrink-0 text-[#00ff00] opacity-80">{icon}</span>
     <span>{text}</span>
   </li>
 );
 
-// 인게임 좌상단에 표시되는 고정 게임 가이드 UI
 export const GameGuide = () => {
   return (
     <motion.div
@@ -47,8 +45,8 @@ export const GameGuide = () => {
           text={
             <>
               타겟 점수 <span className="text-[#00ff00]">3점</span> ·{' '}
-              <span className="text-[#00cc00]">2점</span> ·{' '}
-              <span className="text-[#009900]">1점</span>
+              <span className="text-[#00dd00]">2점</span> ·{' '}
+              <span className="text-[#00bb00]">1점</span>
             </>
           }
         />
@@ -66,7 +64,8 @@ export const GameGuide = () => {
           icon={<AlertIcon className="h-3 w-3" />}
           text={
             <>
-              타겟 <span className="font-bold text-gray-300">10개</span> 누적 시{' '}
+              타겟 <span className="font-bold text-gray-300">10개</span> 이상
+              <span className="font-bold text-gray-300"> 3초</span> 유지 시{' '}
               <span className="font-bold text-red-400">GAME OVER</span>
             </>
           }

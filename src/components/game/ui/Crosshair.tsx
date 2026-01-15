@@ -10,14 +10,23 @@ export const Crosshair = ({ isGaming = false }: CrosshairProps) => {
   const [isFiring, setIsFiring] = useState(false);
 
   useEffect(() => {
+    let firingTimer: number | undefined;
+
     const handleMouseDown = () => {
+      // 전역 입력은 항상 들어오므로, 게임 중에만 반동 연출을 허용
       if (!isGaming) return;
+
       setIsFiring(true);
-      setTimeout(() => setIsFiring(false), 50);
+
+      firingTimer = window.setTimeout(() => setIsFiring(false), 50);
     };
 
     window.addEventListener('mousedown', handleMouseDown);
-    return () => window.removeEventListener('mousedown', handleMouseDown);
+
+    return () => {
+      window.removeEventListener('mousedown', handleMouseDown);
+      if (firingTimer !== undefined) window.clearTimeout(firingTimer);
+    };
   }, [isGaming]);
 
   const springTransition = {
