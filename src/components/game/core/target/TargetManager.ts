@@ -32,19 +32,23 @@ export class TargetManager {
       this.gameArea,
       this.containerConfig
     );
-    this.targetConfig = { ...config, size: this.mapBounds.width / 18 };
+
+    this.targetConfig = this.deriveTargetConfig(config);
+  }
+
+  private deriveTargetConfig(base: TargetConfig): TargetConfig {
+    return { ...base, size: this.mapBounds.width / 18 };
   }
 
   /**
-   * maxTargets를 넘지 않는 선에서, 겹치지 않는 위치의 새 타겟을 생성한다.
-   * - 시도 횟수 상한을 둬 “생성 실패(null)”를 정상 흐름으로 취급한다. (매우 낮은 가능성)
+   * maxTargets를 넘지 않는 선에서 겹치지 않는 위치의 새 타겟을 생성
+   * - 시도 횟수 상한을 둬 “생성 실패(null)”를 정상 흐름으로 취급
    */
   createTarget(): Target | null {
     if (this.targets.length >= this.targetConfig.maxTargets) {
       return null;
     }
 
-    // 생성 실패를 허용하되, 무한 루프를 방지하기 위한 상한
     const loopCount = 100;
     let i = 0;
 
@@ -86,12 +90,13 @@ export class TargetManager {
   /** 기존 타겟들과의 최소 거리 제약을 만족하는지 검사 */
   private isValidPosition(target: Target): boolean {
     const minDist = target.size / 2; // 게임성 위해 50% overlap 허용
+    const minDistSq = minDist * minDist;
 
     return !this.targets.some((t) => {
       const dx = target.x - t.x;
       const dy = target.y - t.y;
 
-      return dx * dx + dy * dy < minDist * minDist;
+      return dx * dx + dy * dy < minDistSq;
     });
   }
 
@@ -101,7 +106,6 @@ export class TargetManager {
    * - 맞은 타겟은 즉시 제거 후 반환(중복 히트 방지)
    */
   checkHit(x: number, y: number): Target | null {
-    // 제거(splice)가 있으므로 역순 순회로 인덱스 안정성 보장
     for (let i = this.targets.length - 1; i >= 0; i--) {
       const target = this.targets[i];
       if (target.hit) continue;
@@ -134,7 +138,8 @@ export class TargetManager {
   }
 
   getTargets(): Target[] {
-    return this.targets;
+    // 외부에서 배열 자체를 mutate하는 사고 방지
+    return [...this.targets];
   }
 
   getTargetSize(): number {
@@ -162,6 +167,13 @@ export class TargetManager {
       this.gameArea,
       this.containerConfig
     );
+
+    // bounds 기반 파생값(size) 갱신 (리사이즈/모드 변경 안전성)
+    this.targetConfig = this.deriveTargetConfig(this.targetConfig);
+
+    // 기존 타겟도 size를 맞춰 상태 일관성 유지
+    const nextSize = this.targetConfig.size;
+    for (const t of this.targets) t.size = nextSize;
   }
 
   getMapBounds(): { x: number; y: number; width: number; height: number } {
