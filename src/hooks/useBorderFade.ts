@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { UI } from '@/constants/game';
 
@@ -43,5 +43,14 @@ export const useBorderFade = (
     },
     []
   );
-  return { start, show };
+
+  const borderFadeActions = useMemo(
+    () => ({
+      start,
+      show,
+    }),
+    [start, show]
+  );
+
+  return borderFadeActions;
 };

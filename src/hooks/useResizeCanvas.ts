@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import type { GameMode } from '@/types/game';
 import { setCanvasSizeDPR } from '@/utils/canvas';
@@ -18,17 +18,11 @@ export interface UseResizeCanvasOptions {
   deps?: React.DependencyList;
 }
 
-export interface UseResizeCanvasReturn {
-  displayWidth: number;
-  displayHeight: number;
-  recalc: () => void;
-}
-
 /**
- * 게임 캔버스 리사이즈 및 DPR 적용 훅
- * - 윈도우 크기 / 게임 모드(fullscreen/windowed)에 맞춰 캔버스 표시 크기 계산
- * - setCanvasSizeDPR로 실제 픽셀 크기(canvas.width/height) 설정
- * - 리사이즈/의존성 변경 시 onGameAreaChange로 실제 게임 영역 크기 전달
+ * 캔버스 리사이즈·DPR 반영
+ * - 모드(fullscreen/windowed)와 ratio 기준으로 “표시 크기” 계산
+ * - DPR 반영 후 “실제 픽셀 크기”를 외부로 동기화(onGameAreaChange)
+ * - resize/의존성 변경은 rAF로 합쳐 중복 적용 방지
  */
 export const useResizeCanvas = (options: UseResizeCanvasOptions) => {
   const {
@@ -39,8 +33,8 @@ export const useResizeCanvas = (options: UseResizeCanvasOptions) => {
     onGameAreaChange,
     deps = [],
   } = options;
+
   const rafRef = useRef<number | null>(null);
-  const [displaySize, setDisplaySize] = useState({ width: 0, height: 0 });
 
   const computeDisplaySize = useCallback(() => {
     const vw = window.innerWidth;
@@ -49,70 +43,66 @@ export const useResizeCanvas = (options: UseResizeCanvasOptions) => {
     if (mode === 'fullscreen') {
       const screenRatio = vw / vh;
 
-      // 가로가 더 길 경우 -> 높이에 맞추고 좌우 레터박스
+      // 화면이 더 “가로로 긴” 경우: 높이에 맞추고 좌우 레터박스
       if (screenRatio > ratio) {
         const h = vh;
         const w = h * ratio;
         return { w, h };
-      } else {
-        // 세로가 더 길 경우 -> 높이에 맞추고 좌우 레터박스
-        const w = vw;
-        const h = w / ratio;
-        return { w, h };
       }
-    } else {
-      // windowed: 패딩 고려한 최대 박스 내 ratio 유지
-      const maxW = Math.max(0, vw - windowPadding);
-      const maxH = Math.max(0, vh - windowPadding);
 
-      let w = maxW;
-      let h = w / ratio;
-      if (h > maxH) {
-        h = maxH;
-        w = h * ratio;
-      }
+      // 화면이 더 “세로로 긴” 경우: 너비에 맞추고 상하 레터박스
+      const w = vw;
+      const h = w / ratio;
       return { w, h };
     }
+
+    // windowed: 패딩 고려한 최대 박스 내 ratio 유지
+    const maxW = Math.max(0, vw - windowPadding);
+    const maxH = Math.max(0, vh - windowPadding);
+
+    let w = maxW;
+    let h = w / ratio;
+
+    if (h > maxH) {
+      h = maxH;
+      w = h * ratio;
+    }
+
+    return { w, h };
   }, [mode, ratio, windowPadding]);
 
   const applySize = useCallback(() => {
     const canvas = canvasRef.current;
-
     if (!canvas) return;
 
     const { w, h } = computeDisplaySize();
 
-    // 1) CSS 표시 크기
+    // CSS 표시 크기
     const cw = Number.parseFloat(canvas.style.width);
     const ch = Number.parseFloat(canvas.style.height);
     if (cw !== w) canvas.style.width = `${w}px`;
     if (ch !== h) canvas.style.height = `${h}px`;
 
-    // 2) DPR 반영하여 실제 픽셀 크기 설정 (canvas.width/height)
+    // DPR 반영 후 실제 픽셀 크기(canvas.width/height) 갱신
     setCanvasSizeDPR(canvas);
 
-    // 3) 외부(타겟 메니저 등)에 실제 픽셀 크기 전달
-    onGameAreaChange?.(canvas.width, canvas.height);
-
-    // 4) 표시 크기 상태 업데이트(디버깅용)
-    setDisplaySize({ width: w, height: h });
-    // logSizes('after-apply');
+    // 게임 로직(타겟 매니저 등)은 “실제 픽셀 크기”를 기준으로 동작
+    onGameAreaChange(canvas.width, canvas.height);
   }, [canvasRef, computeDisplaySize, onGameAreaChange]);
 
   const scheduleApply = useCallback(() => {
     if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+
     rafRef.current = requestAnimationFrame(() => {
       rafRef.current = null;
       applySize();
     });
   }, [applySize]);
 
-  // 최초 및 의존성 변경 시 적용
   useEffect(() => {
     scheduleApply();
   }, [mode, ratio, windowPadding, scheduleApply, ...deps]);
 
-  // 윈도우 리사이즈 대응
   useEffect(() => {
     const onResize = () => scheduleApply();
     window.addEventListener('resize', onResize);
@@ -122,16 +112,10 @@ export const useResizeCanvas = (options: UseResizeCanvasOptions) => {
     };
   }, [scheduleApply]);
 
-  // 언마운트 RAF 정리
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
-    };
-  }, []);
-
-  return {
-    displayWidth: displaySize.width,
-    displayHeight: displaySize.height,
-    recalc: scheduleApply,
-  };
+    },
+    []
+  );
 };

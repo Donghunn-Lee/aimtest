@@ -16,15 +16,15 @@ export interface UseGameRuntimeOptions {
   targetManagerState: TargetManagerState;
   targetManagerActions: TargetManagerActions;
   volumeActions: VolumeActions;
-  borderFade: UseBorderFadeApi;
+  borderFadeActions: UseBorderFadeApi;
   gameRuntimeRef: React.RefObject<GameRuntimeRef>;
 }
 
 /**
- * 게임 런타임 사이드이펙트 관리 훅
- * - 타이머·BGM·경계 테두리·타겟 스포너 등 게임 진행 중 발생하는 효과 처리
- * - gameState 변화에 따라 타겟 동기화·그레이스 타이머 트리거
- * - GameWorld 외부에서 필요로 하는 runtime ref 값(graceStartAt, isGameOver) 갱신
+ * 게임 런타임 사이드이펙트 통합
+ * - 게임 진행 중에만 필요한 타이머/스포너/BGM/페이드 제어
+ * - 타겟 수 임계치 기반 그레이스 타이머 트리거
+ * - rAF 루프에서 참조하는 runtime ref 동기화
  */
 export const useGameRuntime = (options: UseGameRuntimeOptions) => {
   const {
@@ -33,48 +33,52 @@ export const useGameRuntime = (options: UseGameRuntimeOptions) => {
     targetManagerState,
     targetManagerActions,
     volumeActions,
-    borderFade,
+    borderFadeActions: borderFade,
     gameRuntimeRef,
   } = options;
 
-  // 경과 시간 동기화
+  // 경과 시간 tick
   useEffect(() => {
     if (!gameState.isGameStarted || gameState.isGameOver) return;
+
     const id = setInterval(
       () => gameActions.updatePlayTime(),
       GAMEPLAY.ELAPSED_TICK_MS
     );
-    return () => clearInterval(id);
-  }, [gameState.isGameStarted, gameState.isGameOver]);
 
-  // BGM + 타겟 컨테이너 테두리
+    return () => clearInterval(id);
+  }, [gameState.isGameStarted, gameState.isGameOver, gameActions]);
+
+  // BGM / 테두리 페이드 전환
   useEffect(() => {
     if (gameState.isGameStarted) {
       volumeActions.playBGM();
       borderFade.start();
-    } else {
-      borderFade.show();
-      volumeActions.stopBGM();
+      return;
     }
-  }, [gameState.isGameStarted]);
 
-  // 타겟 스포너
+    borderFade.show();
+    volumeActions.stopBGM();
+  }, [gameState.isGameStarted, volumeActions, borderFade]);
+
+  // 타겟 스포너 시작/정지
   useEffect(() => {
     if (gameState.isGameStarted && gameState.startTime) {
       targetManagerActions.startSpawner(gameState.startTime);
       return () => targetManagerActions.stopSpawner();
     }
-    targetManagerActions.stopSpawner();
-  }, [gameState.isGameStarted, gameState.startTime]);
 
-  // 타겟 상태 동기화 (프레임/주기 단위)
+    targetManagerActions.stopSpawner();
+  }, [gameState.isGameStarted, gameState.startTime, targetManagerActions]);
+
+  // 타겟 상태 동기화
   useEffect(() => {
     if (!gameState.isGameStarted) return;
 
     return targetManagerActions.syncTargets();
   }, [gameState.isGameStarted, targetManagerActions]);
 
-  // 그레이스 타이머 / 타겟 색상 트리거
+  // 그레이스 타이머 트리거
   useEffect(() => {
     if (!gameState.isGameStarted) {
       gameActions.cancelGraceTimer();
@@ -91,9 +95,9 @@ export const useGameRuntime = (options: UseGameRuntimeOptions) => {
     }
   }, [gameState.isGameStarted, targetManagerState.targets.length, gameActions]);
 
-  // gameRuntimeRefs 동기화
+  // rAF 참조용 runtime ref 동기화
   useEffect(() => {
     gameRuntimeRef.current.graceStartAt = gameState.graceStartAt;
     gameRuntimeRef.current.isGameOver = gameState.isGameOver;
-  }, [gameState.graceStartAt, gameState.isGameOver]);
+  }, [gameState.graceStartAt, gameState.isGameOver, gameRuntimeRef]);
 };

@@ -1,11 +1,4 @@
-import {
-  type MouseEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import type { CanvasRenderLoopApi as LoopApi } from '@/hooks/useCanvasRenderLoop';
 import type { GameActions, GameState } from '@/hooks/useGame';
@@ -14,7 +7,7 @@ import type { TargetManagerActions } from '@/hooks/useTargetManager';
 import type { VolumeActions } from '@/hooks/useVolume';
 import type { Target } from '@/types/target';
 
-type MouseEventLike = Pick<MouseEvent, 'movementX' | 'movementY'>;
+type MouseEventLike = Pick<React.MouseEvent, 'movementX' | 'movementY'>;
 
 export interface UseInputControllerOptions {
   pointer: PointerApi;
@@ -40,15 +33,19 @@ export interface UseInputControllerOptions {
 export interface UseInputControllerReturn {
   onMouseMove: (e: MouseEventLike) => void;
   onMouseDown: () => void;
-  sensitivity: number; // UI 표시용
-  setSensitivity: (v: number) => void; // 직접 제어도 가능
+
+  /** UI 표시용 */
+  sensitivity: number;
+
+  /** 외부에서 감도 직접 제어 */
+  setSensitivity: (v: number) => void;
 }
 
 /**
- * 마우스/키보드/포인터 입력 관리
- * - 마우스 이동 → 카메라 누적 이동 (loop.nudgeCamera)
- * - 마우스 클릭 → 포인터락 요청/타겟 히트 판정/사운드/스코어 처리
- * - 키보드 → 감도 조절('[' , ']') 및 즉시 종료(`)
+ * 입력 매핑
+ * - 포인터락 전제: 잠금 전에는 request만 수행
+ * - 좌표계 전제: 카메라 기준으로 화면 중심(조준점)을 월드 좌표로 환산
+ * - 전역 키다운은 게임 진행 중에만 구독(불필요한 리스너 상시 유지 방지)
  */
 export const useInputController = ({
   pointer,
@@ -74,17 +71,16 @@ export const useInputController = ({
     [minSensitivity, maxSensitivity]
   );
 
-  // 마우스 이동
   const onMouseMove = useCallback(
     (event: MouseEventLike) => {
       if (!gameState.isGameStarted || !pointer.isLocked) return;
+
       const s = sensRef.current;
       loop.nudgeCamera(-event.movementX * s, -event.movementY * s);
     },
     [gameState.isGameStarted, pointer.isLocked, loop]
   );
 
-  // 마우스 클릭
   const onMouseDown = useCallback(() => {
     if (!gameState.isGameStarted) return;
 
@@ -93,6 +89,7 @@ export const useInputController = ({
       return;
     }
 
+    // 조준점(화면 중심) = 카메라 이동의 역방향
     const cam = loop.getCamera();
     const screenX = -cam.x;
     const screenY = -cam.y;
@@ -119,7 +116,6 @@ export const useInputController = ({
     onScore,
   ]);
 
-  // 키보드 입력
   const onKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (!gameState.isGameStarted) return;
@@ -136,9 +132,11 @@ export const useInputController = ({
   );
 
   useEffect(() => {
+    if (!gameState.isGameStarted) return;
     document.addEventListener('keydown', onKeyDown);
+
     return () => document.removeEventListener('keydown', onKeyDown);
-  }, [onKeyDown]);
+  }, [gameState.isGameStarted, onKeyDown]);
 
   return useMemo(
     () => ({ onMouseMove, onMouseDown, sensitivity, setSensitivity }),
