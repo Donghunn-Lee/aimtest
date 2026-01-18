@@ -60,7 +60,6 @@ export const useTargetManager = (): [
 
   const init = useCallback(
     (gameArea: { width: number; height: number }, resolution: number) => {
-      console.log('IIIIIIIINNNNNIT');
       if (targetManagerRef.current) {
         targetManagerRef.current.clearTargets();
       }
