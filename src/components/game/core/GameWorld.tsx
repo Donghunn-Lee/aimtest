@@ -86,6 +86,7 @@ export const GameWorld = ({
     canvas: canvasRef.current,
     drawSize: drawSizeRef.current,
   });
+
   const [gameState, gameActions] = useGame();
   const [targetManagerState, targetManagerActions] = useTargetManager();
   const [volumeState, volumeActions] = useVolume();
@@ -128,10 +129,7 @@ export const GameWorld = ({
     mode: gameMode,
     ratio: selectedResolution.ratio,
     windowPadding: UI.WINDOW_PADDING,
-    onGameAreaChange: (w, h) => {
-      targetManagerActions.updateGameArea(w, h);
-    },
-    deps: [selectedResolution.ratio, image],
+    onGameAreaChange: targetManagerActions.updateGameArea,
   });
 
   // pointer lock은 “게임 진행 중”에만 허용(해제는 즉시 종료로 취급)
@@ -156,7 +154,7 @@ export const GameWorld = ({
   });
 
   // 경계 시각화(게임 시작/종료에 맞춰 opacity를 rAF로 제어)
-  const borderFade = useBorderFade(borderOpacityRef);
+  const borderFadeActions = useBorderFade(borderOpacityRef);
 
   // fullscreen 전환/브라우저 이벤트 대응(모드 상태와 UI를 일치시킴)
   useFullscreen({
@@ -215,7 +213,7 @@ export const GameWorld = ({
     targetManagerState,
     targetManagerActions,
     volumeActions,
-    borderFade,
+    borderFadeActions,
     gameRuntimeRef,
   });
 
@@ -234,7 +232,7 @@ export const GameWorld = ({
   return (
     <div
       ref={containerRef}
-      className={`relative flex h-full w-full items-center justify-center overflow-hidden bg-black`}
+      className={`relative flex h-full w-full items-center justify-center overflow-hidden`}
     >
       <div
         className="relative flex h-fit max-h-[100vh] w-auto max-w-[100vw] items-center justify-center overflow-hidden"
