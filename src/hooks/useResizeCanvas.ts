@@ -36,6 +36,11 @@ export const useResizeCanvas = (options: UseResizeCanvasOptions) => {
 
   const rafRef = useRef<number | null>(null);
 
+  // DPR 적용 빈도 제한(스로틀) + 마지막 값 보장(트레일링)
+  const dprThrottleMs = 80;
+  const lastDprApplyAtRef = useRef(0);
+  const dprTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const computeDisplaySize = useCallback(() => {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
@@ -71,24 +76,54 @@ export const useResizeCanvas = (options: UseResizeCanvasOptions) => {
     return { w, h };
   }, [mode, ratio, windowPadding]);
 
+  const applyDprAndSync = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    setCanvasSizeDPR(canvas);
+    onGameAreaChange(canvas.width, canvas.height);
+    lastDprApplyAtRef.current = performance.now();
+  }, [canvasRef, onGameAreaChange]);
+
+  // resize 드래그 중 flicker 현상 완화를 위해 throttling 및 trailing 적용
+  const scheduleDprAndSync = useCallback(() => {
+    const now = performance.now();
+    const elapsed = now - lastDprApplyAtRef.current;
+
+    // 스로틀: 일정 시간 지났으면 즉시 반영
+    if (elapsed >= dprThrottleMs) {
+      if (dprTimeoutRef.current) {
+        clearTimeout(dprTimeoutRef.current);
+        dprTimeoutRef.current = null;
+      }
+      applyDprAndSync();
+      return;
+    }
+
+    // 트레일링: 아직 시간이 안 찼으면 마지막에 한 번만 반영
+    if (dprTimeoutRef.current) clearTimeout(dprTimeoutRef.current);
+
+    const delay = Math.max(0, dprThrottleMs - elapsed);
+    dprTimeoutRef.current = setTimeout(() => {
+      dprTimeoutRef.current = null;
+      applyDprAndSync();
+    }, delay);
+  }, [applyDprAndSync, dprThrottleMs]);
+
   const applySize = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const { w, h } = computeDisplaySize();
 
-    // CSS 표시 크기
+    // CSS 표시 크기는 즉각 반영
     const cw = Number.parseFloat(canvas.style.width);
     const ch = Number.parseFloat(canvas.style.height);
     if (cw !== w) canvas.style.width = `${w}px`;
     if (ch !== h) canvas.style.height = `${h}px`;
 
-    // DPR 반영 후 실제 픽셀 크기(canvas.width/height) 갱신
-    setCanvasSizeDPR(canvas);
-
-    // 게임 로직(타겟 매니저 등)은 “실제 픽셀 크기”를 기준으로 동작
-    onGameAreaChange(canvas.width, canvas.height);
-  }, [canvasRef, computeDisplaySize, onGameAreaChange]);
+    scheduleDprAndSync();
+  }, [canvasRef, computeDisplaySize, scheduleDprAndSync]);
 
   const scheduleApply = useCallback(() => {
     if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
@@ -115,6 +150,7 @@ export const useResizeCanvas = (options: UseResizeCanvasOptions) => {
   useEffect(
     () => () => {
       if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+      if (dprTimeoutRef.current) clearTimeout(dprTimeoutRef.current);
     },
     []
   );
