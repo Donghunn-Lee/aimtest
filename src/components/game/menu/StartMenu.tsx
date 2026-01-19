@@ -29,13 +29,13 @@ export const StartMenu = ({
     <PanelOverlay>
       <button
         onClick={onBackToMain}
-        className="group absolute left-4 top-4 z-10 p-1 text-gray-500 transition-colors hover:text-[#00ff00]"
+        className="group absolute left-4 top-4 z-10 p-1 text-gray-500 transition-colors hover:text-[#00ff00] md:left-2 md:top-2"
         aria-label="Back"
       >
         <ArrowLeftIcon className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
       </button>
 
-      <div className="relative flex flex-col items-center justify-center space-y-4 px-2 md:px-4 lg:space-y-6">
+      <div className="relative flex flex-col items-center justify-center space-y-4 px-1 lg:space-y-6">
         <div className="text-center">
           <h2 className="text-xl font-black tracking-tighter text-white md:text-2xl lg:text-3xl">
             GAME{' '}

@@ -17,7 +17,7 @@ type GuideRowProps = {
 };
 
 const GuideRow = ({ icon, text }: GuideRowProps) => (
-  <li className="flex items-start gap-2 text-[10px] leading-tight text-gray-400 md:text-[11px]">
+  <li className="flex items-start gap-2 leading-tight text-gray-400">
     <span className="mt-0.5 shrink-0 text-[#00ff00] opacity-80">{icon}</span>
     <span>{text}</span>
   </li>
@@ -30,18 +30,16 @@ export const GameGuide = () => {
       initial="hidden"
       animate="show"
       exit="exit"
-      className={`absolute bottom-4 left-4 z-0 max-w-[240px] rounded-xl border border-white/10 bg-black/80 p-4 shadow-xl backdrop-blur-md md:bottom-auto md:top-4 md:max-w-[260px] lg:left-8 lg:top-8 lg:max-w-[300px] lg:p-5 xl:left-10 xl:top-10`}
+      className="absolute bottom-4 left-4 z-0 w-[clamp(200px,20vw,340px)] rounded-xl border border-white/10 bg-black/80 p-[clamp(12px,1.6vw,20px)] shadow-xl backdrop-blur-md md:bottom-auto md:top-4 lg:left-8 lg:top-8 xl:left-10 xl:top-10 [&_h2]:text-[clamp(12px,1.1vw,14px)] [&_li]:text-[clamp(10px,0.95vw,12px)] [&_svg]:h-[clamp(12px,1.1vw,16px)] [&_svg]:w-[clamp(12px,1.1vw,16px)] [&_ul]:space-y-[clamp(10px,1.2vw,14px)]"
     >
       <div className="mb-3 flex items-center gap-2 border-b border-white/10 pb-2">
-        <InfoIcon className="h-4 w-4 text-[#00ff00]" />
-        <h2 className="text-xs font-bold tracking-wider text-gray-200 md:text-sm">
-          GAME GUIDE
-        </h2>
+        <InfoIcon className="text-[#00ff00]" />
+        <h2 className="font-bold tracking-wider text-gray-200">GAME GUIDE</h2>
       </div>
 
-      <ul className="space-y-2.5">
+      <ul>
         <GuideRow
-          icon={<LightningIcon className="h-3 w-3" />}
+          icon={<LightningIcon />}
           text={
             <>
               타겟 점수 <span className="text-[#00ff00]">3점</span> ·{' '}
@@ -52,7 +50,7 @@ export const GameGuide = () => {
         />
 
         <GuideRow
-          icon={<MouseIcon className="h-3 w-3" />}
+          icon={<MouseIcon />}
           text={
             <>
               <Key>[</Key> <Key>]</Key> 마우스 감도 조절
@@ -61,18 +59,20 @@ export const GameGuide = () => {
         />
 
         <GuideRow
-          icon={<AlertIcon className="h-3 w-3" />}
+          icon={<AlertIcon />}
           text={
             <>
               타겟 <span className="font-bold text-gray-300">10개</span> 이상
               <span className="font-bold text-gray-300"> 3초</span> 유지 시{' '}
-              <span className="font-bold text-red-400">GAME OVER</span>
+              <span className="whitespace-nowrap font-bold text-red-400">
+                GAME OVER
+              </span>
             </>
           }
         />
 
         <GuideRow
-          icon={<ExitIcon className="h-3 w-3" />}
+          icon={<ExitIcon />}
           text={
             <>
               <Key>ESC</Key> or <Key>~</Key> 게임 종료
@@ -81,7 +81,7 @@ export const GameGuide = () => {
         />
 
         <GuideRow
-          icon={<ArrowLeftIcon className="h-3 w-3" />}
+          icon={<ArrowLeftIcon />}
           text={
             <>
               <Key>←</Key> 모드 재선택
