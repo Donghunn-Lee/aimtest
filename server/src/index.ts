@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import express from 'express';
 
 import { checkHealth } from './controllers/rankingsController';
-import rankingsRouter from './routes/rankings';
+import { router } from './routes/rankings';
 
 dotenv.config();
 
@@ -19,7 +19,7 @@ app.get('/', (req, res) => {
 
 app.get('/api/health', checkHealth);
 
-app.use('/api/rankings', rankingsRouter);
+app.use('/api/rankings', router);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
