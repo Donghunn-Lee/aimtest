@@ -16,14 +16,12 @@ export interface RankingResponse {
   created_at: string;
 }
 
+// =========================
 // API
+// =========================
+
 export async function addRanking(data: RankingData): Promise<void> {
-  try {
-    await axios.post(`${process.env.REACT_APP_API_BASE_URL}/rankings`, data);
-  } catch (error) {
-    console.error('Error adding ranking:', error);
-    throw error;
-  }
+  await axios.post(`${process.env.REACT_APP_API_BASE_URL}/rankings`, data);
 }
 
 export async function checkHealth(): Promise<boolean> {
@@ -34,50 +32,39 @@ export async function checkHealth(): Promise<boolean> {
     );
 
     return response.status === 200;
-  } catch (error) {
+  } catch {
+    // 헬스 체크는 실패 자체가 결과이므로 로그 X
     return false;
   }
 }
 
 export async function getRankings(): Promise<RankingResponse[]> {
-  try {
-    const response = await axios.get(
-      `${process.env.REACT_APP_API_BASE_URL}/rankings`
-    );
-    return response.data;
-  } catch (error) {
-    console.error('Error getting rankings:', error);
-    throw error;
-  }
+  const response = await axios.get(
+    `${process.env.REACT_APP_API_BASE_URL}/rankings`
+  );
+  return response.data;
 }
 
 export async function getUserRankings(
   userName: string
 ): Promise<RankingResponse[]> {
-  try {
-    const response = await axios.get(
-      `${process.env.REACT_APP_API_BASE_URL}/rankings/${userName}`
-    );
-    return response.data;
-  } catch (error) {
-    console.error('Error getting user rankings:', error);
-    throw error;
-  }
+  const response = await axios.get(
+    `${process.env.REACT_APP_API_BASE_URL}/rankings/${userName}`
+  );
+  return response.data;
 }
 
 export async function getScoreRank(score: number): Promise<number> {
-  try {
-    const response = await axios.get(
-      `${process.env.REACT_APP_API_BASE_URL}/rankings/rank/${score}`
-    );
-    return response.data.rank_position;
-  } catch (error) {
-    console.error('Error getting score rank:', error);
-    throw error;
-  }
+  const response = await axios.get(
+    `${process.env.REACT_APP_API_BASE_URL}/rankings/rank/${score}`
+  );
+  return response.data.rank_position;
 }
 
-// 유틸리티 함수
+// =========================
+// Utilities
+// =========================
+
 export function formatRankingScore(score: number): string {
   return score.toLocaleString();
 }
@@ -90,6 +77,7 @@ export function formatPlayTime(seconds: number): string {
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = Math.floor(seconds % 60);
   const milliseconds = Math.floor((seconds % 1) * 100);
+
   return `${minutes.toString().padStart(2, '0')}:${remainingSeconds
     .toString()
     .padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
