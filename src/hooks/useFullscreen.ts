@@ -5,7 +5,7 @@ import type { GameMode } from '@/types/game';
 export interface UseFullscreenOptions {
   containerRef: React.RefObject<HTMLDivElement | null>;
   gameMode: GameMode;
-  onExit: () => void;
+  onGameModeChange: (mode: GameMode) => void;
 }
 
 /**
@@ -15,12 +15,12 @@ export interface UseFullscreenOptions {
  * - 브라우저/권한 정책으로 실패할 수 있어 실패는 무시한다
  */
 export const useFullscreen = (options: UseFullscreenOptions) => {
-  const { containerRef, gameMode, onExit } = options;
+  const { containerRef, gameMode, onGameModeChange } = options;
 
   useEffect(() => {
     const handleChange = () => {
       if (!document.fullscreenElement && gameMode === 'fullscreen') {
-        onExit();
+        onGameModeChange('windowed');
       }
     };
 
@@ -51,5 +51,5 @@ export const useFullscreen = (options: UseFullscreenOptions) => {
       document.removeEventListener('fullscreenchange', handleChange);
       el?.removeEventListener('click', handleClick);
     };
-  }, [containerRef, gameMode, onExit]);
+  }, [containerRef, gameMode, onGameModeChange]);
 };

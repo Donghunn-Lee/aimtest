@@ -43,7 +43,7 @@ import { DEFAULT_RESOLUTION } from '@/utils/image';
 
 export interface GameWorldProps {
   gameMode: GameMode;
-  onGameModeChange?: (mode: GameMode) => void;
+  onGameModeChange: (mode: GameMode) => void;
   onBackToMain: () => void;
 }
 
@@ -160,7 +160,7 @@ export const GameWorld = ({
   useFullscreen({
     containerRef,
     gameMode,
-    onExit: () => onGameModeChange?.('windowed'),
+    onGameModeChange,
   });
 
   // 게임 시작: 상태 초기화 + 도메인 준비 + 포인터락 요청(실패는 훅에서 처리)
