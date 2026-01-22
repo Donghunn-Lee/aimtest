@@ -100,7 +100,7 @@ export const App = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05, filter: 'blur(10px)' }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.1 }}
             className="relative z-10 flex w-full max-w-4xl flex-col items-center justify-center p-4"
           >
             {/* 3. 글래스 카드 */}

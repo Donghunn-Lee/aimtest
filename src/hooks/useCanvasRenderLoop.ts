@@ -148,7 +148,10 @@ export const useCanvasRenderLoop = (
     const maxX = (drawSize.width - canvas.width) * 0.5;
     const maxY = (drawSize.height - canvas.height) * 0.5;
 
-    if (isFinite(maxX) && isFinite(maxY)) {
+    const canClamp =
+      Number.isFinite(maxX) && Number.isFinite(maxY) && maxX > 0 && maxY > 0;
+
+    if (canClamp) {
       cameraRef.current.x = clamp(cameraRef.current.x, -maxX, maxX);
       cameraRef.current.y = clamp(cameraRef.current.y, -maxY, maxY);
     }
