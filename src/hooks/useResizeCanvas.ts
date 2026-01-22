@@ -35,6 +35,7 @@ export const useResizeCanvas = (options: UseResizeCanvasOptions) => {
   } = options;
 
   const rafRef = useRef<number | null>(null);
+  const onGameAreaChangeRef = useRef(onGameAreaChange);
 
   // DPR 적용 빈도 제한(스로틀) + 마지막 값 보장(트레일링)
   const dprThrottleMs = 80;
@@ -81,9 +82,9 @@ export const useResizeCanvas = (options: UseResizeCanvasOptions) => {
     if (!canvas) return;
 
     setCanvasSizeDPR(canvas);
-    onGameAreaChange(canvas.width, canvas.height);
+    onGameAreaChangeRef.current(canvas.width, canvas.height);
     lastDprApplyAtRef.current = performance.now();
-  }, [canvasRef, onGameAreaChange]);
+  }, [canvasRef]);
 
   // resize 드래그 중 flicker 현상 완화를 위해 throttling 및 trailing 적용
   const scheduleDprAndSync = useCallback(() => {
@@ -133,6 +134,10 @@ export const useResizeCanvas = (options: UseResizeCanvasOptions) => {
       applySize();
     });
   }, [applySize]);
+
+  useEffect(() => {
+    onGameAreaChangeRef.current = onGameAreaChange;
+  }, [onGameAreaChange]);
 
   useEffect(() => {
     scheduleApply();

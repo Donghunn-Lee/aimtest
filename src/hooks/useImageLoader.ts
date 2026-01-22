@@ -13,6 +13,7 @@ const firstLoadedSrcSet = new Set<string>();
 export interface UseImageLoaderOptions {
   src: string;
   canvas: HTMLCanvasElement | null;
+  canvasPxSize: { width: number; height: number };
 
   /** calculateAspectFit 결과로 캔버스에 실제로 그릴 영역 크기 저장 */
   drawSize: { width: number; height: number };
@@ -33,7 +34,7 @@ export type UseImageLoaderResult = {
 export const useImageLoader = (
   options: UseImageLoaderOptions
 ): UseImageLoaderResult => {
-  const { src, canvas, drawSize } = options;
+  const { src, canvas, drawSize, canvasPxSize } = options;
 
   const imgRef = useRef<HTMLImageElement>(new Image());
 
@@ -128,7 +129,7 @@ export const useImageLoader = (
     if (statusRef.current !== 'loaded') return;
 
     applyAspectFit();
-  }, [canvas?.width, canvas?.height, applyAspectFit]);
+  }, [canvasPxSize.width, canvasPxSize.height, applyAspectFit]);
 
   // 윈도우 리사이즈는 “로드 완료 후”에만 재계산
   useEffect(() => {

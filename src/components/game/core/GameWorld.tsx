@@ -71,6 +71,7 @@ export const GameWorld = ({
     graceStartAt: null as number | null,
     isGameOver: false,
   });
+  const [canvasPxSize, setCanvasPxSize] = useState({ width: 0, height: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
   const drawSizeRef = useRef<Size>({ width: 0, height: 0 });
   const borderOpacityRef = useRef(0.7);
@@ -84,6 +85,7 @@ export const GameWorld = ({
   const { image, firstLoaded: isMapReady } = useImageLoader({
     src: '/map.svg',
     canvas: canvasRef.current,
+    canvasPxSize,
     drawSize: drawSizeRef.current,
   });
 
@@ -129,7 +131,10 @@ export const GameWorld = ({
     mode: gameMode,
     ratio: selectedResolution.ratio,
     windowPadding: UI.WINDOW_PADDING,
-    onGameAreaChange: targetManagerActions.updateGameArea,
+    onGameAreaChange: (w, h) => {
+      targetManagerActions.updateGameArea(w, h);
+      setCanvasPxSize({ width: w, height: h });
+    },
   });
 
   // pointer lock은 “게임 진행 중”에만 허용(해제는 즉시 종료로 취급)
