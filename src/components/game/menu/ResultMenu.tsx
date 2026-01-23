@@ -210,7 +210,14 @@ export const ResultMenu = ({
         </div>
 
         {score !== 0 && (
-          <div className="w-full space-y-1.5 rounded-lg border border-white/5 bg-white/5 p-2 md:space-y-2 md:p-4">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!isNameValid || isSaving) return;
+              onSave();
+            }}
+            className="w-full space-y-1.5 rounded-lg border border-white/5 bg-white/5 p-2 md:space-y-2 md:p-4"
+          >
             {(saveStatus === 'idle' || saveStatus === 'error') && (
               <>
                 <div className="space-y-1">
@@ -219,8 +226,8 @@ export const ResultMenu = ({
                     value={userName}
                     onChange={handleNameChange}
                     placeholder="ENTER NAME"
-                    className="w-full rounded border border-white/10 bg-black/40 px-2 py-1 text-center text-[10px] font-bold text-white placeholder-gray-600 transition-colors focus:border-[#00ff00] focus:outline-none focus:ring-1 focus:ring-[#00ff00] md:rounded-md md:py-1.5 md:text-sm"
                     maxLength={10}
+                    className="w-full rounded border border-white/10 bg-black/40 px-2 py-1 text-center text-[10px] font-bold text-white placeholder-gray-600 transition-colors focus:border-[#00ff00] focus:outline-none focus:ring-1 focus:ring-[#00ff00] md:rounded-md md:py-1.5 md:text-sm"
                   />
 
                   <div className="min-h-[12px] text-center">
@@ -241,7 +248,7 @@ export const ResultMenu = ({
                 </div>
 
                 <Button
-                  onClick={onSave}
+                  type="submit"
                   disabled={!isNameValid || isSaving}
                   variant="primary"
                   size="sm"
@@ -264,7 +271,7 @@ export const ResultMenu = ({
                 </p>
               </div>
             )}
-          </div>
+          </form>
         )}
 
         <div className="flex w-full gap-1.5 md:gap-2">
@@ -274,6 +281,7 @@ export const ResultMenu = ({
             size="sm"
             fullWidth
             disabled={!isRestartEnabled}
+            type="submit"
             className={`h-7 text-[10px] font-bold transition-all duration-500 md:h-10 md:text-xs ${
               isRestartEnabled ? 'opacity-100' : 'opacity-50 grayscale'
             }`}
