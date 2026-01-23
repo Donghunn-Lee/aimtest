@@ -71,6 +71,7 @@ export const GameWorld = ({
     graceStartAt: null as number | null,
     isGameOver: false,
   });
+
   const [canvasPxSize, setCanvasPxSize] = useState({ width: 0, height: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
   const drawSizeRef = useRef<Size>({ width: 0, height: 0 });
@@ -133,7 +134,9 @@ export const GameWorld = ({
     windowPadding: UI.WINDOW_PADDING,
     onGameAreaChange: (w, h) => {
       targetManagerActions.updateGameArea(w, h);
-      setCanvasPxSize({ width: w, height: h });
+      setCanvasPxSize((prev) =>
+        prev.width === w && prev.height === h ? prev : { width: w, height: h }
+      );
     },
   });
 
@@ -168,9 +171,10 @@ export const GameWorld = ({
     onGameModeChange,
   });
 
-  // 게임 시작: 상태 초기화 + 도메인 준비 + 포인터락 요청(실패는 훅에서 처리)
+  // 게임 시작: 타겟 매니저 초기화 + 도메인 준비 + 포인터락 요청
   const handleGameStart = () => {
     gameActions.startGame();
+
     targetManagerActions.init(
       {
         width: canvasRef.current?.width || 0,
@@ -182,29 +186,54 @@ export const GameWorld = ({
     void pointer.request();
   };
 
-  // 게임 미시작 상태에서만 TargetManager를 준비(해상도/캔버스 기준을 맞춰둠)
+  /**
+   * 레이아웃 변경(해상도/모드/캔버스 픽셀 사이즈) 시 타겟 매니저 초기화
+   * - 게임 종료 시 타겟 유지는 유지하되, “레이아웃이 변하면” 초기화
+   */
+  const prevLayoutRef = useRef<{
+    mode: GameMode;
+    ratio: number;
+    w: number;
+    h: number;
+  } | null>(null);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    if (!gameState.isGameStarted) {
-      targetManagerActions.init(
-        {
-          width: canvas.width,
-          height: canvas.height,
-        },
-        selectedResolution.ratio
-      );
-    }
-
-    return () => {
-      if (!gameState.isGameStarted) {
-        targetManagerActions.clearTargets();
-      }
+    const next = {
+      mode: gameMode,
+      ratio: selectedResolution.ratio,
+      w: canvasPxSize.width,
+      h: canvasPxSize.height,
     };
 
-    // 의도: 게임 종료 이후에는 타겟 상태를 유지(재진입 UX) → isGameStarted을 의존성에서 제외
-  }, [selectedResolution, targetManagerActions]);
+    const prev = prevLayoutRef.current;
+    const changed =
+      !prev ||
+      prev.mode !== next.mode ||
+      prev.ratio !== next.ratio ||
+      prev.w !== next.w ||
+      prev.h !== next.h;
+
+    if (!changed) return;
+
+    prevLayoutRef.current = next;
+
+    // 레이아웃이 “유효한 픽셀 사이즈”로 확정된 뒤에만 init
+    if (canvas.width < 2 || canvas.height < 2) return;
+
+    targetManagerActions.init(
+      { width: canvas.width, height: canvas.height },
+      next.ratio
+    );
+  }, [
+    gameMode,
+    selectedResolution.ratio,
+    canvasPxSize.width,
+    canvasPxSize.height,
+    targetManagerActions,
+  ]);
 
   // TargetManager 상태를 rAF 루프(ref)로 동기화(React 렌더와 분리된 읽기 경계)
   useEffect(() => {
@@ -291,6 +320,14 @@ export const GameWorld = ({
               accuracy={gameState.accuracy}
               onRestart={handleGameStart}
               onMenu={() => {
+                // 결과창 → 시작 메뉴 이동 시 타겟 초기화
+                targetManagerActions.init(
+                  {
+                    width: canvasRef.current?.width || 0,
+                    height: canvasRef.current?.height || 0,
+                  },
+                  selectedResolution.ratio
+                );
                 gameActions.resetGame();
               }}
             />
