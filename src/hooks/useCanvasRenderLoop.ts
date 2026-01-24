@@ -80,6 +80,7 @@ export type CanvasRenderLoopApi = {
   nudgeCamera: (dx: number, dy: number) => void;
   setCamera: (pos: Camera) => void;
   getCamera: () => Camera;
+  returnToOriginAndStop: (durationMs?: number) => void;
 };
 
 /**
@@ -109,6 +110,13 @@ export const useCanvasRenderLoop = (
   const pendingDeltaRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const lastTimeRef = useRef<number>(0);
 
+  const returnAnimRef = useRef<null | {
+    startedAt: number;
+    durationMs: number;
+    from: Camera;
+    stopAfter: boolean;
+  }>(null);
+
   const getCtx = useCallback(() => {
     if (ctxRef.current) return ctxRef.current;
     const canvas = canvasRef.current;
@@ -122,8 +130,18 @@ export const useCanvasRenderLoop = (
   const clamp = (v: number, min: number, max: number) =>
     Math.max(min, Math.min(max, v));
 
+  const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 5);
+
+  const stopImmediately = useCallback(() => {
+    runningRef.current = false;
+
+    if (rafIdRef.current !== null) {
+      cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = null;
+    }
+  }, []);
+
   const frame = useCallback(() => {
-    // stop 이후 프레임 재예약 방지
     if (!runningRef.current) return;
 
     const canvas = canvasRef.current;
@@ -138,11 +156,34 @@ export const useCanvasRenderLoop = (
 
     services.clearCanvas(ctx, canvas);
 
-    if (pendingDeltaRef.current.x || pendingDeltaRef.current.y) {
-      cameraRef.current.x += pendingDeltaRef.current.x;
-      cameraRef.current.y += pendingDeltaRef.current.y;
+    const anim = returnAnimRef.current;
+    if (!anim) {
+      if (pendingDeltaRef.current.x || pendingDeltaRef.current.y) {
+        cameraRef.current.x += pendingDeltaRef.current.x;
+        cameraRef.current.y += pendingDeltaRef.current.y;
+        pendingDeltaRef.current.x = 0;
+        pendingDeltaRef.current.y = 0;
+      }
+    } else {
+      // 게임 종료 시 카메라 원점 복귀 애니메이션
+      const now = performance.now();
+      const rawT = (now - anim.startedAt) / anim.durationMs;
+      const t = clamp(rawT, 0, 1);
+      const k = easeOutCubic(t);
+
+      cameraRef.current.x = anim.from.x + (0 - anim.from.x) * k;
+      cameraRef.current.y = anim.from.y + (90 - anim.from.y) * k;
+
       pendingDeltaRef.current.x = 0;
       pendingDeltaRef.current.y = 0;
+
+      if (t >= 1 && anim.stopAfter) {
+        // 마지막 프레임까지 그린 뒤에 다음 예약만 차단
+        returnAnimRef.current = null;
+        runningRef.current = false;
+      } else if (t >= 1) {
+        returnAnimRef.current = null;
+      }
     }
 
     const maxX = (drawSize.width - canvas.width) * 0.5;
@@ -186,7 +227,11 @@ export const useCanvasRenderLoop = (
 
     services.endCameraTransform(ctx);
 
-    if (!runningRef.current) return;
+    if (!runningRef.current) {
+      stopImmediately();
+      return;
+    }
+
     rafIdRef.current = window.requestAnimationFrame(frame);
   }, [
     canvasRef,
@@ -197,6 +242,7 @@ export const useCanvasRenderLoop = (
     gameRef,
     borderOpacityRef,
     getCtx,
+    stopImmediately,
   ]);
 
   const start = useCallback(() => {
@@ -211,17 +257,14 @@ export const useCanvasRenderLoop = (
   }, [canvasRef, frame]);
 
   const stop = useCallback(() => {
-    runningRef.current = false;
-
-    if (rafIdRef.current !== null) {
-      cancelAnimationFrame(rafIdRef.current);
-      rafIdRef.current = null;
-    }
-  }, []);
+    stopImmediately();
+  }, [stopImmediately]);
 
   useEffect(() => stop, [stop]);
 
   const nudgeCamera = useCallback((dx: number, dy: number) => {
+    if (returnAnimRef.current) return;
+
     pendingDeltaRef.current.x += dx;
     pendingDeltaRef.current.y += dy;
   }, []);
@@ -233,5 +276,38 @@ export const useCanvasRenderLoop = (
 
   const getCamera = useCallback(() => ({ ...cameraRef.current }), []);
 
-  return { start, stop, nudgeCamera, setCamera, getCamera };
+  const returnToOriginAndStop = useCallback(
+    (durationMs = 800) => {
+      if (returnAnimRef.current) return;
+
+      const from = { ...cameraRef.current };
+      if (from.x === 0 && from.y === 0) {
+        stopImmediately();
+        return;
+      }
+
+      returnAnimRef.current = {
+        startedAt: performance.now(),
+        durationMs,
+        from,
+        stopAfter: true,
+      };
+
+      if (!runningRef.current) {
+        runningRef.current = true;
+        lastTimeRef.current = performance.now();
+        rafIdRef.current = window.requestAnimationFrame(frame);
+      }
+    },
+    [frame, stopImmediately]
+  );
+
+  return {
+    start,
+    stop,
+    nudgeCamera,
+    setCamera,
+    getCamera,
+    returnToOriginAndStop,
+  };
 };

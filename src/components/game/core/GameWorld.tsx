@@ -251,6 +251,12 @@ export const GameWorld = ({
     gameRuntimeRef,
   });
 
+  useEffect(() => {
+    if (gameState.isGameOver) {
+      loop.returnToOriginAndStop();
+    }
+  }, [gameState.isGameOver, loop]);
+
   // 준비 완료 기준이 충족될 때만 루프 시작(깨지면 즉시 정지)
   useEffect(() => {
     const canvas = canvasRef.current;
