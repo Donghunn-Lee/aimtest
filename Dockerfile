@@ -6,4 +6,4 @@ COPY . .
 ENV REACT_APP_API_BASE_URL=/api
 RUN npm run build
 EXPOSE 3000
-CMD ["npx", "serve", "-s", "build", "-l", "3000"]
+CMD ["sh", "-c", "cp -r build /shared && tail -f /dev/null"]
