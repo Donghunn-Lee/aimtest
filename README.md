@@ -15,9 +15,9 @@
 
 ---
 
-> 🔗 [**Live Demo**](http://ec2-52-79-221-80.ap-northeast-2.compute.amazonaws.com/)
+> 🔗 [**Live**](https://d2ihoslcdnc44b.cloudfront.net/)
 >
-> 🎬 [**Gameplay Video**](https://vimeo.com/1159573198?share=copy&fl=sv&fe=ci) (sound on)
+> 🎬 [**Demo**](https://vimeo.com/1159573198?share=copy&fl=sv&fe=ci) (sound on)
 >
 > (영상에 소리가 포함되어 있으니 시청시 볼륨을 조절해주세요!)
 
