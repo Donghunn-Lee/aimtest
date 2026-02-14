@@ -21,15 +21,12 @@ export interface RankingResponse {
 // =========================
 
 export async function addRanking(data: RankingData): Promise<void> {
-  await axios.post(`${process.env.REACT_APP_API_BASE_URL}/rankings`, data);
+  await axios.post(`/api/rankings`, data);
 }
 
 export async function checkHealth(): Promise<boolean> {
   try {
-    const response = await axios.get(
-      `${process.env.REACT_APP_API_BASE_URL}/health`,
-      { timeout: 3000 }
-    );
+    const response = await axios.get(`/api/health`, { timeout: 3000 });
 
     return response.status === 200;
   } catch {
@@ -39,25 +36,19 @@ export async function checkHealth(): Promise<boolean> {
 }
 
 export async function getRankings(): Promise<RankingResponse[]> {
-  const response = await axios.get(
-    `${process.env.REACT_APP_API_BASE_URL}/rankings`
-  );
+  const response = await axios.get(`/api/rankings`);
   return response.data;
 }
 
 export async function getUserRankings(
   userName: string
 ): Promise<RankingResponse[]> {
-  const response = await axios.get(
-    `${process.env.REACT_APP_API_BASE_URL}/rankings/${userName}`
-  );
+  const response = await axios.get(`/api/rankings/${userName}`);
   return response.data;
 }
 
 export async function getScoreRank(score: number): Promise<number> {
-  const response = await axios.get(
-    `${process.env.REACT_APP_API_BASE_URL}/rankings/rank/${score}`
-  );
+  const response = await axios.get(`/api/rankings/rank/${score}`);
   return response.data.rank_position;
 }
 
