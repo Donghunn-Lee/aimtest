@@ -1,11 +1,12 @@
 version: '3'
+
 services:
   frontend:
     build:
       context: .
     image: frontend
-    ports:
-      - '80:3000'
+    expose:
+      - '3000'
     depends_on:
       - backend
     deploy:
@@ -16,8 +17,8 @@ services:
   backend:
     build: ./server
     image: backend
-    ports:
-      - '3001:3001'
+    expose:
+      - '3001'
     depends_on:
       - db
     command: bash -c 'while !</dev/tcp/db/3306; do sleep 1; done; npm start'
@@ -30,11 +31,6 @@ services:
       resources:
         limits:
           memory: 256M
-    logging:
-      driver: 'json-file'
-      options:
-        max-size: '10m'
-        max-file: '3'
 
   db:
     image: mysql:8.0
@@ -43,32 +39,24 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_INNODB_BUFFER_POOL_SIZE: 128M
-      MYSQL_INNODB_LOG_BUFFER_SIZE: 16M
-      MYSQL_INNODB_LOG_FILE_SIZE: 48M
-      MYSQL_INNODB_FLUSH_LOG_AT_TRX_COMMIT: 2
     volumes:
       - mysql_data:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    healthcheck:
-      test:
-        [
-          'CMD',
-          'mysqladmin',
-          'ping',
-          '-h',
-          'localhost',
-          '-u',
-          'root',
-          '-p${MYSQL_ROOT_PASSWORD}',
-        ]
-      interval: 5s
-      timeout: 5s
-      retries: 20
     deploy:
       resources:
         limits:
           memory: 256M
+
+  nginx:
+    image: nginx:latest
+    container_name: aimtest-nginx
+    ports:
+      - '80:80'
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - frontend
+      - backend
 
 volumes:
   mysql_data:
