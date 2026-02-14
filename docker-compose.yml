@@ -9,10 +9,6 @@ services:
       - '3000'
     depends_on:
       - backend
-    deploy:
-      resources:
-        limits:
-          memory: 512M
 
   backend:
     build: ./server
@@ -25,12 +21,8 @@ services:
     environment:
       - DB_HOST=db
       - DB_USER=${MYSQL_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_PASSWORD=${MYSQL_PASSWORD}
       - DB_NAME=${MYSQL_DATABASE}
-    deploy:
-      resources:
-        limits:
-          memory: 256M
 
   db:
     image: mysql:8.0
@@ -42,10 +34,6 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    deploy:
-      resources:
-        limits:
-          memory: 256M
 
   nginx:
     image: nginx:latest
