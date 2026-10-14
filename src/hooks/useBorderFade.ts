@@ -29,13 +29,13 @@ export const useBorderFade = (
 
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(tick);
-  }, []);
+  }, [borderOpacityRef]);
 
   const show = useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     rafRef.current = null;
     borderOpacityRef.current = UI.BORDER_OPACITY;
-  }, []);
+  }, [borderOpacityRef]);
 
   useEffect(
     () => () => {

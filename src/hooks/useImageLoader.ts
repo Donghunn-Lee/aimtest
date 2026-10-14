@@ -129,7 +129,7 @@ export const useImageLoader = (
     if (statusRef.current !== 'loaded') return;
 
     applyAspectFit();
-  }, [canvasPxSize.width, canvasPxSize.height, applyAspectFit]);
+  }, [canvas, canvasPxSize.width, canvasPxSize.height, applyAspectFit]);
 
   // 윈도우 리사이즈는 “로드 완료 후”에만 재계산
   useEffect(() => {

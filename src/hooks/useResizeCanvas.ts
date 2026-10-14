@@ -141,6 +141,7 @@ export const useResizeCanvas = (options: UseResizeCanvasOptions) => {
 
   useEffect(() => {
     scheduleApply();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, ratio, windowPadding, scheduleApply, ...deps]);
 
   useEffect(() => {
