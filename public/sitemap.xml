@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>
-      http://ec2-52-79-221-80.ap-northeast-2.compute.amazonaws.com/
+      https://aimtest.vercel.app/
     </loc>
     <lastmod>2025-05-20</lastmod>
     <changefreq>monthly</changefreq>

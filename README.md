@@ -15,7 +15,7 @@
 
 ---
 
-> 🔗 [**Live**](https://d2ihoslcdnc44b.cloudfront.net/)
+> 🔗 [**Live**](https://aimtest.vercel.app/)
 >
 > 🎬 [**Demo**](https://vimeo.com/1159573198?share=copy&fl=sv&fe=ci) (sound on)
 >
@@ -288,13 +288,11 @@ UX Details는 기능 나열이 아니라,
 
 - Node.js
 - Express
-- MySQL
+- PostgreSQL (Neon)
 
 ### Infra
 
-- Docker / Docker Compose
-- AWS EC2
-- GitHub Actions
+- Vercel
 
 ---
 
@@ -320,9 +318,9 @@ UX Details는 기능 나열이 아니라,
 ```bash
 git clone https://github.com/Donghunn-Lee/aimtest.git
 cd aimtest
-docker compose up --build
-# or: docker-compose up --build
-
+npm install
+# .env.local 파일에 DATABASE_URL=<Neon 연결 문자열> 추가
+npx vercel dev
 ```
 
 ---
