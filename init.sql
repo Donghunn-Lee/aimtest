@@ -1,11 +1,11 @@
-CREATE TABLE IF NOT EXISTS `rankings` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `user_name` varchar(50) NOT NULL,
-  `score` int NOT NULL,
-  `accuracy` float NOT NULL,
-  `play_time` float NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `idx_score` (`score` DESC),
-  KEY `idx_user_name` (`user_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci; 
+CREATE TABLE IF NOT EXISTS rankings (
+  id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  user_name VARCHAR(50) NOT NULL,
+  score INTEGER NOT NULL,
+  accuracy REAL NOT NULL,
+  play_time REAL NOT NULL,
+  created_at TIMESTAMPTZ NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_score ON rankings (score DESC);
+CREATE INDEX IF NOT EXISTS idx_user_name ON rankings (user_name);

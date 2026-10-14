@@ -1,12 +1,11 @@
 import { Request, Response } from 'express';
-import { RowDataPacket } from 'mysql2';
 
-import { pool } from '../database/db';
+import { sql } from '../database/db';
 
 // 서버 상태 및 DB 연결 확인 (Health Check)
 export const checkHealth = async (req: Request, res: Response) => {
   try {
-    await pool.execute('SELECT 1');
+    await sql`SELECT 1`;
 
     res.status(200).json({
       status: 'online',
@@ -26,12 +25,9 @@ export const addRanking = async (req: Request, res: Response) => {
   try {
     const { user_name, score, accuracy, play_time } = req.body;
 
-    const [result] = await pool.execute(
-      'INSERT INTO rankings (user_name, score, accuracy, play_time) VALUES (?, ?, ?, ?)',
-      [user_name, score, accuracy, play_time]
-    );
+    await sql`INSERT INTO rankings (user_name, score, accuracy, play_time) VALUES (${user_name}, ${score}, ${accuracy}, ${play_time})`;
 
-    res.status(201).json({ message: 'Ranking added successfully', result });
+    res.status(201).json({ message: 'Ranking added successfully', ok: true });
   } catch (error) {
     console.error('Error adding ranking:', error);
     res.status(500).json({ error: 'Failed to add ranking' });
@@ -41,9 +37,8 @@ export const addRanking = async (req: Request, res: Response) => {
 // 전체 랭킹 조회
 export const getRankings = async (req: Request, res: Response) => {
   try {
-    const [rankings] = await pool.execute(
-      'SELECT user_name, score, accuracy, play_time, created_at FROM rankings ORDER BY score DESC LIMIT 100'
-    );
+    const rankings =
+      await sql`SELECT user_name, score, accuracy, play_time, created_at FROM rankings ORDER BY score DESC LIMIT 100`;
 
     res.json(rankings);
   } catch (error) {
@@ -57,10 +52,8 @@ export const getUserRankings = async (req: Request, res: Response) => {
   try {
     const { userName } = req.params;
 
-    const [rankings] = await pool.execute(
-      'SELECT user_name, score, accuracy, play_time, created_at FROM rankings WHERE user_name = ? ORDER BY score DESC',
-      [userName]
-    );
+    const rankings =
+      await sql`SELECT user_name, score, accuracy, play_time, created_at FROM rankings WHERE user_name = ${userName} ORDER BY score DESC`;
 
     res.json(rankings);
   } catch (error) {
@@ -74,10 +67,8 @@ export const getScoreRank = async (req: Request, res: Response) => {
   try {
     const { score } = req.params;
 
-    const [rows] = await pool.execute<RowDataPacket[]>(
-      'SELECT COUNT(*) + 1 as rank_position FROM rankings WHERE score > ?',
-      [score]
-    );
+    const rows =
+      await sql`SELECT (COUNT(*) + 1)::int AS rank_position FROM rankings WHERE score > ${score}`;
 
     res.json(rows[0]);
   } catch (error) {
