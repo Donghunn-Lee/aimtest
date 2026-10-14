@@ -15,7 +15,7 @@
 
 ---
 
-> 🔗 [**Live**](https://aimtest.vercel.app/)
+> 🔗 [**Live**](https://fps-aim-test.vercel.app/)
 >
 > 🎬 [**Demo**](https://vimeo.com/1159573198?share=copy&fl=sv&fe=ci) (sound on)
 >

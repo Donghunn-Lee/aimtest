@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://aimtest.vercel.app/sitemap.xml
+Sitemap: https://fps-aim-test.vercel.app/sitemap.xml
