@@ -267,7 +267,9 @@ export const GameWorld = ({
     else loop.stop();
 
     return () => loop.stop();
-  }, [loop, isMapReady]);
+    // 게임 시작 전이에도 재평가한다 — 종료 복귀 애니메이션이 루프를 멈춘 뒤
+    // 다음 게임에서 다시 start할 곳이 여기뿐이다
+  }, [loop, isMapReady, gameState.isGameStarted]);
 
   return (
     <div

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import type { RenderMapAndBoundsArgs } from '@/components/game/core/renderers/mapRenderer';
 import { CAMERA } from '@/constants/render';
@@ -302,12 +302,16 @@ export const useCanvasRenderLoop = (
     [frame, stopImmediately]
   );
 
-  return {
-    start,
-    stop,
-    nudgeCamera,
-    setCamera,
-    getCamera,
-    returnToOriginAndStop,
-  };
+  // 루프 시작 effect · 입력 콜백의 deps에 들어가므로 참조가 안정적이어야 한다
+  return useMemo(
+    () => ({
+      start,
+      stop,
+      nudgeCamera,
+      setCamera,
+      getCamera,
+      returnToOriginAndStop,
+    }),
+    [start, stop, nudgeCamera, setCamera, getCamera, returnToOriginAndStop]
+  );
 };

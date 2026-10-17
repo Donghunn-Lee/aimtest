@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 export interface GameState {
   isGameStarted: boolean;
@@ -160,18 +160,33 @@ export const useGame = (): [GameState, GameActions] => {
     graceStartAt,
   };
 
-  const gameActions: GameActions = {
-    startGame,
-    endGame,
-    resetGame,
-    addScore,
-    handleHit,
-    handleClick,
-    updatePlayTime,
-    setMouseSensitivity,
-    triggerGraceTimer,
-    cancelGraceTimer,
-  };
+  // 다른 훅의 effect deps에 들어가므로 참조가 안정적이어야 한다
+  const gameActions: GameActions = useMemo(
+    () => ({
+      startGame,
+      endGame,
+      resetGame,
+      addScore,
+      handleHit,
+      handleClick,
+      updatePlayTime,
+      setMouseSensitivity,
+      triggerGraceTimer,
+      cancelGraceTimer,
+    }),
+    [
+      startGame,
+      endGame,
+      resetGame,
+      addScore,
+      handleHit,
+      handleClick,
+      updatePlayTime,
+      setMouseSensitivity,
+      triggerGraceTimer,
+      cancelGraceTimer,
+    ]
+  );
 
   return [gameState, gameActions];
 };
