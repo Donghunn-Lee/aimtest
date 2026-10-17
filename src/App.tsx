@@ -42,12 +42,17 @@ export const App = () => {
 
   // 서버 상태 체크 로직
   useEffect(() => {
+    const controller = new AbortController();
+
     const checkServer = async () => {
-      const isOnline = await checkHealth();
+      const isOnline = await checkHealth(controller.signal);
+      // 언마운트(StrictMode 재실행 포함)로 취소된 요청은 결과 반영 X
+      if (controller.signal.aborted) return;
       setServerStatus(isOnline ? 'online' : 'offline');
     };
 
     checkServer();
+    return () => controller.abort();
   }, []);
 
   // 모드 선택 후 게임 창 전환

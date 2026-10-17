@@ -24,9 +24,12 @@ export async function addRanking(data: RankingData): Promise<void> {
   await axios.post(`/api/rankings`, data);
 }
 
-export async function checkHealth(): Promise<boolean> {
+export async function checkHealth(signal?: AbortSignal): Promise<boolean> {
   try {
-    const response = await axios.get(`/api/health`, { timeout: 3000 });
+    const response = await axios.get(`/api/health`, {
+      timeout: 10000,
+      signal,
+    });
 
     return response.status === 200;
   } catch {
