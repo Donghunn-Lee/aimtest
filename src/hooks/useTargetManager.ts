@@ -3,6 +3,7 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { TargetManager } from '@/components/game/core/target/TargetManager';
 import { SPAWN, SYNC, TARGET_DEFAULT } from '@/constants/target';
 import type { Target, TargetConfig } from '@/types/target';
+import { computeSpawnInterval } from '@/utils/target';
 
 export interface TargetManagerState {
   targets: Target[];
@@ -97,15 +98,6 @@ export const useTargetManager = (): [
     targetManagerRef.current.updateGameArea(width, height);
   }, []);
 
-  const computeSpawnInterval = useCallback((startTime: number) => {
-    const elapsedSeconds = (Date.now() - startTime) / 1000;
-    // 최소 330ms, 1000ms부터 1.8%씩 지수적 감소 (기본값)
-    const interval =
-      SPAWN.BASE_INTERVAL_MS * Math.pow(SPAWN.DECAY_PER_SEC, elapsedSeconds);
-
-    return Math.max(SPAWN.MIN_INTERVAL_MS, interval);
-  }, []);
-
   const spawnerTick = useCallback(() => {
     if (!targetManagerRef.current || spawnerStartTimeRef.current == null) {
       spawnerRef.current = null;
@@ -121,7 +113,9 @@ export const useTargetManager = (): [
     lastTsRef.current = now;
     accumMsRef.current += dt;
 
-    const intervalMs = computeSpawnInterval(spawnerStartTimeRef.current);
+    const intervalMs = computeSpawnInterval(
+      Date.now() - spawnerStartTimeRef.current
+    );
 
     while (accumMsRef.current >= intervalMs) {
       accumMsRef.current -= intervalMs;
@@ -133,7 +127,7 @@ export const useTargetManager = (): [
     }
 
     spawnerRef.current = requestAnimationFrame(spawnerTick);
-  }, [computeSpawnInterval]);
+  }, []);
 
   const startSpawner = useCallback(
     (startTime: number) => {
