@@ -33,7 +33,6 @@ import {
 import { useVolume } from '@/hooks/useVolume';
 import type { GameMode, Size } from '@/types/game';
 import type { Resolution } from '@/types/image';
-import type { Target } from '@/types/target';
 import {
   applyCameraTransform,
   clearCanvas,
@@ -66,7 +65,6 @@ export const GameWorld = ({
   onBackToMain,
 }: GameWorldProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const targetsRef = useRef<Target[]>([]);
   const gameRuntimeRef = useRef<GameRuntimeRef>({
     graceStartAt: null as number | null,
     isGameOver: false,
@@ -101,6 +99,7 @@ export const GameWorld = ({
     const drawTargetContainer = (onDraw: (bounds: TargetContainer) => void) => {
       targetManagerActions.drawTargetContainer?.(onDraw);
     };
+    const getTargets = () => targetManagerActions.getTargets();
 
     return {
       clearCanvas,
@@ -111,6 +110,7 @@ export const GameWorld = ({
       updateFloatingScores,
       drawFloatingScores,
       getTargetSize,
+      getTargets,
       drawTargetContainer,
     };
   }, [targetManagerActions]);
@@ -120,7 +120,6 @@ export const GameWorld = ({
     canvasRef,
     image,
     drawSizeRef,
-    targetsRef,
     gameRef: gameRuntimeRef,
     borderOpacityRef,
     services,
@@ -234,11 +233,6 @@ export const GameWorld = ({
     canvasPxSize.height,
     targetManagerActions,
   ]);
-
-  // TargetManager 상태를 rAF 루프(ref)로 동기화(React 렌더와 분리된 읽기 경계)
-  useEffect(() => {
-    targetsRef.current = targetManagerState.targets;
-  }, [targetManagerState.targets]);
 
   // 게임 진행 중에만 필요한 사이드 이펙트를 한 곳에서 조립(타이머/스포너/BGM 등)
   useGameRuntime({

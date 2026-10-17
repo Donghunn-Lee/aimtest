@@ -5,13 +5,13 @@
  * - 색상 결정은 게임 상태(grace/game over)에 따라 외부 로직에 위임한다.
  */
 
-import { Target } from '@/types/target';
+import type { Target } from '@/types/target';
 import { drawCircle } from '@/utils/canvas';
 import { decideTargetColor } from '@/utils/target';
 
 type RenderTargetsParams = {
   ctx: CanvasRenderingContext2D;
-  targets: Target[];
+  targets: readonly Target[];
   graceStartAt: number | null;
   isGameOver: boolean;
 };

@@ -71,13 +71,6 @@ export const useGameRuntime = (options: UseGameRuntimeOptions) => {
     targetManagerActions.stopSpawner();
   }, [gameState.isGameStarted, gameState.startTime, targetManagerActions]);
 
-  // 타겟 상태 동기화
-  useEffect(() => {
-    if (!gameState.isGameStarted) return;
-
-    return targetManagerActions.syncTargets();
-  }, [gameState.isGameStarted, targetManagerActions]);
-
   // 그레이스 타이머 트리거
   useEffect(() => {
     if (!gameState.isGameStarted) {
@@ -86,14 +79,14 @@ export const useGameRuntime = (options: UseGameRuntimeOptions) => {
     }
 
     const overload =
-      targetManagerState.targets.length >= GAMEPLAY.GRACE_TARGET_THRESHOLD;
+      targetManagerState.targetCount >= GAMEPLAY.GRACE_TARGET_THRESHOLD;
 
     if (overload) {
       gameActions.triggerGraceTimer();
     } else {
       gameActions.cancelGraceTimer();
     }
-  }, [gameState.isGameStarted, targetManagerState.targets.length, gameActions]);
+  }, [gameState.isGameStarted, targetManagerState.targetCount, gameActions]);
 
   // rAF 참조용 runtime ref 동기화
   useEffect(() => {

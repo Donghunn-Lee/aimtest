@@ -1,13 +1,13 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { TargetManager } from '@/components/game/core/target/TargetManager';
-import { SPAWN, SYNC, TARGET_DEFAULT } from '@/constants/target';
+import { SPAWN, TARGET_DEFAULT } from '@/constants/target';
 import type { Target, TargetConfig } from '@/types/target';
 import { computeSpawnInterval } from '@/utils/target';
 
 export interface TargetManagerState {
-  targets: Target[];
-  targetConfig: TargetConfig;
+  /** 유예 판정용. 스폰 · 히트 · clear · init 시점에만 갱신된다 */
+  targetCount: number;
 }
 
 export type TargetContainer = {
@@ -31,18 +31,20 @@ export interface TargetManagerActions {
   ) => Target | null;
   updateGameArea: (width: number, height: number) => void;
   clearTargets: () => void;
-  syncTargets: () => () => void;
+  getTargets: () => readonly Target[];
   drawTargetContainer: (onDraw: (bounds: TargetContainer) => void) => void;
   getTargetSize: () => number | null;
 }
 
 const initialTargetConfig: TargetConfig = { ...TARGET_DEFAULT };
+const EMPTY_TARGETS: readonly Target[] = [];
 
 /**
  * TargetManager 어댑터
  * - rAF 스폰 루프: 프레임 누적(accum) 기반으로 스폰 간격을 흉내(스톨은 클램프)
- * - React 동기화: 렌더는 state(targets)로, 판정/생성은 인스턴스로 분리
- * - clear/stop 시 rAF·interval·state를 함께 정리해 잔상 방지
+ * - 타겟 배열은 인스턴스에만 두고 렌더 루프가 직접 읽는다. React에는 유예 판정용
+ *   targetCount만 두며 프레임마다가 아니라 스폰·히트·clear·init 시점에만 갱신
+ * - clear/stop 시 rAF·state를 함께 정리해 잔상 방지
  */
 export const useTargetManager = (): [
   TargetManagerState,
@@ -50,9 +52,7 @@ export const useTargetManager = (): [
 ] => {
   const targetManagerRef = useRef<TargetManager | null>(null);
 
-  const [targetConfig, setTargetConfig] =
-    useState<TargetConfig>(initialTargetConfig);
-  const [targets, setTargets] = useState<Target[]>([]);
+  const [targetCount, setTargetCount] = useState(0);
 
   const spawnerRef = useRef<number | null>(null);
   const lastTsRef = useRef<number | null>(null);
@@ -65,14 +65,12 @@ export const useTargetManager = (): [
         targetManagerRef.current.clearTargets();
       }
 
-      setTargetConfig(initialTargetConfig);
-      setTargets([]);
-
       targetManagerRef.current = new TargetManager(
         initialTargetConfig,
         gameArea,
         resolution
       );
+      setTargetCount(0);
     },
     []
   );
@@ -85,7 +83,7 @@ export const useTargetManager = (): [
 
       if (hitTarget) {
         onHit?.(hitTarget);
-        setTargets(targetManagerRef.current.getTargets());
+        setTargetCount(targetManagerRef.current.getTargetCount());
       }
 
       return hitTarget;
@@ -122,7 +120,7 @@ export const useTargetManager = (): [
 
       const spawned = targetManagerRef.current.createTarget();
       if (spawned) {
-        setTargets(targetManagerRef.current.getTargets());
+        setTargetCount(targetManagerRef.current.getTargetCount());
       }
     }
 
@@ -156,21 +154,13 @@ export const useTargetManager = (): [
     if (!targetManagerRef.current) return;
 
     targetManagerRef.current.clearTargets();
-
-    // 도메인 초기화와 함께 렌더링 소스도 즉시 비움(잔상/불일치 방지)
-    setTargets([]);
+    setTargetCount(0);
   }, []);
 
-  const syncTargets = useCallback(() => {
-    if (!targetManagerRef.current) return () => {};
-
-    const syncInterval = setInterval(() => {
-      const updatedTargets = targetManagerRef.current?.getTargets() || [];
-      setTargets(updatedTargets);
-    }, SYNC.INTERVAL_MS);
-
-    return () => clearInterval(syncInterval);
-  }, []);
+  const getTargets = useCallback(
+    () => targetManagerRef.current?.getTargets() ?? EMPTY_TARGETS,
+    []
+  );
 
   const drawTargetContainer = useCallback(
     (onDraw: (bounds: TargetContainer) => void) => {
@@ -186,10 +176,10 @@ export const useTargetManager = (): [
     return targetManagerRef.current?.getTargetSize() ?? null;
   }, []);
 
-  const state: TargetManagerState = {
-    targets,
-    targetConfig,
-  };
+  const state: TargetManagerState = useMemo(
+    () => ({ targetCount }),
+    [targetCount]
+  );
 
   const actions: TargetManagerActions = useMemo(
     () => ({
@@ -199,7 +189,7 @@ export const useTargetManager = (): [
       checkHit,
       updateGameArea,
       clearTargets,
-      syncTargets,
+      getTargets,
       drawTargetContainer,
       getTargetSize,
     }),
@@ -210,7 +200,7 @@ export const useTargetManager = (): [
       checkHit,
       updateGameArea,
       clearTargets,
-      syncTargets,
+      getTargets,
       drawTargetContainer,
       getTargetSize,
     ]

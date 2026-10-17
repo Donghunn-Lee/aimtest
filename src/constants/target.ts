@@ -11,7 +11,3 @@ export const SPAWN = {
   DECAY_PER_SEC: 0.982, // 초당 간격 감소율 (난이도 곡선)
   STALL_CLAMP_MS: 100, // 스톨 방지용 최소 클램프
 } as const;
-
-export const SYNC = {
-  INTERVAL_MS: 8, // 타겟 상태 동기화 주기 (약 120hz)
-} as const;

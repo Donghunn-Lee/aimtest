@@ -137,9 +137,13 @@ export class TargetManager {
     return null;
   }
 
-  getTargets(): Target[] {
-    // 외부에서 배열 자체를 mutate하는 사고 방지
-    return [...this.targets];
+  getTargets(): readonly Target[] {
+    // 렌더 루프가 매 프레임 읽으므로 복사하지 않는다. 호출부는 변이하지 않는다
+    return this.targets;
+  }
+
+  getTargetCount(): number {
+    return this.targets.length;
   }
 
   getTargetSize(): number {

@@ -33,7 +33,7 @@ export type CanvasRenderServices = {
   /** 타겟 렌더링 */
   renderTargets: (args: {
     ctx: CanvasRenderingContext2D;
-    targets: Target[];
+    targets: readonly Target[];
     graceStartAt: number | null;
     isGameOver: boolean;
   }) => void;
@@ -50,6 +50,9 @@ export type CanvasRenderServices = {
   /** 타겟 크기 계산 */
   getTargetSize: () => number;
 
+  /** 현재 타겟 목록(매 프레임 읽기) */
+  getTargets: () => readonly Target[];
+
   /** 타겟 컨테이너(bounds) 계산 → 콜백 전달 */
   drawTargetContainer: (
     onDraw: (bounds: {
@@ -65,7 +68,6 @@ export type CanvasRenderLoopOptions = {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
   image: HTMLImageElement | null;
   drawSizeRef: React.RefObject<{ width: number; height: number }>;
-  targetsRef: React.RefObject<Target[]>;
   gameRef: React.RefObject<{
     graceStartAt: number | null;
     isGameOver: boolean;
@@ -93,15 +95,8 @@ export type CanvasRenderLoopApi = {
 export const useCanvasRenderLoop = (
   options: CanvasRenderLoopOptions
 ): CanvasRenderLoopApi => {
-  const {
-    canvasRef,
-    image,
-    drawSizeRef,
-    targetsRef,
-    gameRef,
-    borderOpacityRef,
-    services,
-  } = options;
+  const { canvasRef, image, drawSizeRef, gameRef, borderOpacityRef, services } =
+    options;
 
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const rafIdRef = useRef<number | null>(null);
@@ -217,7 +212,7 @@ export const useCanvasRenderLoop = (
 
     services.renderTargets({
       ctx,
-      targets: targetsRef.current || [],
+      targets: services.getTargets(),
       graceStartAt: gameRef.current?.graceStartAt ?? null,
       isGameOver: !!gameRef.current?.isGameOver,
     });
@@ -238,7 +233,6 @@ export const useCanvasRenderLoop = (
     drawSizeRef,
     image,
     services,
-    targetsRef,
     gameRef,
     borderOpacityRef,
     getCtx,
