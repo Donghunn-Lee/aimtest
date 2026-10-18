@@ -252,13 +252,14 @@ export const GameWorld = ({
   }, [gameState.isGameOver, loop]);
 
   // 준비 완료 기준이 충족될 때만 루프 시작(깨지면 즉시 정지)
+  // 결과 화면에서는 켜지 않는다 — 복귀 애니메이션은 종료 effect가 켜고 스스로 멈춘다
   useEffect(() => {
     const canvas = canvasRef.current;
     const ready =
       isMapReady && !!canvas && canvas.width > 0 && canvas.height > 0;
 
-    if (ready) loop.start();
-    else loop.stop();
+    if (!ready) loop.stop();
+    else if (!gameState.isGameOver) loop.start();
 
     return () => loop.stop();
     // 결과 화면을 벗어나는 전이(isGameOver true → false)에도 재평가한다 —

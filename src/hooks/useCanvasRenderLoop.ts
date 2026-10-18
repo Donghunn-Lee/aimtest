@@ -101,7 +101,7 @@ export const useCanvasRenderLoop = (
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const rafIdRef = useRef<number | null>(null);
   const runningRef = useRef(false);
-  const cameraRef = useRef<Camera>(CAMERA.INITIAL);
+  const cameraRef = useRef<Camera>({ ...CAMERA.INITIAL });
   const pendingDeltaRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const lastTimeRef = useRef<number>(0);
 
@@ -129,6 +129,8 @@ export const useCanvasRenderLoop = (
 
   const stopImmediately = useCallback(() => {
     runningRef.current = false;
+    // 남은 복귀 애니메이션의 stopAfter가 다음 start()의 루프를 멈추지 않도록
+    returnAnimRef.current = null;
 
     if (rafIdRef.current !== null) {
       cancelAnimationFrame(rafIdRef.current);
@@ -162,12 +164,14 @@ export const useCanvasRenderLoop = (
     } else {
       // 게임 종료 시 카메라 원점 복귀 애니메이션
       const now = performance.now();
-      const rawT = (now - anim.startedAt) / anim.durationMs;
-      const t = clamp(rawT, 0, 1);
+      const t =
+        anim.durationMs > 0
+          ? clamp((now - anim.startedAt) / anim.durationMs, 0, 1)
+          : 1;
       const k = easeOutCubic(t);
 
-      cameraRef.current.x = anim.from.x + (0 - anim.from.x) * k;
-      cameraRef.current.y = anim.from.y + (90 - anim.from.y) * k;
+      cameraRef.current.x = anim.from.x + (CAMERA.INITIAL.x - anim.from.x) * k;
+      cameraRef.current.y = anim.from.y + (CAMERA.INITIAL.y - anim.from.y) * k;
 
       pendingDeltaRef.current.x = 0;
       pendingDeltaRef.current.y = 0;
@@ -240,6 +244,8 @@ export const useCanvasRenderLoop = (
   ]);
 
   const start = useCallback(() => {
+    // 복귀 애니메이션 도중이어도 일반 루프로 전환한다
+    returnAnimRef.current = null;
     if (runningRef.current) return;
 
     const canvas = canvasRef.current;
@@ -275,14 +281,13 @@ export const useCanvasRenderLoop = (
       if (returnAnimRef.current) return;
 
       const from = { ...cameraRef.current };
-      if (from.x === 0 && from.y === 0) {
-        stopImmediately();
-        return;
-      }
+      // 이미 원점이어도 종료 상태(타겟 색)가 반영된 프레임을 한 장 그린 뒤 멈춘다
+      const atOrigin =
+        from.x === CAMERA.INITIAL.x && from.y === CAMERA.INITIAL.y;
 
       returnAnimRef.current = {
         startedAt: performance.now(),
-        durationMs,
+        durationMs: atOrigin ? 0 : durationMs,
         from,
         stopAfter: true,
       };
@@ -293,7 +298,7 @@ export const useCanvasRenderLoop = (
         rafIdRef.current = window.requestAnimationFrame(frame);
       }
     },
-    [frame, stopImmediately]
+    [frame]
   );
 
   // 루프 시작 effect · 입력 콜백의 deps에 들어가므로 참조가 안정적이어야 한다

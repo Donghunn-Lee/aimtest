@@ -36,6 +36,13 @@ export const usePointerLock = ({
   const [isLocked, setIsLocked] = useState(false);
   const lastLockedRef = useRef<HTMLCanvasElement | null>(null);
 
+  // 호출부가 인라인 함수를 넘겨도 리스너 effect가 커밋마다 재실행되지 않도록
+  const onUnlockRef = useRef(onUnlock);
+
+  useEffect(() => {
+    onUnlockRef.current = onUnlock;
+  }, [onUnlock]);
+
   const syncState = useCallback(() => {
     const current = document.pointerLockElement ?? null;
     const target = canvasRef.current;
@@ -49,11 +56,11 @@ export const usePointerLock = ({
     const prevLocked = !!lastLockedRef.current;
 
     if (nextLocked && !prevLocked) onLock?.();
-    if (!nextLocked && prevLocked) onUnlock?.();
+    if (!nextLocked && prevLocked) onUnlockRef.current?.();
 
     lastLockedRef.current = curCanvas;
     setIsLocked(nextLocked);
-  }, [canvasRef, onLock, onUnlock]);
+  }, [canvasRef, onLock]);
 
   useEffect(() => {
     const onChange = () => syncState();
