@@ -79,16 +79,28 @@ export const usePointerLock = ({
     }
   }, [enabled]);
 
+  /**
+   * 원시 입력(unadjustedMovement)으로 먼저 잠근다
+   * - Chrome(Windows)은 잠긴 커서를 창 중앙으로 되돌리는데, 이 이동과 실제
+   *   이동의 처리 순서가 꼬이면 한 이벤트에 큰 델타가 튄다. 원시 입력은
+   *   재중앙화 자체를 하지 않는다
+   * - 원시 입력을 거부(reject)하는 브라우저는 옵션 없이 다시 요청한다
+   */
   const request = useCallback(async (): Promise<boolean> => {
     const el = canvasRef.current;
     if (!el) return false;
 
     try {
       // 일부 브라우저는 Promise를 반환하지 않음(이벤트로 최종 확정)
-      await el.requestPointerLock?.();
+      await el.requestPointerLock?.({ unadjustedMovement: true });
       return true;
     } catch {
-      return false;
+      try {
+        await el.requestPointerLock?.();
+        return true;
+      } catch {
+        return false;
+      }
     }
   }, [canvasRef]);
 
