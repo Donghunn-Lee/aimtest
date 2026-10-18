@@ -261,9 +261,10 @@ export const GameWorld = ({
     else loop.stop();
 
     return () => loop.stop();
-    // 게임 시작 전이에도 재평가한다 — 종료 복귀 애니메이션이 루프를 멈춘 뒤
-    // 다음 게임에서 다시 start할 곳이 여기뿐이다
-  }, [loop, isMapReady, gameState.isGameStarted]);
+    // 결과 화면을 벗어나는 전이(isGameOver true → false)에도 재평가한다 —
+    // 종료 복귀 애니메이션이 루프를 멈추므로 다시 start할 곳이 여기뿐이다.
+    // 메뉴 → 게임 전이는 루프가 이미 돌고 있어 isGameStarted는 보지 않는다
+  }, [loop, isMapReady, gameState.isGameOver]);
 
   return (
     <div
