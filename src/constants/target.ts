@@ -2,7 +2,6 @@ export const TARGET_DEFAULT = {
   size: 50,
   margin: 0,
   maxTargets: 200,
-  spawnInterval: 1000,
 } as const;
 
 export const SPAWN = {

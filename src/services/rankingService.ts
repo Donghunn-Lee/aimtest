@@ -43,13 +43,6 @@ export async function getRankings(): Promise<RankingResponse[]> {
   return response.data;
 }
 
-export async function getUserRankings(
-  userName: string
-): Promise<RankingResponse[]> {
-  const response = await axios.get(`/api/rankings/${userName}`);
-  return response.data;
-}
-
 export async function getScoreRank(score: number): Promise<number> {
   const response = await axios.get(`/api/rankings/rank/${score}`);
   return response.data.rank_position;
@@ -75,8 +68,4 @@ export function formatPlayTime(seconds: number): string {
   return `${minutes.toString().padStart(2, '0')}:${remainingSeconds
     .toString()
     .padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
-}
-
-export function sortRankings(rankings: RankingResponse[]): RankingResponse[] {
-  return [...rankings].sort((a, b) => b.score - a.score);
 }

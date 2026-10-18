@@ -150,10 +150,6 @@ export class TargetManager {
     return this.targetConfig.size;
   }
 
-  removeTarget(id: string): void {
-    this.targets = this.targets.filter((target) => target.id !== id);
-  }
-
   clearTargets(): void {
     if (this.targets.length > 0) {
       this.targets.forEach((target) => {

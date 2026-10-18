@@ -15,7 +15,7 @@ import { Crosshair } from '@/components/game/ui/Crosshair';
 import { GameGuide } from '@/components/game/ui/GameGuide';
 import { GameStatus } from '@/components/game/ui/GameStatus';
 import { LoadingOverlay } from '@/components/game/ui/LoadingOverlay';
-import { INPUT, UI } from '@/constants/game';
+import { ASSET, INPUT, UI } from '@/constants/game';
 import { TARGET_DEFAULT } from '@/constants/target';
 import { useBorderFade } from '@/hooks/useBorderFade';
 import { useCanvasRenderLoop } from '@/hooks/useCanvasRenderLoop';
@@ -73,7 +73,7 @@ export const GameWorld = ({
   const [canvasPxSize, setCanvasPxSize] = useState({ width: 0, height: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
   const drawSizeRef = useRef<Size>({ width: 0, height: 0 });
-  const borderOpacityRef = useRef(0.7);
+  const borderOpacityRef = useRef<number>(UI.BORDER_OPACITY);
 
   // UI 상태(렌더 전용)
   const [isRankingOpen, setIsRankingOpen] = useState(false);
@@ -82,7 +82,7 @@ export const GameWorld = ({
 
   // 런타임/도메인 상태(훅으로 경계 분리)
   const { image, firstLoaded: isMapReady } = useImageLoader({
-    src: '/map.svg',
+    src: ASSET.MAP_SRC,
     canvas: canvasRef.current,
     canvasPxSize,
     drawSize: drawSizeRef.current,

@@ -1,12 +1,4 @@
 /**
- * 2D 좌표 (x, y)
- */
-export interface Position {
-  x: number;
-  y: number;
-}
-
-/**
  * 맵 크기 (너비, 높이)
  */
 export interface Size {

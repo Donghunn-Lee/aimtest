@@ -2,7 +2,7 @@
  * Floating score renderer state.
  * - 타겟 컨테이너 좌표계(x, y) 기준으로 점수 텍스트를 떠오르게 렌더링한다.
  * - 크기/상승량/두께/블러는 `targetSize`(타겟 컨테이너 기준) 비율로 스케일링한다.
- * - 내부 상태(`items`)는 모듈 단위로 유지되며, `clear/update`로 생명주기를 관리한다.
+ * - 내부 상태(`items`)는 모듈 단위로 유지되며, `update`로 생명주기를 관리한다.
  */
 
 export type FloatingScore = {
@@ -46,11 +46,6 @@ export function addFloatingScore(
     ttl: crit ? TTL_CRIT : TTL_NORMAL,
     crit,
   });
-}
-
-/** 내부 상태를 초기화한다(씬 전환/재시작 시 사용). */
-export function clearFloatingScores() {
-  items.length = 0;
 }
 
 /**

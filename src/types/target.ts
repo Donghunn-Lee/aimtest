@@ -17,5 +17,4 @@ export interface TargetConfig {
   size: number; // 타겟 기본 크기 (px)
   margin: number; // 화면 가장자리 안전 여백 (px)
   maxTargets: number; // 화면 내 최대 유지 가능한 타겟 수
-  spawnInterval: number; // 생성 주기 (ms)
 }
