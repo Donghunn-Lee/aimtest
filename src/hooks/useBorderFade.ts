@@ -24,7 +24,7 @@ export const useBorderFade = (
       const t = performance.now();
       const p = Math.min(1, (t - t0) / UI.BORDER_FADE_MS);
       borderOpacityRef.current = UI.BORDER_OPACITY * (1 - p);
-      rafRef.current = requestAnimationFrame(tick);
+      rafRef.current = p < 1 ? requestAnimationFrame(tick) : null;
     };
 
     if (rafRef.current) cancelAnimationFrame(rafRef.current);

@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import type { LoadingStatus } from '@/types/image';
 import { calculateAspectFit } from '@/utils/image';
@@ -70,14 +76,24 @@ export const useImageLoader = (
   const applyAspectFit = useCallback(() => {
     if (!canvas) return;
 
+    // 그리기는 setTransform(dpr) 아래 CSS px 좌표계라 맵 크기도 CSS px로 맞춘다
+    const dpr = window.devicePixelRatio || 1;
     calculateAspectFit(
       imgRef.current,
-      canvas.height,
-      canvas.width,
+      canvas.height / dpr,
+      canvas.width / dpr,
       drawSize,
       2
     );
   }, [canvas, drawSize]);
+
+  // 로드 effect가 canvas 참조 변경에 재실행되면 firstLoaded 지연 타이머가 cleanup에 지워진다
+  const applyAspectFitRef = useRef(applyAspectFit);
+
+  // 커밋과 passive effect 사이에 load가 와도 새 canvas를 보도록 레이아웃 단계에서 갱신한다
+  useLayoutEffect(() => {
+    applyAspectFitRef.current = applyAspectFit;
+  }, [applyAspectFit]);
 
   useEffect(() => {
     const img = imgRef.current;
@@ -97,11 +113,10 @@ export const useImageLoader = (
         }, 500);
       }
 
-      applyAspectFit();
+      applyAspectFitRef.current();
     };
 
     const handleError = () => {
-      // if (canceledRef.current) return;
       setStatus('error');
       console.error('Failed to load image:', src);
     };
@@ -121,7 +136,7 @@ export const useImageLoader = (
         firstLoadedTimeoutRef.current = null;
       }
     };
-  }, [src, applyAspectFit]);
+  }, [src]);
 
   // 캔버스 크기/해상도(deps) 변경 시점에만 aspect-fit 재계산(이미 로드된 상태에서만)
   useEffect(() => {

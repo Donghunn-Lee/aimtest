@@ -61,9 +61,12 @@ export function formatAccuracy(accuracy: number): string {
 }
 
 export function formatPlayTime(seconds: number): string {
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = Math.floor(seconds % 60);
-  const milliseconds = Math.floor((seconds % 1) * 100);
+  // 소수부를 부동소수로 떼면 0.29가 28로 절삭되므로 1/100초 정수로 나눈다
+  const centiseconds = Math.round(seconds * 100);
+  const totalSeconds = Math.floor(centiseconds / 100);
+  const minutes = Math.floor(totalSeconds / 60);
+  const remainingSeconds = totalSeconds % 60;
+  const milliseconds = centiseconds % 100;
 
   return `${minutes.toString().padStart(2, '0')}:${remainingSeconds
     .toString()

@@ -185,8 +185,10 @@ export const useCanvasRenderLoop = (
       }
     }
 
-    const maxX = (drawSize.width - canvas.width) * 0.5;
-    const maxY = (drawSize.height - canvas.height) * 0.5;
+    // drawSize · 카메라는 CSS px 좌표계
+    const dpr = window.devicePixelRatio || 1;
+    const maxX = (drawSize.width - canvas.width / dpr) * 0.5;
+    const maxY = (drawSize.height - canvas.height / dpr) * 0.5;
 
     const canClamp =
       Number.isFinite(maxX) && Number.isFinite(maxY) && maxX > 0 && maxY > 0;

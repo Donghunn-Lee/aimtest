@@ -51,6 +51,15 @@ export interface GameRuntimeRef {
   isGameOver: boolean;
 }
 
+// 타겟 영역은 그리기(setTransform(dpr))와 같은 CSS px 좌표계로 넘긴다
+const getGameArea = (canvas: HTMLCanvasElement | null): Size => {
+  const dpr = window.devicePixelRatio || 1;
+  return {
+    width: (canvas?.width || 0) / dpr,
+    height: (canvas?.height || 0) / dpr,
+  };
+};
+
 /**
  * GameWorld: aimtest 런타임 허브.
  * - Canvas(rAF) 렌더 루프 구동
@@ -132,7 +141,8 @@ export const GameWorld = ({
     ratio: selectedResolution.ratio,
     windowPadding: UI.WINDOW_PADDING,
     onGameAreaChange: (w, h) => {
-      targetManagerActions.updateGameArea(w, h);
+      const area = getGameArea(canvasRef.current);
+      targetManagerActions.updateGameArea(area.width, area.height);
       setCanvasPxSize((prev) =>
         prev.width === w && prev.height === h ? prev : { width: w, height: h }
       );
@@ -175,10 +185,7 @@ export const GameWorld = ({
     gameActions.startGame();
 
     targetManagerActions.init(
-      {
-        width: canvasRef.current?.width || 0,
-        height: canvasRef.current?.height || 0,
-      },
+      getGameArea(canvasRef.current),
       selectedResolution.ratio
     );
 
@@ -222,10 +229,7 @@ export const GameWorld = ({
     // 레이아웃이 “유효한 픽셀 사이즈”로 확정된 뒤에만 init
     if (canvas.width < 2 || canvas.height < 2) return;
 
-    targetManagerActions.init(
-      { width: canvas.width, height: canvas.height },
-      next.ratio
-    );
+    targetManagerActions.init(getGameArea(canvas), next.ratio);
   }, [
     gameMode,
     selectedResolution.ratio,
@@ -326,10 +330,7 @@ export const GameWorld = ({
               onMenu={() => {
                 // 결과창 → 시작 메뉴 이동 시 타겟 초기화
                 targetManagerActions.init(
-                  {
-                    width: canvasRef.current?.width || 0,
-                    height: canvasRef.current?.height || 0,
-                  },
+                  getGameArea(canvasRef.current),
                   selectedResolution.ratio
                 );
                 gameActions.resetGame();
