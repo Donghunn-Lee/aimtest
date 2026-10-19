@@ -1,6 +1,7 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 
 import { sql } from '../database/db';
+import { isNonNegativeInteger, validateRanking } from './validateRanking';
 
 // 서버 상태 및 DB 연결 확인 (Health Check)
 export const checkHealth = async (req: Request, res: Response) => {
@@ -22,8 +23,14 @@ export const checkHealth = async (req: Request, res: Response) => {
 
 // 랭킹 추가
 export const addRanking = async (req: Request, res: Response) => {
+  const result = validateRanking(req.body);
+  if (!result.ok) {
+    res.status(400).json({ error: result.error });
+    return;
+  }
+
   try {
-    const { user_name, score, accuracy, play_time } = req.body;
+    const { user_name, score, accuracy, play_time } = result.value;
 
     await sql`INSERT INTO rankings (user_name, score, accuracy, play_time) VALUES (${user_name}, ${score}, ${accuracy}, ${play_time})`;
 
@@ -64,9 +71,13 @@ export const getUserRankings = async (req: Request, res: Response) => {
 
 // 특정 점수의 순위 조회
 export const getScoreRank = async (req: Request, res: Response) => {
-  try {
-    const { score } = req.params;
+  const score = Number(req.params.score);
+  if (!isNonNegativeInteger(score)) {
+    res.status(400).json({ error: 'score must be a non-negative integer' });
+    return;
+  }
 
+  try {
     const rows =
       await sql`SELECT (COUNT(*) + 1)::int AS rank_position FROM rankings WHERE score > ${score}`;
 
