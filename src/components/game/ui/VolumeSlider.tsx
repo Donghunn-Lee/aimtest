@@ -1,4 +1,4 @@
-import { VolumeActions, VolumeState } from '@/hooks/useVolume';
+import type { VolumeActions, VolumeState } from '@/hooks/useVolume';
 
 interface VolumeSliderProps {
   volumeState: VolumeState;

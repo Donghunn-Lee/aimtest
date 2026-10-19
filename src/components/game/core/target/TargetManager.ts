@@ -1,4 +1,4 @@
-import { type Target, type TargetConfig } from '@/types/target';
+import type { Target, TargetConfig } from '@/types/target';
 import {
   calculateContainerBounds,
   type ContainerConfig,

@@ -131,7 +131,7 @@ export const App = () => {
               </div>
 
               <div className="w-full">
-                {/* 1. PC 환경 (md 이상): 원래대로 버튼 표시 */}
+                {/* 1. PC 환경 (md 이상): 버튼 표시 */}
                 <div className="hidden flex-col gap-4 sm:flex-row sm:justify-center md:flex">
                   <GameModeButton
                     label="전체화면 모드"

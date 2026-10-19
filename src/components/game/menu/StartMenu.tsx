@@ -3,8 +3,8 @@ import { ArrowLeftIcon } from '@/components/common/Icons';
 import { PanelOverlay } from '@/components/common/PanelOverlay';
 import { ResolutionSettings } from '@/components/game/settings/ResolutionSettings';
 import { VolumeSlider } from '@/components/game/ui/VolumeSlider';
-import { VolumeActions, VolumeState } from '@/hooks/useVolume';
-import { Resolution } from '@/types/image';
+import type { VolumeActions, VolumeState } from '@/hooks/useVolume';
+import type { Resolution } from '@/types/image';
 
 interface StartMenuProps {
   onStart: () => void;

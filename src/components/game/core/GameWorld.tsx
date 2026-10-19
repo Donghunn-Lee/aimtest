@@ -37,6 +37,7 @@ import {
   applyCameraTransform,
   clearCanvas,
   endCameraTransform,
+  getDpr,
 } from '@/utils/canvas';
 import { DEFAULT_RESOLUTION } from '@/utils/image';
 
@@ -53,7 +54,7 @@ export interface GameRuntimeRef {
 
 // 타겟 영역은 그리기(setTransform(dpr))와 같은 CSS px 좌표계로 넘긴다
 const getGameArea = (canvas: HTMLCanvasElement | null): Size => {
-  const dpr = window.devicePixelRatio || 1;
+  const dpr = getDpr();
   return {
     width: (canvas?.width || 0) / dpr,
     height: (canvas?.height || 0) / dpr,

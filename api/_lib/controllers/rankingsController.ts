@@ -4,7 +4,7 @@ import { sql } from '../database/db';
 import { isNonNegativeInteger, validateRanking } from './validateRanking';
 
 // 서버 상태 및 DB 연결 확인 (Health Check)
-export const checkHealth = async (req: Request, res: Response) => {
+export const checkHealth = async (_req: Request, res: Response) => {
   try {
     await sql`SELECT 1`;
 
@@ -42,7 +42,7 @@ export const addRanking = async (req: Request, res: Response) => {
 };
 
 // 전체 랭킹 조회
-export const getRankings = async (req: Request, res: Response) => {
+export const getRankings = async (_req: Request, res: Response) => {
   try {
     const rankings =
       await sql`SELECT user_name, score, accuracy, play_time, created_at FROM rankings ORDER BY score DESC LIMIT 100`;

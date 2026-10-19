@@ -28,6 +28,8 @@ export default [
       'prettier/prettier': 'error',
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
+      '@typescript-eslint/consistent-type-imports': 'error',
+      '@typescript-eslint/no-import-type-side-effects': 'error',
       'simple-import-sort/imports': [
         'error',
         {

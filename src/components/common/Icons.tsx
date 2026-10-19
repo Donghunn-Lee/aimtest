@@ -1,4 +1,4 @@
-import { type SVGProps } from 'react';
+import type { SVGProps } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 type IconProps = SVGProps<SVGSVGElement>;

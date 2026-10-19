@@ -7,7 +7,7 @@ interface ResolutionSettingsProps {
   onResolutionChange: (resolution: Resolution) => void;
 }
 
-export const ResolutionSettings: React.FC<ResolutionSettingsProps> = ({
+export const ResolutionSettings = ({
   selectedResolution,
   onResolutionChange,
 }: ResolutionSettingsProps) => {

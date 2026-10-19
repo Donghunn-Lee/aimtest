@@ -16,10 +16,6 @@ export interface RankingResponse {
   created_at: string;
 }
 
-// =========================
-// API
-// =========================
-
 export async function addRanking(data: RankingData): Promise<void> {
   await axios.post(`/api/rankings`, data);
 }
@@ -48,10 +44,6 @@ export async function getScoreRank(score: number): Promise<number> {
   return response.data.rank_position;
 }
 
-// =========================
-// Utilities
-// =========================
-
 export function formatRankingScore(score: number): string {
   return score.toLocaleString();
 }
@@ -66,9 +58,9 @@ export function formatPlayTime(seconds: number): string {
   const totalSeconds = Math.floor(centiseconds / 100);
   const minutes = Math.floor(totalSeconds / 60);
   const remainingSeconds = totalSeconds % 60;
-  const milliseconds = centiseconds % 100;
+  const remainingCentiseconds = centiseconds % 100;
 
   return `${minutes.toString().padStart(2, '0')}:${remainingSeconds
     .toString()
-    .padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
+    .padStart(2, '0')}:${remainingCentiseconds.toString().padStart(2, '0')}`;
 }

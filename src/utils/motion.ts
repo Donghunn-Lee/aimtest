@@ -1,12 +1,12 @@
 // Framer Motion 변수 프리셋
 
-export const D = {
+const D = {
   base: 0.8,
   out: 0.5,
   fast: 0.3,
 };
 
-export const E = {
+const E = {
   in: [0.19, 1, 0.22, 1] as const,
   out: [0.4, 0, 0.5, 1] as const,
 };

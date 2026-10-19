@@ -3,11 +3,11 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { RenderMapAndBoundsArgs } from '@/components/game/core/renderers/mapRenderer';
 import { CAMERA } from '@/constants/render';
 import type { Target } from '@/types/target';
-import { setCanvasSizeDPR } from '@/utils/canvas';
+import { getDpr, setCanvasSizeDPR } from '@/utils/canvas';
 
-export type Camera = { x: number; y: number };
+type Camera = { x: number; y: number };
 
-export type CanvasRenderServices = {
+type CanvasRenderServices = {
   /** 프레임 시작 처리 */
   clearCanvas: (
     ctx: CanvasRenderingContext2D,
@@ -186,7 +186,7 @@ export const useCanvasRenderLoop = (
     }
 
     // drawSize · 카메라는 CSS px 좌표계
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = getDpr();
     const maxX = (drawSize.width - canvas.width / dpr) * 0.5;
     const maxY = (drawSize.height - canvas.height / dpr) * 0.5;
 

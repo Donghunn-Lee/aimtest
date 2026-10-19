@@ -100,13 +100,13 @@ describe('TargetManager', () => {
 
     // 각 구간의 경계(<=)와 그 직후 값을 함께 본다. y는 고정해 거리 = |dx|가 되게 한다
     it.each([
-      ['d = 0', () => 0, 3],
-      ['d = r/3', (r: number) => r / 3, 3],
-      ['d = r/3 초과', (r: number) => (r / 3) * 1.01, 2],
-      ['d = r/1.5', (r: number) => r / 1.5, 2],
-      ['d = r/1.5 초과', (r: number) => (r / 1.5) * 1.01, 1],
-      ['d = r', (r: number) => r, 1],
-    ])('%s → %i점', (_label, distanceOf, expected) => {
+      ['d = 0', 3, () => 0],
+      ['d = r/3', 3, (r: number) => r / 3],
+      ['d = r/3 초과', 2, (r: number) => (r / 3) * 1.01],
+      ['d = r/1.5', 2, (r: number) => r / 1.5],
+      ['d = r/1.5 초과', 1, (r: number) => (r / 1.5) * 1.01],
+      ['d = r', 1, (r: number) => r],
+    ])('%s → %i점', (_label, expected, distanceOf) => {
       const { manager, target, radius } = createCenteredTarget();
 
       const hit = manager.checkHit(target.x + distanceOf(radius), target.y);
