@@ -1,9 +1,9 @@
-export function getDpr(): number {
+export function getDPR(): number {
   return window.devicePixelRatio || 1;
 }
 
 export function setCanvasSizeDPR(canvas: HTMLCanvasElement) {
-  const dpr = getDpr();
+  const dpr = getDPR();
   const { clientWidth, clientHeight } = canvas;
   canvas.width = Math.floor(clientWidth * dpr);
   canvas.height = Math.floor(clientHeight * dpr);
@@ -18,7 +18,7 @@ export function clearCanvas(
   // 항상 아이덴티티(또는 DPR만 적용된) 상태에서 전체 클리어
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const dpr = getDpr();
+  const dpr = getDPR();
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 
@@ -30,7 +30,7 @@ export function applyCameraTransform(
   // 필수: 루프 한 곳만 변환을 관리
   ctx.save();
   // 화면 중심 기준으로 카메라 이동
-  const dpr = getDpr();
+  const dpr = getDPR();
   ctx.translate(canvas.width / (2 * dpr), canvas.height / (2 * dpr));
   ctx.translate(position.x, position.y);
 }

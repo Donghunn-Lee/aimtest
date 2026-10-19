@@ -7,7 +7,7 @@ import {
 } from 'react';
 
 import type { LoadingStatus } from '@/types/image';
-import { getDpr } from '@/utils/canvas';
+import { getDPR } from '@/utils/canvas';
 import { calculateAspectFit } from '@/utils/image';
 
 /**
@@ -78,7 +78,7 @@ export const useImageLoader = (
     if (!canvas) return;
 
     // 그리기는 setTransform(dpr) 아래 CSS px 좌표계라 맵 크기도 CSS px로 맞춘다
-    const dpr = getDpr();
+    const dpr = getDPR();
     calculateAspectFit(
       imgRef.current,
       canvas.height / dpr,

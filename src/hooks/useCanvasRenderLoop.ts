@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { RenderMapAndBoundsArgs } from '@/components/game/core/renderers/mapRenderer';
 import { CAMERA } from '@/constants/render';
 import type { Target } from '@/types/target';
-import { getDpr, setCanvasSizeDPR } from '@/utils/canvas';
+import { getDPR, setCanvasSizeDPR } from '@/utils/canvas';
 
 type Camera = { x: number; y: number };
 
@@ -186,7 +186,7 @@ export const useCanvasRenderLoop = (
     }
 
     // drawSize · 카메라는 CSS px 좌표계
-    const dpr = getDpr();
+    const dpr = getDPR();
     const maxX = (drawSize.width - canvas.width / dpr) * 0.5;
     const maxY = (drawSize.height - canvas.height / dpr) * 0.5;
 
