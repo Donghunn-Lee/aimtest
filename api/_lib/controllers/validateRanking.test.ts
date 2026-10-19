@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { isNonNegativeInteger, validateRanking } from './validateRanking';
+import { isValidScore, validateRanking } from './validateRanking';
 
 describe('validateRanking', () => {
   const valid = {
@@ -61,6 +61,23 @@ describe('validateRanking', () => {
     expect(validateRanking({ ...valid, score: 0 }).ok).toBe(true);
   });
 
+  // INTEGER 상한의 등호 경계. play_time을 키워 비율 검사가 먼저 걸리지 않게 한다
+  it('score 2147483647 · play_time 1e9 → ok', () => {
+    expect(
+      validateRanking({ ...valid, score: 2_147_483_647, play_time: 1e9 }).ok
+    ).toBe(true);
+  });
+
+  // 비율 검사 메시지에도 'score'가 들어 있어 상한 값으로 실패 원인을 가른다
+  it('score 2147483648 · play_time 1e9 → 실패', () => {
+    expect(
+      validateRanking({ ...valid, score: 2_147_483_648, play_time: 1e9 })
+    ).toMatchObject({
+      ok: false,
+      error: expect.stringContaining('2147483647'),
+    });
+  });
+
   // Infinity는 number · 0 이상이라 isFinite 검사만 걸러낸다
   it.each([
     ['음수', -1],
@@ -99,13 +116,14 @@ describe('validateRanking', () => {
   });
 });
 
-describe('isNonNegativeInteger', () => {
-  it.each([3, 0])('%o → true', (value) => {
-    expect(isNonNegativeInteger(value)).toBe(true);
+describe('isValidScore', () => {
+  // 0과 2147483647은 허용 구간의 양 끝
+  it.each([3, 0, 2_147_483_647])('%o → true', (value) => {
+    expect(isValidScore(value)).toBe(true);
   });
 
-  // '3'은 숫자로 변환하면 통과하는 값이라 타입 검사를 가른다
-  it.each([-1, 1.5, NaN, '3'])('%o → false', (value) => {
-    expect(isNonNegativeInteger(value)).toBe(false);
+  // '3'은 숫자로 변환하면 통과하는 값이라 타입 검사를 가른다. 2147483648은 상한 바로 위
+  it.each([-1, 1.5, NaN, '3', 2_147_483_648])('%o → false', (value) => {
+    expect(isValidScore(value)).toBe(false);
   });
 });

@@ -1,7 +1,11 @@
 import type { Request, Response } from 'express';
 
 import { sql } from '../database/db';
-import { isNonNegativeInteger, validateRanking } from './validateRanking';
+import {
+  isValidScore,
+  SCORE_RANGE_ERROR,
+  validateRanking,
+} from './validateRanking';
 
 // 서버 상태 및 DB 연결 확인 (Health Check)
 export const checkHealth = async (_req: Request, res: Response) => {
@@ -72,8 +76,8 @@ export const getUserRankings = async (req: Request, res: Response) => {
 // 특정 점수의 순위 조회
 export const getScoreRank = async (req: Request, res: Response) => {
   const score = Number(req.params.score);
-  if (!isNonNegativeInteger(score)) {
-    res.status(400).json({ error: 'score must be a non-negative integer' });
+  if (!isValidScore(score)) {
+    res.status(400).json({ error: SCORE_RANGE_ERROR });
     return;
   }
 

@@ -8,8 +8,16 @@ interface RankingInput {
 type ValidationResult =
   { ok: true; value: RankingInput } | { ok: false; error: string };
 
-export const isNonNegativeInteger = (value: unknown): value is number =>
-  typeof value === 'number' && Number.isInteger(value) && value >= 0;
+// DB 컬럼 범위 상한 — rankings.score가 INTEGER라 넘으면 저장 · 비교가 범위 오류(500)가 된다
+const INT4_MAX = 2_147_483_647;
+
+export const SCORE_RANGE_ERROR = `score must be an integer from 0 to ${INT4_MAX}`;
+
+export const isValidScore = (value: unknown): value is number =>
+  typeof value === 'number' &&
+  Number.isInteger(value) &&
+  value >= 0 &&
+  value <= INT4_MAX;
 
 export const validateRanking = (body: unknown): ValidationResult => {
   if (typeof body !== 'object' || body === null || Array.isArray(body)) {
@@ -29,8 +37,8 @@ export const validateRanking = (body: unknown): ValidationResult => {
     };
   }
 
-  if (!isNonNegativeInteger(score)) {
-    return { ok: false, error: 'score must be a non-negative integer' };
+  if (!isValidScore(score)) {
+    return { ok: false, error: SCORE_RANGE_ERROR };
   }
 
   if (
@@ -53,7 +61,8 @@ export const validateRanking = (body: unknown): ValidationResult => {
     return { ok: false, error: 'accuracy must be a number from 0 to 100' };
   }
 
-  // 최소 스폰 간격 330ms × 타겟당 최대 3점 → 이론 최대 ≈ 9.1점/s. 제한 시간이 없어 상수 상한은 둘 수 없다
+  // 게임 규칙상 상한 — 최소 스폰 간격 330ms × 타겟당 최대 3점 → 이론 최대 ≈ 9.1점/s.
+  // 제한 시간이 없는 서바이벌이라 최대 점수를 상수로 둘 수 없어 play_time에 비례시킨다
   if (score > play_time * 10) {
     return { ok: false, error: 'score must not exceed play_time * 10' };
   }
