@@ -11,7 +11,7 @@ export interface UseFullscreenOptions {
 /**
  * 전체화면 모드 제어
  * - fullscreen 모드에서 컨테이너 클릭 시 진입 요청
- * - fullscreenchange 기반으로 종료 감지 후 onExit 호출
+ * - fullscreenchange 기반으로 종료 감지 후 onGameModeChange('windowed') 호출
  * - 브라우저/권한 정책으로 실패할 수 있어 실패는 무시한다
  */
 export const useFullscreen = (options: UseFullscreenOptions) => {
