@@ -9,7 +9,6 @@ export interface GameState {
   accuracy: number;
   hitCount: number;
   totalClick: number;
-  mouseSensitivity: number;
 
   /** 타겟 과부하 시 패배 카운트다운 시작 시각(ms) */
   graceStartAt: number | null;
@@ -23,7 +22,6 @@ export interface GameActions {
   handleHit: () => void;
   handleClick: () => void;
   updatePlayTime: () => void;
-  setMouseSensitivity: (sensitivity: number) => void;
   triggerGraceTimer: () => void;
   cancelGraceTimer: () => void;
 }
@@ -40,10 +38,8 @@ export const useGame = (): [GameState, GameActions] => {
   const [score, setScore] = useState(0);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
-  const [accuracy, setAccuracy] = useState(0);
   const [hitCount, setHitCount] = useState(0);
   const [totalClick, setTotalClick] = useState(0);
-  const [mouseSensitivity, setMouseSensitivity] = useState(1);
   const [graceStartAt, setGraceStartAt] = useState<number | null>(null);
 
   const endTimeoutRef = useRef<number | null>(null);
@@ -55,14 +51,6 @@ export const useGame = (): [GameState, GameActions] => {
     }
   }, []);
 
-  useEffect(() => {
-    if (totalClick > 0) {
-      setAccuracy((hitCount / totalClick) * 100);
-    } else {
-      setAccuracy(0);
-    }
-  }, [hitCount, totalClick]);
-
   const startGame = useCallback(() => {
     clearEndTimeout();
     setGraceStartAt(null);
@@ -71,7 +59,6 @@ export const useGame = (): [GameState, GameActions] => {
     setIsGameOver(false);
     setStartTime(Date.now());
     setElapsedTime(0);
-    setAccuracy(0);
     setHitCount(0);
     setTotalClick(0);
     setScore(0);
@@ -100,7 +87,6 @@ export const useGame = (): [GameState, GameActions] => {
     setIsGameOver(false);
     setStartTime(null);
     setElapsedTime(0);
-    setAccuracy(0);
     setHitCount(0);
     setTotalClick(0);
     setScore(0);
@@ -147,6 +133,8 @@ export const useGame = (): [GameState, GameActions] => {
     };
   }, [clearEndTimeout]);
 
+  const accuracy = totalClick > 0 ? (hitCount / totalClick) * 100 : 0;
+
   const gameState: GameState = {
     isGameStarted,
     isGameOver,
@@ -156,7 +144,6 @@ export const useGame = (): [GameState, GameActions] => {
     accuracy,
     hitCount,
     totalClick,
-    mouseSensitivity,
     graceStartAt,
   };
 
@@ -170,7 +157,6 @@ export const useGame = (): [GameState, GameActions] => {
       handleHit,
       handleClick,
       updatePlayTime,
-      setMouseSensitivity,
       triggerGraceTimer,
       cancelGraceTimer,
     }),
@@ -182,7 +168,6 @@ export const useGame = (): [GameState, GameActions] => {
       handleHit,
       handleClick,
       updatePlayTime,
-      setMouseSensitivity,
       triggerGraceTimer,
       cancelGraceTimer,
     ]
