@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { GAMEPLAY } from '@/constants/game';
+
 export interface GameState {
   isGameStarted: boolean;
   isGameOver: boolean;
@@ -108,7 +110,11 @@ export const useGame = (): [GameState, GameActions] => {
   const updatePlayTime = useCallback(() => {
     if (startTime !== null && isGameStarted && !isGameOver) {
       const elapsed = (Date.now() - startTime) / 1000;
-      setElapsedTime(elapsed);
+      // HUD는 정수 초만 보여주므로 같은 초면 이전 값을 돌려줘 리렌더를 건너뛴다.
+      // 정수로 버리지 않는 이유: 종료 직후 남은 틱이 endGame의 최종 시간을 덮을 수 있다
+      setElapsedTime((prev) =>
+        Math.floor(prev) === Math.floor(elapsed) ? prev : elapsed
+      );
     }
   }, [startTime, isGameStarted, isGameOver]);
 
@@ -119,7 +125,7 @@ export const useGame = (): [GameState, GameActions] => {
     endTimeoutRef.current = window.setTimeout(() => {
       endGame();
       endTimeoutRef.current = null;
-    }, 3000);
+    }, GAMEPLAY.GRACE_DURATION_MS);
   }, [graceStartAt, isGameStarted, isGameOver, endGame]);
 
   const cancelGraceTimer = useCallback(() => {

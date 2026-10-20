@@ -6,6 +6,7 @@ export const UI = {
 
 export const GAMEPLAY = {
   GRACE_TARGET_THRESHOLD: 10,
+  GRACE_DURATION_MS: 3000,
   ELAPSED_TICK_MS: 100,
 } as const;
 

@@ -16,6 +16,7 @@ import { GameGuide } from '@/components/game/ui/GameGuide';
 import { GameStatus } from '@/components/game/ui/GameStatus';
 import { LoadingOverlay } from '@/components/game/ui/LoadingOverlay';
 import { ASSET, INPUT, UI } from '@/constants/game';
+import { CAMERA } from '@/constants/render';
 import { TARGET_DEFAULT } from '@/constants/target';
 import { useBorderFade } from '@/hooks/useBorderFade';
 import { useCanvasRenderLoop } from '@/hooks/useCanvasRenderLoop';
@@ -183,6 +184,8 @@ export const GameWorld = ({
 
   // 게임 시작: 타겟 매니저 초기화 + 도메인 준비 + 포인터락 요청
   const handleGameStart = () => {
+    // 복귀 애니메이션 도중 메뉴로 나가면 카메라가 중간 위치에 남는다
+    loop.setCamera({ ...CAMERA.INITIAL });
     gameActions.startGame();
 
     targetManagerActions.init(

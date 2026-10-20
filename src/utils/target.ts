@@ -1,4 +1,5 @@
 import { CANVAS_COLORS } from '@/constants/canvas';
+import { GAMEPLAY } from '@/constants/game';
 import { SPAWN } from '@/constants/target';
 
 // 종료 유예 시간 타겟 색상 결정
@@ -10,10 +11,13 @@ export function decideTargetColor(
   if (isGameOver) return CANVAS_COLORS.target.expired;
 
   if (graceStartAt !== null) {
-    const elapsed = (now - graceStartAt) / 1000;
-    if (elapsed < 1) return CANVAS_COLORS.target.warning; // 0~1s
-    if (elapsed < 2) return CANVAS_COLORS.target.danger; // 1~2s
-    return CANVAS_COLORS.target.critical; // 2~3s
+    // 유예 시간을 3등분해 warning → danger → critical 순으로 올린다
+    const elapsed = now - graceStartAt;
+    if (elapsed < GAMEPLAY.GRACE_DURATION_MS / 3)
+      return CANVAS_COLORS.target.warning;
+    if (elapsed < (GAMEPLAY.GRACE_DURATION_MS * 2) / 3)
+      return CANVAS_COLORS.target.danger;
+    return CANVAS_COLORS.target.critical;
   }
 
   return CANVAS_COLORS.target.base; // 기본
