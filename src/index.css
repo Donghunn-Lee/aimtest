@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  font-family: 'Redex', 'Inter', sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   height: 100%;
   width: 100%;
   background: #1a1a1a;

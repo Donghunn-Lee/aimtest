@@ -49,7 +49,7 @@ export const addRanking = async (req: Request, res: Response) => {
 export const getRankings = async (_req: Request, res: Response) => {
   try {
     const rankings =
-      await sql`SELECT user_name, score, accuracy, play_time, created_at FROM rankings ORDER BY score DESC LIMIT 100`;
+      await sql`SELECT id, user_name, score, accuracy, play_time, created_at FROM rankings ORDER BY score DESC LIMIT 100`;
 
     res.json(rankings);
   } catch (error) {
@@ -64,7 +64,7 @@ export const getUserRankings = async (req: Request, res: Response) => {
     const { userName } = req.params;
 
     const rankings =
-      await sql`SELECT user_name, score, accuracy, play_time, created_at FROM rankings WHERE user_name = ${userName} ORDER BY score DESC`;
+      await sql`SELECT id, user_name, score, accuracy, play_time, created_at FROM rankings WHERE user_name = ${userName} ORDER BY score DESC`;
 
     res.json(rankings);
   } catch (error) {

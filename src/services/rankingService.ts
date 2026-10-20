@@ -62,5 +62,5 @@ export function formatPlayTime(seconds: number): string {
 
   return `${minutes.toString().padStart(2, '0')}:${remainingSeconds
     .toString()
-    .padStart(2, '0')}:${remainingCentiseconds.toString().padStart(2, '0')}`;
+    .padStart(2, '0')}.${remainingCentiseconds.toString().padStart(2, '0')}`;
 }

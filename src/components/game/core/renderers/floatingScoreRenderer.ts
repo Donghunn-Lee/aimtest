@@ -85,7 +85,7 @@ export function drawFloatingScores(
     ctx.scale(scale, scale);
     ctx.globalAlpha = alpha;
 
-    ctx.font = `${fontPx}px Pretendard, system-ui, sans-serif`;
+    ctx.font = `${fontPx}px 'Noto Sans KR', system-ui, sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
