@@ -263,7 +263,7 @@ README를 코드와 대조하던 중 인게임 TIME이 0에 고정된 것을 확
 - 점수 상한 `score ≤ play_time × 10`은 개연성 검사이지 조작 방지가 아닙니다. `play_time`도 클라이언트가 보내므로 함께 부풀리면 통과합니다. 막으려면 서버가 시작 시각을 발급해야 하고, 익명 리더보드의 인증 · rate limit과 함께 범위 밖입니다.
 - 컴포넌트 · 훅 테스트가 없습니다. 훅이 반환하는 객체의 참조 동일성은 `renderHook` 재렌더로 검증할 수 있는데 아직 없고, 재정비 중의 검증은 Playwright로 렌더 횟수를 재는 방식이었습니다(스크립트는 저장소 밖). 루프 · Pointer Lock은 Canvas 모킹이 필요해 보류했습니다.
 - 접근성 — 조준은 마우스 전용이라 대체 수단이 없습니다. 메뉴 · 랭킹의 키보드 탐색과 라벨은 점검하지 않았습니다.
-- `react-hooks`의 React Compiler 규칙을 켜면 11건입니다 — rAF 콜백이 자기 자신을 재예약하는 패턴 충돌 2 · 로딩 상태를 effect에서 리셋하는 곳 4 · 렌더 중 `ref.current`를 읽어 `useImageLoader`에 넘기는 곳 5. 마지막 5건은 state/ref 경계 규칙의 예외이고, 고치려면 로더 구조를 바꿔야 합니다.
+- `react-hooks`의 React Compiler 규칙을 켜면 11건입니다 — rAF 콜백이 자기 자신을 재예약하는 패턴 충돌 2 · 로딩 상태를 effect에서 리셋하는 곳 4 · 렌더 중 `ref.current`를 읽는 곳 5(`GameWorld`가 `useImageLoader`에 넘기는 3 · 로더가 반환하는 2). 마지막 5건은 state/ref 경계 규칙의 예외이고, 고치려면 로더 구조를 바꿔야 합니다.
 - `npm audit` 7건은 전부 Tailwind 3.4 경유 devDependency입니다. 실행 번들과 무관하고 v4 이전 전까지 유지합니다.
 
 ## 다시 한다면
