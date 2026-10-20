@@ -173,7 +173,7 @@ README를 코드와 대조하던 중 결과 화면에서 루프가 되살아나�
 
 </details>
 
-<sub>코드 · [`useCanvasRenderLoop.ts` frame](https://github.com/Donghunn-Lee/aimtest/blob/97d427b/src/hooks/useCanvasRenderLoop.ts#L201-L229) · [`returnToOriginAndStop`](https://github.com/Donghunn-Lee/aimtest/blob/97d427b/src/hooks/useCanvasRenderLoop.ts#L281-L304) · [`GameWorld.tsx` services](https://github.com/Donghunn-Lee/aimtest/blob/97d427b/src/components/game/core/GameWorld.tsx#L105-L126)</sub><br>
+<sub>코드 · [`useCanvasRenderLoop.ts` frame](https://github.com/Donghunn-Lee/aimtest/blob/97d427b/src/hooks/useCanvasRenderLoop.ts#L154-L229) · [`returnToOriginAndStop`](https://github.com/Donghunn-Lee/aimtest/blob/97d427b/src/hooks/useCanvasRenderLoop.ts#L281-L304) · [`GameWorld.tsx` services](https://github.com/Donghunn-Lee/aimtest/blob/97d427b/src/components/game/core/GameWorld.tsx#L105-L126)</sub><br>
 <sub>글 · [#10 렌더 루프 통합](https://velog.io/@dh82680/AimTest-10-렌더-루프-통합-시간축-합치기) · [#24 결과 창에서 살아나던 루프](https://velog.io/@dh82680/AimTest-24-마우스-점프와-결과-창에서-살아나던-루프)</sub>
 
 ### 2. 스포너를 rAF 누적시간으로
