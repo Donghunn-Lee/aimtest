@@ -117,7 +117,7 @@ export const App = () => {
                   transition={{ delay: 0.2 }}
                   className="mb-2 inline-block rounded-full border border-[#00ff00]/30 bg-[#00ff00]/10 px-3 py-1 text-xs font-bold tracking-widest text-[#00ff00]"
                 >
-                  BETA v2.0
+                  v2.0
                 </motion.div>
                 <h1 className="mb-4 text-5xl font-black tracking-tighter text-white md:text-7xl">
                   FPS{' '}
