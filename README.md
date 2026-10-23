@@ -39,8 +39,8 @@ PC · 마우스 전용입니다. 모바일에서는 안내 화면만 나옵니�
     </tr>
     <tr>
       <td nowrap>구조</td>
-      <td>587줄 <code>GameWorld</code>를 훅 11개로 분리. 허브는 조립만 하고, 훅이 반환하는 객체는 참조가 안정적</td>
-      <td nowrap><a href="#3-gameworld-훅-분리-6단계">3. GameWorld 훅 분리 6단계</a></td>
+      <td>587줄 <code>GameWorld</code>를 훅으로 분리. 허브는 조립만 하고, 훅이 반환하는 객체는 참조가 안정적</td>
+      <td nowrap><a href="#3-gameworld-훅-분리">3. GameWorld 훅 분리</a></td>
     </tr>
     <tr>
       <td nowrap>경계</td>
@@ -93,7 +93,7 @@ PC · 마우스 전용입니다. 모바일에서는 안내 화면만 나옵니�
 
 React 위에서 프레임 단위 제어를 어떻게 다루는지 보려고 만들었습니다. 입력 빈도와 렌더 빈도가 다르고, 매 프레임 바뀌는 값을 state로 돌리면 리렌더가 프레임을 따라갑니다. 어디까지를 React 밖(ref · 클래스 인스턴스)으로 빼고 무엇만 React에 남길지가 주제입니다. 카메라는 3D가 아니라 2D 맵 이미지 패닝이고, 랭킹은 익명입니다. 다음 프로젝트 [SlateKR](https://github.com/Donghunn-Lee/slate-kr)은 조회형 서비스 · 캐싱 · SEO 쪽을 다룹니다.
 
-2025년 3월에 시작해 4 ~ 5월에 코어를 만들고 EC2 · Docker로 배포했습니다. 10월부터 이듬해 1월까지 렌더 루프 통합과 훅 분리를 했습니다. 2026년 10월에 프리티어 만료로 EC2를 내리며 Vercel Functions + Neon으로 이전했고, 랭킹 데이터는 일부만 옮겼습니다. 이어서 README를 코드와 대조하는 재정비를 6세션으로 진행했습니다. CRA → Vite 8 전환, 테스트, CI, API 입력 검증을 넣고, 대조 중 발견한 결함을 고쳤습니다. 고친 내용은 [재정비에서 고친 것](#재정비에서-고친-것)에 모았습니다.
+2025년 3월에 시작해 EC2 · Docker로 배포했고, 2026년 10월에 프리티어 만료로 Vercel Functions + Neon으로 이전했습니다. 이어서 README를 코드와 대조하는 재정비에서 CRA → Vite 8 전환 · 테스트 · CI · API 입력 검증을 넣었고, 대조 중 발견한 결함은 [재정비에서 고친 것](#재정비에서-고친-것)에 모았습니다.
 
 <sub>글 · [#20 EC2 + MySQL에서 Vercel + Neon으로](https://velog.io/@dh82680/AimTest-20-EC2-MySQL에서-Vercel-Neon으로) · [#21 재정비 시작 — README를 코드와 대조하기](https://velog.io/@dh82680/AimTest-21-재정비-시작-README를-코드와-대조하기)</sub>
 
@@ -171,13 +171,11 @@ api/
 
 ### 1. 캔버스 렌더 루프 단일화
 
-초기에는 렌더 루프와 별개로 타겟 렌더러 컴포넌트가 자체 rAF로 같은 캔버스 컨텍스트에 그렸습니다. 두 루프가 `save` · `restore` · `translate`를 서로 다른 시점에 호출해 컨텍스트의 상태 스택이 꼬였습니다. 타겟 색이 바뀔 때마다 안티앨리어싱이 깨져 테두리가 점점 거칠어지는 증상으로 드러났습니다. [`5fdd31f`](https://github.com/Donghunn-Lee/aimtest/commit/5fdd31f)에서 타겟 렌더러의 루프를 지우고, 캔버스에 그리는 rAF를 `useCanvasRenderLoop` 하나로 모았습니다.
+초기에는 렌더 루프와 별개로 타겟 렌더러 컴포넌트가 자체 rAF로 같은 캔버스 컨텍스트에 그렸습니다. 두 루프가 `save` · `restore` · `translate`를 서로 다른 시점에 호출해 컨텍스트의 상태 스택이 꼬였습니다. 타겟 색이 바뀔 때마다 안티앨리어싱이 깨져 테두리가 점점 거칠어지는 증상으로 드러났습니다. [`5fdd31f`](https://github.com/Donghunn-Lee/aimtest/commit/5fdd31f)에서 타겟 렌더러의 루프를 지우고, 캔버스에 그리는 rAF를 하나로 모았습니다. 그 루프가 지금의 `useCanvasRenderLoop`입니다.
 
 - 그리기는 `renderers/`의 순수 함수가 합니다. 루프는 `GameWorld`가 `useMemo`로 묶은 `services`를 주입받아 clear → 카메라 변환 → map → targets → floatingScore → restore 순으로 호출합니다.
 - `start` · `stop`은 멱등입니다. 종료는 `returnToOriginAndStop`이 복귀 애니메이션의 마지막 프레임 한 장을 그리고 멈춥니다. 원점이면 0ms입니다.
 - 루프 재시작은 결과 화면을 벗어나는 전이(`isGameOver` true → false)에서만 일어납니다. 메뉴 → 게임 전이에서는 루프가 이미 돌고 있습니다.
-
-재정비에서 결과 화면의 루프가 되살아나는 경로를 둘 찾아 고쳤습니다. 자세한 내용은 [재정비에서 고친 것](#재정비에서-고친-것)에 있습니다.
 
 <details>
 <summary>결과 화면에서 루프를 멈춰 두는 이유</summary>
@@ -186,7 +184,7 @@ api/
 
 </details>
 
-<sub>코드 · [`useCanvasRenderLoop.ts` frame](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/hooks/useCanvasRenderLoop.ts#L154-L229) · [`returnToOriginAndStop`](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/hooks/useCanvasRenderLoop.ts#L281-L304) · [`GameWorld.tsx` services](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/components/game/core/GameWorld.tsx#L106-L127)</sub><br>
+<sub>코드 · [`useCanvasRenderLoop.ts` frame](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/hooks/useCanvasRenderLoop.ts#L141-L246) · [`returnToOriginAndStop`](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/hooks/useCanvasRenderLoop.ts#L281-L304) · [`GameWorld.tsx` services](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/components/game/core/GameWorld.tsx#L106-L127)</sub><br>
 <sub>글 · [#10 렌더 루프 통합](https://velog.io/@dh82680/AimTest-10-렌더-루프-통합-시간축-합치기) · [#24 결과 창에서 살아나던 루프](https://velog.io/@dh82680/AimTest-24-마우스-점프와-결과-창에서-살아나던-루프)</sub>
 
 ### 2. 스포너를 rAF 누적시간으로
@@ -195,7 +193,7 @@ api/
 
 - 탭을 떠났다 돌아오면 dt가 수 초로 커져 스폰이 몰립니다. 그래서 dt를 100ms로 클램프합니다.
 - 스폰 성공 · 실패(겹침 제약 100회 시도)는 `TargetManager`가 판정합니다. 성공했을 때만 `setTargetCount`를 부릅니다.
-- 서버의 점수 검사 `score ≤ play_time × 10`은 이 최소 간격에서 나옵니다(330ms × 타겟당 3점 ≈ 9.1점/s). 개연성 검사이지 조작 방지는 아닙니다(알려진 한계). 상수를 줄이면 서버 검증도 같이 봐야 해서 상수 옆에 적어 두었습니다.
+- 서버의 점수 검사 `score ≤ play_time × 10`은 이 최소 간격에서 나옵니다(330ms × 타겟당 3점 ≈ 9.1점/s). 상수를 줄이면 서버 검증도 같이 봐야 합니다.
 
 <details>
 <summary>나머지 타이머를 통합하지 않은 이유</summary>
@@ -207,14 +205,12 @@ api/
 <sub>코드 · [`useTargetManager.ts` spawnerTick](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/hooks/useTargetManager.ts#L99-L128) · [`constants/target.ts` SPAWN](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/constants/target.ts#L7-L13) · [`TargetManager.ts` createTarget](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/components/game/core/target/TargetManager.ts#L43-L67)</sub><br>
 <sub>글 · [#08 타겟 생성 로직 리팩토링 — 누적 프레임 루프](https://velog.io/@dh82680/AimTest-08-타겟-생성-로직-리펙토링-누적-프레임-루프)</sub>
 
-### 3. GameWorld 훅 분리 6단계
+### 3. GameWorld 훅 분리
 
-`GameWorld`가 587줄에 렌더 · 리사이즈 · 포인터락 · 입력 · 전체화면 · 런타임 effect를 전부 들고 있었습니다. 책임을 하나씩 훅으로 빼며 커밋을 나눴습니다. 587 → 531(렌더 루프) → 490(리사이즈) → 459(포인터락) → 395(입력) → 350(전체화면) → 312(런타임)로 줄었습니다. 지금은 JSDoc · 카메라 복귀 · 재정비 수정이 더해져 361줄입니다. 허브는 훅을 조립하고 캔버스에 이벤트를 묶는 일만 합니다.
+`GameWorld`가 587줄에 렌더 · 리사이즈 · 포인터락 · 입력 · 테두리 페이드 · 전체화면 · 런타임 effect를 전부 들고 있었습니다. 책임을 하나씩 훅으로 빼며 커밋을 나눠 312줄까지 줄였고, 지금은 JSDoc · 카메라 복귀 · 재정비 수정이 더해져 361줄입니다. 허브는 훅을 조립하고 캔버스에 이벤트를 묶는 일만 합니다.
 
 - 훅이 반환하는 객체와 콜백은 참조가 안정적이어야 합니다. `useGame`의 actions, `useCanvasRenderLoop`의 반환 객체, `useTargetManager`의 state / actions는 `useMemo`이고, 다른 훅의 effect deps에 들어갑니다.
 - `useGameRuntime`이 경과시간 틱 · 스포너 · BGM · 페이드 · 유예 트리거 effect를 묶습니다. `GameWorld`에는 루프 시작 · 종료 · 레이아웃 effect만 남습니다.
-
-이 기준은 분리 당시에는 없었습니다. 그 대가로 인게임 TIME이 멈춰 있던 결함을 재정비에서 찾았습니다. 경위는 [재정비에서 고친 것](#재정비에서-고친-것)과 [다시 한다면](#다시-한다면)에 있습니다.
 
 <details>
 <summary>전역 상태를 두지 않은 이유</summary>
@@ -232,7 +228,7 @@ api/
 
 - 입력: `mousemove`마다 카메라를 옮기지 않습니다. 감도를 곱한 델타를 `pendingDeltaRef`에 누적하고, 다음 프레임에서 한 번에 소비하고 클램프합니다.
 - 타겟: 배열은 `TargetManager` 안에만 있습니다. 렌더 루프는 `getTargets()`로 매 프레임 직접 읽고(복사 없음), React state는 유예 판정용 `targetCount` 하나뿐입니다. 스폰 성공 · 히트 · clear · init 시점에만 갱신합니다.
-- Pointer Lock: `requestPointerLock({ unadjustedMovement: true })`를 먼저 시도하고, 거부되면 옵션 없이 다시 요청합니다. Chrome(Windows)의 커서 재중앙화와 OS 가속이 겹쳐 생기던 점프가 왕복당 6.5회에서 0이 됐습니다.
+- Pointer Lock: `requestPointerLock({ unadjustedMovement: true })`를 먼저 시도하고, 거부되면 옵션 없이 다시 요청합니다. Chrome(Windows)의 커서 재중앙화와 OS 가속이 겹쳐 생기던 점프가, 실제 Chrome에 OS 입력을 주입한 12왕복 측정에서 300px 이상 스파이크 기준 왕복당 6.5회 → 0이 됐습니다.
 - 좌표계는 CSS px로 통일했습니다. 캔버스 buffer만 DPR배이고, 카메라 · 클램프 · 타겟 영역은 전부 CSS px입니다.
 
 <details>
@@ -242,15 +238,12 @@ api/
 
 </details>
 
-<sub>코드 · [`useInputController.ts` onMouseMove](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/hooks/useInputController.ts#L74-L82) · [`useCanvasRenderLoop.ts` nudgeCamera](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/hooks/useCanvasRenderLoop.ts#L267-L272) · [델타 소비](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/hooks/useCanvasRenderLoop.ts#L156-L163) · [`usePointerLock.ts` request](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/hooks/usePointerLock.ts#L89-L112) · [`TargetManager.ts` getTargets](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/components/game/core/target/TargetManager.ts#L140-L143)</sub><br>
+<sub>코드 · [`useInputController.ts` onMouseMove](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/hooks/useInputController.ts#L74-L82) · [`useCanvasRenderLoop.ts` nudgeCamera](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/hooks/useCanvasRenderLoop.ts#L267-L272) · [델타 소비](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/hooks/useCanvasRenderLoop.ts#L157-L163) · [`usePointerLock.ts` request](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/hooks/usePointerLock.ts#L89-L112) · [`TargetManager.ts` getTargets](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/components/game/core/target/TargetManager.ts#L140-L143)</sub><br>
 <sub>글 · [#05 타겟 매니저 클래스 설계](https://velog.io/@dh82680/AimTest-05-타겟-매니저-클래스-설계) · [#23 타겟 목록을 state로 돌리던 경로](https://velog.io/@dh82680/AimTest-23-멈춰-있던-TIME과-타겟-목록을-state로-돌리던-경로) · [#24 마우스 점프](https://velog.io/@dh82680/AimTest-24-마우스-점프와-결과-창에서-살아나던-루프)</sub>
 
 ### 재정비에서 고친 것
 
-재정비에서 찾은 결함과 조치입니다. 렌더 횟수는 Playwright headless로 잰 값이고, 12초 플레이 기준입니다.
-
-<details>
-<summary>결함 6건과 조치</summary>
+재정비에서 찾은 결함 6건과 조치입니다. 렌더 횟수는 Playwright headless로 잰 값이고, 12초 플레이 기준입니다.
 
 - **인게임 TIME이 0에 고정.** `useGame`의 actions가 매 렌더 새 객체라 경과시간 `setInterval(…, 100)`이 리렌더마다 재생성됐습니다. 8ms마다 타겟 배열을 state로 복사하던 경로가 리렌더를 그보다 잦게 만들어, 틱이 한 번도 실행되기 전에 재생성됐습니다. actions를 `useMemo`로 묶고, 8ms 복사 경로를 지워 렌더 루프가 `TargetManager`를 직접 읽게 했습니다. `GameWorld` 렌더가 약 670회에서 약 260회가 됐습니다.
 - **결과 화면에서 루프가 되살아남 (1).** 루프가 반환하는 객체가 렌더마다 새로 만들어져, 시작 effect가 리렌더마다 `stop` → `start`를 반복했습니다. 반환 객체를 `useMemo`로 묶었습니다.
@@ -259,13 +252,11 @@ api/
 - **복귀 애니메이션 중 Menu.** 애니메이션 종료 플래그가 새 루프를 멈추거나, 다음 게임이 중간 위치에서 시작했습니다. 플래그가 새 루프에 닿지 않게 하고, 게임 시작 시 카메라를 원점으로 되돌립니다.
 - **맵 로딩 레이스.** 로드 effect가 첫 로드 500ms 안에 재실행되면 "Loading map…"에 고착됐습니다. deps에서 `applyAspectFit`을 빼고, 이미지 ref는 `useLayoutEffect`에서 갱신해 맵이 비는 프레임을 없앴습니다.
 
-</details>
-
 <sub>글 · [#23 멈춰 있던 TIME과 타겟 목록을 state로 돌리던 경로](https://velog.io/@dh82680/AimTest-23-멈춰-있던-TIME과-타겟-목록을-state로-돌리던-경로) · [#24 마우스 점프와 결과 창에서 살아나던 루프](https://velog.io/@dh82680/AimTest-24-마우스-점프와-결과-창에서-살아나던-루프)</sub>
 
 ## 품질
 
-- 커밋 전 로컬에서 `npm run typecheck` · `lint` · `build` · `test -- --run`을 실행합니다. CI(GitHub Actions)가 main push에서 같은 순서로 다시 실행합니다.
+- 커밋 전 로컬에서 `npm run typecheck` · `lint` · `build` · `test -- --run`을 실행합니다. CI(GitHub Actions)가 main push와 PR에서 같은 순서로 다시 실행합니다.
 - TypeScript `strict`(web · api 둘 다) · `any` 0건. named export만 쓰고, default export는 Express 앱 하나입니다.
 - ESLint 10 flat — `consistent-type-imports` · `no-import-type-side-effects` · `simple-import-sort` · `react-hooks` 2규칙 · Prettier(`prettier-plugin-tailwindcss`).
 - 테스트는 순수 함수에 집중합니다. 74건 · 5파일 — 랭킹 입력 검증 32 · `TargetManager` 스폰 · 히트 16 · 유예 색상 · 스폰 간격 12 · 타겟 컨테이너 bounds 9 · 시간 포맷 5.
@@ -273,9 +264,8 @@ api/
 - 랭킹 API 입력 검증 — 4필드 수동 검증, 실패는 `400 { error }`. SQL은 전부 `neon` 태그드 템플릿(파라미터화)입니다.
 - 헬스체크 — 메인 화면 Online / Offline + RETRY, effect에 `AbortController` cleanup.
 - knip — 미사용 export · 타입 · 의존성 0(api 엔트리는 설정 없이 미인식이라 제외). 1회 실행 기준이고 CI에는 없습니다.
-- SEO · PWA 메타, 모바일 접속 시 PC 안내.
 
-<sub>코드 · [`validateRanking.ts`](https://github.com/Donghunn-Lee/aimtest/blob/400697a/api/_lib/controllers/validateRanking.ts#L22-L71) · [`eslint.config.mjs`](https://github.com/Donghunn-Lee/aimtest/blob/400697a/eslint.config.mjs#L28-L45) · [`ci.yml`](https://github.com/Donghunn-Lee/aimtest/blob/400697a/.github/workflows/ci.yml)</sub><br>
+<sub>코드 · [`validateRanking.ts`](https://github.com/Donghunn-Lee/aimtest/blob/400697a/api/_lib/controllers/validateRanking.ts#L22-L71) · [`eslint.config.mjs`](https://github.com/Donghunn-Lee/aimtest/blob/400697a/eslint.config.mjs#L27-L46) · [`ci.yml`](https://github.com/Donghunn-Lee/aimtest/blob/400697a/.github/workflows/ci.yml)</sub><br>
 <sub>글 · [#22 CRA에서 Vite로 — 툴체인 교체와 ESLint · CI](https://velog.io/@dh82680/AimTest-22-CRA에서-Vite로-툴체인-교체와-ESLint-CI) · [#25 랭킹 API 입력 검증과 코드를 닫기 전 점검](https://velog.io/@dh82680/AimTest-25-랭킹-API-입력-검증과-코드를-닫기-전-점검)</sub>
 
 ## 알려진 한계
@@ -283,7 +273,7 @@ api/
 **게임 · 렌더**
 
 - Pointer Lock 첫 요청이 거부되면 게임은 시작된 채로 남고, 캔버스를 다시 클릭해야 잠깁니다. 그 안내가 없습니다. 클릭 제스처에서는 보통 성공하고, 자동화 · 거부 환경에서 재현됩니다.
-- 게임 단계가 `isGameStarted` · `isGameOver` 두 boolean으로 표현됩니다. "복귀 중"이라는 단계는 렌더 루프 안의 ref에만 있습니다. 단계 전환은 effect 실행 순서에 기대고, 설계 결정 1의 루프 재시작 결함이 여기서 나왔습니다.
+- 게임 단계가 `isGameStarted` · `isGameOver` 두 boolean으로 표현됩니다. "복귀 중"이라는 단계는 렌더 루프 안의 ref에만 있습니다. 단계 전환은 effect 실행 순서에 기댑니다.
 - 결과 화면에서 창 크기를 바꾸면 다음 전이까지 캔버스가 비어 있습니다.
 - 볼륨 · 감도가 저장되지 않습니다.
 
@@ -292,15 +282,15 @@ api/
 - 점수 상한 `score ≤ play_time × 10`은 개연성 검사이지 조작 방지가 아닙니다. `play_time`도 클라이언트가 보내므로 함께 부풀리면 통과합니다. 막으려면 서버가 시작 시각을 발급해야 합니다. 익명 리더보드의 인증 · rate limit과 함께 범위 밖입니다.
 - 컴포넌트 · 훅 테스트가 없습니다. 훅이 반환하는 객체의 참조 동일성은 `renderHook` 재렌더로 검증할 수 있는데 아직 없습니다. 재정비 중의 검증은 Playwright로 렌더 횟수를 재는 방식이었고, 스크립트는 저장소 밖입니다. 루프 · Pointer Lock은 Canvas 모킹이 필요해 보류했습니다.
 - 접근성 — 조준은 마우스 전용이라 대체 수단이 없습니다. 메뉴 · 랭킹의 키보드 탐색과 라벨은 점검하지 않았습니다.
-- `react-hooks`의 React Compiler 규칙을 켜면 11건입니다. rAF 콜백이 자기 자신을 재예약하는 패턴 충돌 2, 로딩 상태를 effect에서 리셋하는 곳 4, 렌더 중 `ref.current`를 읽는 곳 5(`GameWorld`가 `useImageLoader`에 넘기는 3 · 로더가 반환하는 2)입니다. 마지막 5건은 state/ref 경계 규칙의 예외이고, 고치려면 로더 구조를 바꿔야 합니다.
+- `react-hooks`의 React Compiler 규칙을 켜면 11건입니다. rAF 콜백이 자기 자신을 재예약하는 패턴 충돌 2, effect 안에서 state를 갱신하는 곳 4, 렌더 중 `ref.current`를 읽는 곳 5입니다. 마지막 5건은 state/ref 경계 규칙의 예외이고, 고치려면 `useImageLoader` 구조를 바꿔야 합니다.
 - `npm audit` 7건은 전부 Tailwind 3.4 경유 devDependency입니다. 실행 번들과 무관하고, v4 이전 전까지 유지합니다.
 
-## 다시 한다면
+## 회고
 
 둘 다 구조를 정할 때 기준에 없던 것이 뒤에서 비용이 된 경우입니다.
 
 - **참조 안정성을 완료 기준에 넣습니다.** 훅 분리는 줄 수로 완료 판정했고, 반환 객체가 effect deps에 들어간다는 점은 기준에 없었습니다. 그 결과가 TIME 고정과, 리렌더마다 `stop` → `start`를 반복하던 루프였습니다. 둘 다 마무리가 아니라 재정비에서 찾았고, 지금도 이를 지키는 테스트는 없습니다. 분리 커밋마다 반환 참조의 동일성을 확인하는 것이 다음 기준입니다. ([#23](https://velog.io/@dh82680/AimTest-23-멈춰-있던-TIME과-타겟-목록을-state로-돌리던-경로) · [#24](https://velog.io/@dh82680/AimTest-24-마우스-점프와-결과-창에서-살아나던-루프))
-- **게임 단계를 상태 하나로 둡니다.** 지금은 두 boolean에 "복귀 중"이 루프 안의 ref로 숨어 있고, 전환은 effect 실행 순서로 조율됩니다. 결과 화면에서 되살아나던 루프와 복귀 중 Menu 전이의 결함이 전부 이 구조에서 나왔습니다. menu → playing → returning → result를 상태 하나로 두고 루프의 `start` · `stop`을 전환 시점에 직접 부르면, effect 순서에 기대는 자리가 사라집니다. ([#24](https://velog.io/@dh82680/AimTest-24-마우스-점프와-결과-창에서-살아나던-루프))
+- **게임 단계는 상태 하나로 뒀어야 했습니다.** 지금은 두 boolean에 "복귀 중"이 루프 안의 ref로 숨어 있고, 전환은 effect 실행 순서로 조율됩니다. 결과 화면에서 되살아나던 루프와 복귀 중 Menu 전이의 결함이 전부 이 구조에서 나왔습니다. menu → playing → returning → result를 상태 하나로 두고 루프의 `start` · `stop`을 전환 시점에 직접 부르면, effect 순서에 기대는 자리가 사라집니다. ([#24](https://velog.io/@dh82680/AimTest-24-마우스-점프와-결과-창에서-살아나던-루프))
 
 <sub>글 · [#18 프로젝트 회고](https://velog.io/@dh82680/AimTest-18-프로젝트-회고-종결-이후-다시-잡은-프로젝트) · [시리즈 25편](https://velog.io/@dh82680/series/Aim-Tester)</sub>
 
