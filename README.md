@@ -283,7 +283,6 @@ api/
 - 컴포넌트 · 훅 테스트가 없습니다. 훅이 반환하는 객체의 참조 동일성은 `renderHook` 재렌더로 검증할 수 있는데 아직 없습니다. 재정비 중의 검증은 Playwright로 렌더 횟수를 재는 방식이었고, 스크립트는 저장소 밖입니다. 루프 · Pointer Lock은 Canvas 모킹이 필요해 보류했습니다.
 - 접근성 — 조준은 마우스 전용이라 대체 수단이 없습니다. 메뉴 · 랭킹의 키보드 탐색과 라벨은 점검하지 않았습니다.
 - `react-hooks`의 React Compiler 규칙을 켜면 11건입니다. rAF 콜백이 자기 자신을 재예약하는 패턴 충돌 2, effect 안에서 state를 갱신하는 곳 4, 렌더 중 `ref.current`를 읽는 곳 5입니다. 마지막 5건은 state/ref 경계 규칙의 예외이고, 고치려면 `useImageLoader` 구조를 바꿔야 합니다.
-- `npm audit` 7건은 전부 Tailwind 3.4 경유 devDependency입니다. 실행 번들과 무관하고, v4 이전 전까지 유지합니다.
 
 ## 회고
 
