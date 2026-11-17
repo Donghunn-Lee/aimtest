@@ -95,7 +95,7 @@ React 위에서 프레임 단위 제어를 어떻게 다루는지 보려고 만�
 
 2025년 3월에 시작해 EC2 · Docker로 배포했고, 2026년 10월에 프리티어 만료로 Vercel Functions + Neon으로 이전했습니다. 이어서 README를 코드와 대조하는 재정비에서 CRA → Vite 8 전환 · 테스트 · CI · API 입력 검증을 넣었고, 대조 중 발견한 결함은 [재정비에서 고친 것](#재정비에서-고친-것)에 모았습니다.
 
-<sub>글 · [#20 EC2 + MySQL에서 Vercel + Neon으로](https://velog.io/@dh82680/AimTest-20-EC2-MySQL에서-Vercel-Neon으로) · [#21 재정비 시작 — README를 코드와 대조하기](https://velog.io/@dh82680/AimTest-21-재정비-시작-README를-코드와-대조하기)</sub>
+<sub>글 · [#20 EC2 + MySQL에서 Vercel + Neon으로](https://donghunn-lee-blog.vercel.app/blog/aimtest/20/) · [#21 재정비 시작 — README를 코드와 대조하기](https://donghunn-lee-blog.vercel.app/blog/aimtest/21/)</sub>
 
 ## 아키텍처
 
@@ -185,7 +185,7 @@ api/
 </details>
 
 <sub>코드 · [`useCanvasRenderLoop.ts` frame](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/hooks/useCanvasRenderLoop.ts#L141-L246) · [`returnToOriginAndStop`](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/hooks/useCanvasRenderLoop.ts#L281-L304) · [`GameWorld.tsx` services](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/components/game/core/GameWorld.tsx#L106-L127)</sub><br>
-<sub>글 · [#10 렌더 루프 통합](https://velog.io/@dh82680/AimTest-10-렌더-루프-통합-시간축-합치기) · [#24 결과 창에서 살아나던 루프](https://velog.io/@dh82680/AimTest-24-마우스-점프와-결과-창에서-살아나던-루프)</sub>
+<sub>글 · [#10 렌더 루프 통합](https://donghunn-lee-blog.vercel.app/blog/aimtest/10/) · [#24 결과 창에서 살아나던 루프](https://donghunn-lee-blog.vercel.app/blog/aimtest/24/)</sub>
 
 ### 2. 스포너를 rAF 누적시간으로
 
@@ -203,7 +203,7 @@ api/
 </details>
 
 <sub>코드 · [`useTargetManager.ts` spawnerTick](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/hooks/useTargetManager.ts#L99-L128) · [`constants/target.ts` SPAWN](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/constants/target.ts#L7-L13) · [`TargetManager.ts` createTarget](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/components/game/core/target/TargetManager.ts#L43-L67)</sub><br>
-<sub>글 · [#08 타겟 생성 로직 리팩토링 — 누적 프레임 루프](https://velog.io/@dh82680/AimTest-08-타겟-생성-로직-리펙토링-누적-프레임-루프)</sub>
+<sub>글 · [#08 타겟 생성 로직 리팩토링 — 누적 프레임 루프](https://donghunn-lee-blog.vercel.app/blog/aimtest/08/)</sub>
 
 ### 3. GameWorld 훅 분리
 
@@ -220,7 +220,7 @@ api/
 </details>
 
 <sub>코드 · [`GameWorld.tsx` 훅 조립](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/components/game/core/GameWorld.tsx#L95-L254) · [`useGame.ts`](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/hooks/useGame.ts) · [`useGameRuntime.ts`](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/hooks/useGameRuntime.ts)</sub><br>
-<sub>글 · [#14 600줄의 God Component 해체](https://velog.io/@dh82680/AimTest-14-600줄의-God-Component-해체-책임-분리와-Hub-패턴) · [#15 커스텀 훅 설계](https://velog.io/@dh82680/AimTest-15-커스텀-훅-설계-렌더링-루프와-상태-관리-중앙화) · [#23 멈춰 있던 TIME](https://velog.io/@dh82680/AimTest-23-멈춰-있던-TIME과-타겟-목록을-state로-돌리던-경로)</sub>
+<sub>글 · [#14 600줄의 God Component 해체](https://donghunn-lee-blog.vercel.app/blog/aimtest/14/) · [#15 커스텀 훅 설계](https://donghunn-lee-blog.vercel.app/blog/aimtest/15/) · [#23 멈춰 있던 TIME](https://donghunn-lee-blog.vercel.app/blog/aimtest/23/)</sub>
 
 ### 4. 입력과 렌더의 경계
 
@@ -239,7 +239,7 @@ api/
 </details>
 
 <sub>코드 · [`useInputController.ts` onMouseMove](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/hooks/useInputController.ts#L74-L82) · [`useCanvasRenderLoop.ts` nudgeCamera](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/hooks/useCanvasRenderLoop.ts#L267-L272) · [델타 소비](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/hooks/useCanvasRenderLoop.ts#L157-L163) · [`usePointerLock.ts` request](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/hooks/usePointerLock.ts#L89-L112) · [`TargetManager.ts` getTargets](https://github.com/Donghunn-Lee/aimtest/blob/400697a/src/components/game/core/target/TargetManager.ts#L140-L143)</sub><br>
-<sub>글 · [#05 타겟 매니저 클래스 설계](https://velog.io/@dh82680/AimTest-05-타겟-매니저-클래스-설계) · [#23 타겟 목록을 state로 돌리던 경로](https://velog.io/@dh82680/AimTest-23-멈춰-있던-TIME과-타겟-목록을-state로-돌리던-경로) · [#24 마우스 점프](https://velog.io/@dh82680/AimTest-24-마우스-점프와-결과-창에서-살아나던-루프)</sub>
+<sub>글 · [#05 타겟 매니저 클래스 설계](https://donghunn-lee-blog.vercel.app/blog/aimtest/05/) · [#23 타겟 목록을 state로 돌리던 경로](https://donghunn-lee-blog.vercel.app/blog/aimtest/23/) · [#24 마우스 점프](https://donghunn-lee-blog.vercel.app/blog/aimtest/24/)</sub>
 
 ### 재정비에서 고친 것
 
@@ -252,7 +252,7 @@ api/
 - **복귀 애니메이션 중 Menu.** 애니메이션 종료 플래그가 새 루프를 멈추거나, 다음 게임이 중간 위치에서 시작했습니다. 플래그가 새 루프에 닿지 않게 하고, 게임 시작 시 카메라를 원점으로 되돌립니다.
 - **맵 로딩 레이스.** 로드 effect가 첫 로드 500ms 안에 재실행되면 "Loading map…"에 고착됐습니다. deps에서 `applyAspectFit`을 빼고, 이미지 ref는 `useLayoutEffect`에서 갱신해 맵이 비는 프레임을 없앴습니다.
 
-<sub>글 · [#23 멈춰 있던 TIME과 타겟 목록을 state로 돌리던 경로](https://velog.io/@dh82680/AimTest-23-멈춰-있던-TIME과-타겟-목록을-state로-돌리던-경로) · [#24 마우스 점프와 결과 창에서 살아나던 루프](https://velog.io/@dh82680/AimTest-24-마우스-점프와-결과-창에서-살아나던-루프)</sub>
+<sub>글 · [#23 멈춰 있던 TIME과 타겟 목록을 state로 돌리던 경로](https://donghunn-lee-blog.vercel.app/blog/aimtest/23/) · [#24 마우스 점프와 결과 창에서 살아나던 루프](https://donghunn-lee-blog.vercel.app/blog/aimtest/24/)</sub>
 
 ## 품질
 
@@ -266,7 +266,7 @@ api/
 - knip — 미사용 export · 타입 · 의존성 0(api 엔트리는 설정 없이 미인식이라 제외). 1회 실행 기준이고 CI에는 없습니다.
 
 <sub>코드 · [`validateRanking.ts`](https://github.com/Donghunn-Lee/aimtest/blob/400697a/api/_lib/controllers/validateRanking.ts#L22-L71) · [`eslint.config.mjs`](https://github.com/Donghunn-Lee/aimtest/blob/400697a/eslint.config.mjs#L27-L46) · [`ci.yml`](https://github.com/Donghunn-Lee/aimtest/blob/400697a/.github/workflows/ci.yml)</sub><br>
-<sub>글 · [#22 CRA에서 Vite로 — 툴체인 교체와 ESLint · CI](https://velog.io/@dh82680/AimTest-22-CRA에서-Vite로-툴체인-교체와-ESLint-CI) · [#25 랭킹 API 입력 검증과 코드를 닫기 전 점검](https://velog.io/@dh82680/AimTest-25-랭킹-API-입력-검증과-코드를-닫기-전-점검)</sub>
+<sub>글 · [#22 CRA에서 Vite로 — 툴체인 교체와 ESLint · CI](https://donghunn-lee-blog.vercel.app/blog/aimtest/22/) · [#25 랭킹 API 입력 검증과 코드를 닫기 전 점검](https://donghunn-lee-blog.vercel.app/blog/aimtest/25/)</sub>
 
 ## 알려진 한계
 
@@ -289,10 +289,10 @@ api/
 
 둘 다 구조를 정할 때 기준에 없던 것이 뒤에서 비용이 된 경우입니다.
 
-- **참조 안정성을 완료 기준에 넣습니다.** 훅 분리는 줄 수로 완료 판정했고, 반환 객체가 effect deps에 들어간다는 점은 기준에 없었습니다. 그 결과가 TIME 고정과, 리렌더마다 `stop` → `start`를 반복하던 루프였습니다. 둘 다 마무리가 아니라 재정비에서 찾았고, 지금도 이를 지키는 테스트는 없습니다. 분리 커밋마다 반환 참조의 동일성을 확인하는 것이 다음 기준입니다. ([#23](https://velog.io/@dh82680/AimTest-23-멈춰-있던-TIME과-타겟-목록을-state로-돌리던-경로) · [#24](https://velog.io/@dh82680/AimTest-24-마우스-점프와-결과-창에서-살아나던-루프))
-- **게임 단계는 상태 하나로 뒀어야 했습니다.** 지금은 두 boolean에 "복귀 중"이 루프 안의 ref로 숨어 있고, 전환은 effect 실행 순서로 조율됩니다. 결과 화면에서 되살아나던 루프와 복귀 중 Menu 전이의 결함이 전부 이 구조에서 나왔습니다. menu → playing → returning → result를 상태 하나로 두고 루프의 `start` · `stop`을 전환 시점에 직접 부르면, effect 순서에 기대는 자리가 사라집니다. ([#24](https://velog.io/@dh82680/AimTest-24-마우스-점프와-결과-창에서-살아나던-루프))
+- **참조 안정성을 완료 기준에 넣습니다.** 훅 분리는 줄 수로 완료 판정했고, 반환 객체가 effect deps에 들어간다는 점은 기준에 없었습니다. 그 결과가 TIME 고정과, 리렌더마다 `stop` → `start`를 반복하던 루프였습니다. 둘 다 마무리가 아니라 재정비에서 찾았고, 지금도 이를 지키는 테스트는 없습니다. 분리 커밋마다 반환 참조의 동일성을 확인하는 것이 다음 기준입니다. ([#23](https://donghunn-lee-blog.vercel.app/blog/aimtest/23/) · [#24](https://donghunn-lee-blog.vercel.app/blog/aimtest/24/))
+- **게임 단계는 상태 하나로 뒀어야 했습니다.** 지금은 두 boolean에 "복귀 중"이 루프 안의 ref로 숨어 있고, 전환은 effect 실행 순서로 조율됩니다. 결과 화면에서 되살아나던 루프와 복귀 중 Menu 전이의 결함이 전부 이 구조에서 나왔습니다. menu → playing → returning → result를 상태 하나로 두고 루프의 `start` · `stop`을 전환 시점에 직접 부르면, effect 순서에 기대는 자리가 사라집니다. ([#24](https://donghunn-lee-blog.vercel.app/blog/aimtest/24/))
 
-<sub>글 · [#18 프로젝트 회고](https://velog.io/@dh82680/AimTest-18-프로젝트-회고-종결-이후-다시-잡은-프로젝트) · [시리즈 25편](https://velog.io/@dh82680/series/Aim-Tester)</sub>
+<sub>글 · [#18 프로젝트 회고](https://donghunn-lee-blog.vercel.app/blog/aimtest/18/) · [시리즈 26편](https://donghunn-lee-blog.vercel.app/blog/aimtest/)</sub>
 
 ## 로컬 실행
 
