@@ -259,7 +259,7 @@ api/
 - 커밋 전 로컬에서 `npm run typecheck` · `lint` · `build` · `test -- --run`을 실행합니다. CI(GitHub Actions)가 main push와 PR에서 같은 순서로 다시 실행합니다.
 - TypeScript `strict`(web · api 둘 다) · `any` 0건. named export만 쓰고, default export는 Express 앱 하나입니다.
 - ESLint 10 flat — `consistent-type-imports` · `no-import-type-side-effects` · `simple-import-sort` · `react-hooks` 2규칙 · Prettier(`prettier-plugin-tailwindcss`).
-- 테스트는 순수 함수에 집중합니다. 74건 · 5파일 — 랭킹 입력 검증 32 · `TargetManager` 스폰 · 히트 16 · 유예 색상 · 스폰 간격 12 · 타겟 컨테이너 bounds 9 · 시간 포맷 5.
+- 테스트는 순수 함수에 집중합니다. 75건 · 5파일 — 랭킹 입력 검증 32 · `TargetManager` 스폰 · 히트 · 배열 참조 17 · 유예 색상 · 스폰 간격 12 · 타겟 컨테이너 bounds 9 · 시간 포맷 5.
   - 시간 의존 함수는 시각을 인자로 받고, `Math.random`은 `vi.spyOn`으로 고정합니다.
 - 랭킹 API 입력 검증 — 4필드 수동 검증, 실패는 `400 { error }`. SQL은 전부 `neon` 태그드 템플릿(파라미터화)입니다.
 - 헬스체크 — 메인 화면 Online / Offline + RETRY, effect에 `AbortController` cleanup.
@@ -292,7 +292,7 @@ api/
 **API · 품질**
 
 - 점수 상한 `score ≤ play_time × 10`은 개연성 검사이지 조작 방지가 아닙니다. `play_time`도 클라이언트가 보내므로 함께 부풀리면 통과합니다. 막으려면 서버가 시작 시각을 발급해야 합니다. 익명 리더보드의 인증 · rate limit과 함께 범위 밖입니다.
-- 컴포넌트 · 훅 테스트가 없습니다. 훅이 반환하는 객체의 참조 동일성은 `renderHook` 재렌더로 검증할 수 있는데 아직 없습니다. 재정비 중의 검증은 Playwright로 렌더 횟수를 재는 방식이었고, 스크립트는 저장소 밖입니다. 루프 · Pointer Lock은 Canvas 모킹이 필요해 보류했습니다.
+- 컴포넌트 · 훅 테스트가 없습니다. 참조 동일성은 타겟 배열(`getTargets()`)만 순수 테스트로 고정했고, 훅이 반환하는 객체 쪽은 `renderHook` 재렌더로 검증할 수 있는데 아직 없습니다. 재정비 중의 검증은 Playwright로 렌더 횟수를 재는 방식이었고, 스크립트는 저장소 밖입니다. 루프 · Pointer Lock은 Canvas 모킹이 필요해 보류했습니다.
 - 접근성 — 조준은 마우스 전용이라 대체 수단이 없습니다. 메뉴 · 랭킹의 키보드 탐색과 라벨은 점검하지 않았습니다.
 - `react-hooks`의 React Compiler 규칙을 켜면 11건입니다. rAF 콜백이 자기 자신을 재예약하는 패턴 충돌 2, effect 안에서 state를 갱신하는 곳 4, 렌더 중 `ref.current`를 읽는 곳 5입니다. 마지막 5건은 state/ref 경계 규칙의 예외이고, 고치려면 `useImageLoader` 구조를 바꿔야 합니다.
 
