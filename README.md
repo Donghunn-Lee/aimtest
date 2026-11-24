@@ -135,39 +135,39 @@ api/
 <details>
 <summary>훅 11개의 역할</summary>
 
-| 훅 | 역할 | 반환 |
-|---|---|---|
-| `useCanvasRenderLoop` | rAF 렌더 루프. start / stop 멱등, 입력 델타 누적 → 프레임 경계 반영, 카메라 클램프, 종료 시 원점 복귀 | 객체 (`useMemo`) |
-| `useTargetManager` | `TargetManager` 어댑터. rAF 스폰 루프(누적시간 · 스톨 클램프). 타겟 배열은 인스턴스에, React에는 `targetCount`만 | `[state, actions]` |
-| `useGame` | 게임 라이프사이클 · 점수 · 정확도 · 경과시간 · 그레이스 타이머 | `[state, actions]` |
-| `useGameRuntime` | 경과시간 틱 · 스포너 시작/정지 · BGM · 테두리 페이드 · 유예 트리거를 effect로 묶음 | — |
-| `useInputController` | mousemove → 감도 곱 → `nudgeCamera`, mousedown → 조준점 → `checkHit`, `[` `]` 감도 | 객체 |
-| `usePointerLock` | 메인 캔버스만 잠금. `unadjustedMovement` 요청 + 폴백. 상태는 `pointerlockchange`로만 확정 | 객체 |
-| `useResizeCanvas` | 모드 · 비율 기준 표시 크기, DPR 반영, resize는 rAF로 합침 | — |
-| `useImageLoader` | 맵 이미지 로더. 모듈 캐시, `loading` / `error` 구분 | 객체 |
-| `useVolume` | 효과음 단발 생성, BGM 단일 인스턴스 + 지연 재생 | `[state, actions]` |
-| `useBorderFade` | 테두리 opacity를 ref로 페이드 | 객체 |
-| `useFullscreen` | 전체화면 진입 · 해제 감지 | — |
+| 훅                    | 역할                                                                                                             | 반환               |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------ |
+| `useCanvasRenderLoop` | rAF 렌더 루프. start / stop 멱등, 입력 델타 누적 → 프레임 경계 반영, 카메라 클램프, 종료 시 원점 복귀            | 객체 (`useMemo`)   |
+| `useTargetManager`    | `TargetManager` 어댑터. rAF 스폰 루프(누적시간 · 스톨 클램프). 타겟 배열은 인스턴스에, React에는 `targetCount`만 | `[state, actions]` |
+| `useGame`             | 게임 라이프사이클 · 점수 · 정확도 · 경과시간 · 그레이스 타이머                                                   | `[state, actions]` |
+| `useGameRuntime`      | 경과시간 틱 · 스포너 시작/정지 · BGM · 테두리 페이드 · 유예 트리거를 effect로 묶음                               | —                  |
+| `useInputController`  | mousemove → 감도 곱 → `nudgeCamera`, mousedown → 조준점 → `checkHit`, `[` `]` 감도                               | 객체               |
+| `usePointerLock`      | 메인 캔버스만 잠금. `unadjustedMovement` 요청 + 폴백. 상태는 `pointerlockchange`로만 확정                        | 객체               |
+| `useResizeCanvas`     | 모드 · 비율 기준 표시 크기, DPR 반영, resize는 rAF로 합침                                                        | —                  |
+| `useImageLoader`      | 맵 이미지 로더. 모듈 캐시, `loading` / `error` 구분                                                              | 객체               |
+| `useVolume`           | 효과음 단발 생성, BGM 단일 인스턴스 + 지연 재생                                                                  | `[state, actions]` |
+| `useBorderFade`       | 테두리 opacity를 ref로 페이드                                                                                    | 객체               |
+| `useFullscreen`       | 전체화면 진입 · 해제 감지                                                                                        | —                  |
 
 </details>
 
-| 랭킹 API | 응답 | 비고 |
-|---|---|---|
-| `GET /api/health` | 200 / 503 | `SELECT 1`. 메인 화면의 Online / Offline |
-| `POST /api/rankings` | 201 / 400 `{ error }` | `user_name` trim 후 2 ~ 10자 · `score` 정수 0 ~ INT4 · `play_time` ≥ 0 · `accuracy` 0 ~ 100 · `score ≤ play_time × 10` |
-| `GET /api/rankings` | 상위 100 | `ORDER BY score DESC LIMIT 100` |
-| `GET /api/rankings/rank/:score` | `{ rank_position }` | `score` 정수 검증 |
-| `GET /api/rankings/:userName` | 목록 | 클라이언트 미사용 |
+| 랭킹 API                        | 응답                  | 비고                                                                                                                   |
+| ------------------------------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/health`               | 200 / 503             | `SELECT 1`. 메인 화면의 Online / Offline                                                                               |
+| `POST /api/rankings`            | 201 / 400 `{ error }` | `user_name` trim 후 2 ~ 10자 · `score` 정수 0 ~ INT4 · `play_time` ≥ 0 · `accuracy` 0 ~ 100 · `score ≤ play_time × 10` |
+| `GET /api/rankings`             | 상위 100              | `ORDER BY score DESC LIMIT 100`                                                                                        |
+| `GET /api/rankings/rank/:score` | `{ rank_position }`   | `score` 정수 검증                                                                                                      |
+| `GET /api/rankings/:userName`   | 목록                  | 클라이언트 미사용                                                                                                      |
 
 ### Tech Stack
 
-| 영역 | 구성 |
-|---|---|
-| Frontend | React 19 · TypeScript 6.0 strict · Vite 8(rolldown) · Tailwind CSS 3.4 · framer-motion 12 · axios |
-| Backend | Express 5 — `vercel.json` rewrite로 Vercel Function 하나 · `@neondatabase/serverless` · Neon PostgreSQL(`rankings` 테이블 하나) |
-| Quality | Vitest 5 · ESLint 10 flat · Prettier · GitHub Actions · Node 24 |
+| 영역     | 구성                                                                                                                            |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Frontend | React 19 · TypeScript 6.0 strict · Vite 8(rolldown) · Tailwind CSS 3.4 · framer-motion 12 · axios                               |
+| Backend  | Express 5 — `vercel.json` rewrite로 Vercel Function 하나 · `@neondatabase/serverless` · Neon PostgreSQL(`rankings` 테이블 하나) |
+| Quality  | Vitest 5 · ESLint 10 flat · Prettier · GitHub Actions · Node 24                                                                 |
 
-## 설계 결정
+## 설계 결정 · 문제 해결
 
 ### 1. 캔버스 렌더 루프 단일화
 
@@ -228,7 +228,7 @@ api/
 
 - 입력: `mousemove`마다 카메라를 옮기지 않습니다. 감도를 곱한 델타를 `pendingDeltaRef`에 누적하고, 다음 프레임에서 한 번에 소비하고 클램프합니다.
 - 타겟: 배열은 `TargetManager` 안에만 있습니다. 렌더 루프는 `getTargets()`로 매 프레임 직접 읽고(복사 없음), React state는 유예 판정용 `targetCount` 하나뿐입니다. 스폰 성공 · 히트 · clear · init 시점에만 갱신합니다.
-- Pointer Lock: `requestPointerLock({ unadjustedMovement: true })`를 먼저 시도하고, 거부되면 옵션 없이 다시 요청합니다. Chrome(Windows)의 커서 재중앙화와 OS 가속이 겹쳐 생기던 점프가, 실제 Chrome에 OS 입력을 주입한 12왕복 측정에서 300px 이상 스파이크 기준 왕복당 6.5회 → 0이 됐습니다.
+- Pointer Lock: 마우스를 빠르게 크게 돌리면 화면이 창 너비의 3분의 1쯤을 한 번에 건너뛰는 증상이 있었습니다. Pointer Lock 중에도 숨은 커서는 실제로 움직이는데, Chrome(Windows)이 창 가장자리에 닿은 커서를 중앙으로 되돌릴 때 그 이동이 마우스 이동량에 섞여 들어온 것이 원인입니다. `requestPointerLock({ unadjustedMovement: true })`로 커서를 거치지 않는 원시 이동량을 받게 하고, 거부되면 옵션 없이 다시 요청합니다. 실제 Chrome에 OS 입력을 주입해 1ms마다 8px씩 6,400px을 왕복시킨 12회 측정에서, 한 이벤트에 300px 이상 튄 횟수가 왕복당 6.5회 → 0이 됐습니다.
 - 좌표계는 CSS px로 통일했습니다. 캔버스 buffer만 DPR배이고, 카메라 · 클램프 · 타겟 영역은 전부 CSS px입니다.
 
 <details>
@@ -243,7 +243,7 @@ api/
 
 ### 재정비에서 고친 것
 
-재정비에서 찾은 결함 6건과 조치입니다. 렌더 횟수는 Playwright headless로 잰 값이고, 12초 플레이 기준입니다.
+재정비에서 찾은 결함 6건과 조치입니다. 렌더 횟수는 프로덕션 빌드를 Playwright headless로 잰 값이고, 12초 플레이 기준입니다.
 
 - **인게임 TIME이 0에 고정.** `useGame`의 actions가 매 렌더 새 객체라 경과시간 `setInterval(…, 100)`이 리렌더마다 재생성됐습니다. 8ms마다 타겟 배열을 state로 복사하던 경로가 리렌더를 그보다 잦게 만들어, 틱이 한 번도 실행되기 전에 재생성됐습니다. actions를 `useMemo`로 묶고, 8ms 복사 경로를 지워 렌더 루프가 `TargetManager`를 직접 읽게 했습니다. `GameWorld` 렌더가 약 670회에서 약 260회가 됐습니다.
 - **결과 화면에서 루프가 되살아남 (1).** 루프가 반환하는 객체가 렌더마다 새로 만들어져, 시작 effect가 리렌더마다 `stop` → `start`를 반복했습니다. 반환 객체를 `useMemo`로 묶었습니다.
@@ -264,6 +264,18 @@ api/
 - 랭킹 API 입력 검증 — 4필드 수동 검증, 실패는 `400 { error }`. SQL은 전부 `neon` 태그드 템플릿(파라미터화)입니다.
 - 헬스체크 — 메인 화면 Online / Offline + RETRY, effect에 `AbortController` cleanup.
 - knip — 미사용 export · 타입 · 의존성 0(api 엔트리는 설정 없이 미인식이라 제외). 1회 실행 기준이고 CI에는 없습니다.
+
+성능은 플레이 중과 로딩으로 나눠 쟀습니다(2026년 11월 24일). 플레이 중 지표는 Live를 실제 Chrome 157로 열어 직접 플레이하면서 기록했습니다. RTX 3060 · 144Hz · 2560×1305 최대화 창에서 워밍업 1판을 뺀 5판 418초이고, Chrome은 측정 스크립트(Playwright)가 띄운 창입니다. 로딩은 PageSpeed Insights 데스크톱 lab 측정 3회입니다(실사용자 데이터 없음). PC 한 대에서 잰 값입니다.
+
+| 지표           | 기준                        | 결과                                                               |
+| -------------- | --------------------------- | ------------------------------------------------------------------ |
+| 프레임 안정성  | 144Hz의 한 프레임 6.9ms     | 놓친 프레임 60,205개 중 7개(0.012%) · 간격 p99 7.1ms               |
+| 긴 멈춤        | 50ms를 넘는 프레임 없음     | 0건 · 최대 간격 27.9ms                                             |
+| 클릭 반응      | 200ms 이하(INP good)        | 클릭 903회, 다음 화면 표시까지 최대 32ms                           |
+| 장시간 유지    | 시간이 지나도 나빠지지 않음 | 30초 이후 놓친 프레임 0(최장 131초) · 판 사이 GC 뒤 힙 7.9 ~ 8.2MB |
+| 로딩(데스크톱) | LCP 2.5초 · CLS 0.1 이하    | 성능 100 · LCP 0.6초 · CLS 0 · TBT 20 ~ 60ms                       |
+
+놓친 프레임 7개는 모두 판 시작 0.3초 안에 있었습니다. 페이지를 연 뒤 첫 판은 시작 1.6초 안에 8 ~ 10개를 놓쳐(최대 간격 48.6ms, 50ms를 넘긴 긴 프레임 1건) 워밍업으로 보고 집계에서 뺐습니다. 클릭 반응은 8ms 단위로 기록되는 값이고, 판에 따라 16ms 이하에서 32ms까지 달랐습니다(원인 미확인). 마우스에서 모니터까지의 전체 입력 지연은 장비가 필요해 재지 않았고, 다른 브라우저와 저사양 기기도 재지 않았습니다. 모바일은 안내 화면만 나오므로 PageSpeed Insights는 데스크톱만 대상으로 했습니다(모바일 참고값: 성능 67 ~ 73 · LCP 4.3 ~ 6.2초). 측정 스크립트는 저장소 밖입니다.
 
 <sub>코드 · [`validateRanking.ts`](https://github.com/Donghunn-Lee/aimtest/blob/400697a/api/_lib/controllers/validateRanking.ts#L22-L71) · [`eslint.config.mjs`](https://github.com/Donghunn-Lee/aimtest/blob/400697a/eslint.config.mjs#L27-L46) · [`ci.yml`](https://github.com/Donghunn-Lee/aimtest/blob/400697a/.github/workflows/ci.yml)</sub><br>
 <sub>글 · [#22 CRA에서 Vite로 — 툴체인 교체와 ESLint · CI](https://donghunn-lee-blog.vercel.app/blog/aimtest/22/) · [#25 랭킹 API 입력 검증과 코드를 닫기 전 점검](https://donghunn-lee-blog.vercel.app/blog/aimtest/25/)</sub>
