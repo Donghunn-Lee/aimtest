@@ -147,6 +147,17 @@ describe('TargetManager', () => {
     });
   });
 
+  describe('getTargets', () => {
+    // 렌더 루프가 매 프레임 읽는다 — 복사본이면 호출부의 참조 비교가 매번 달라진다
+    it('타겟이 있을 때 두 번 호출하면 같은 배열 참조를 반환한다', () => {
+      const manager = createManager();
+      mockRandomSequence([0.5, 0.5]);
+
+      expect(manager.createTarget()).not.toBeNull();
+      expect(manager.getTargets()).toBe(manager.getTargets());
+    });
+  });
+
   describe('updateGameArea', () => {
     it('기존 타겟과 이후 생성 타겟의 size가 새 bounds로 재파생된다', () => {
       const manager = createManager();
