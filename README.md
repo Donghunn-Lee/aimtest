@@ -300,7 +300,7 @@ api/
 
 둘 다 구조를 정할 때 기준에 없던 것이 뒤에서 비용이 된 경우입니다.
 
-- **참조 안정성을 완료 기준에 넣습니다.** 훅 분리는 줄 수로 완료 판정했고, 반환 객체가 effect deps에 들어간다는 점은 기준에 없었습니다. 그 결과가 TIME 고정과, 리렌더마다 `stop` → `start`를 반복하던 루프였습니다. 둘 다 마무리가 아니라 재정비에서 찾았고, 지금도 이를 지키는 테스트는 없습니다. 분리 커밋마다 반환 참조의 동일성을 확인하는 것이 다음 기준입니다. ([#23](https://donghunn-lee-blog.vercel.app/blog/aimtest/23/) · [#24](https://donghunn-lee-blog.vercel.app/blog/aimtest/24/))
+- **참조 안정성을 완료 기준에 넣습니다.** 훅 분리는 줄 수로 완료 판정했고, 반환 객체가 effect deps에 들어간다는 점은 기준에 없었습니다. 그 결과가 TIME 고정과, 리렌더마다 `stop` → `start`를 반복하던 루프였습니다. 둘 다 마무리가 아니라 재정비에서 찾았고, 훅이 반환하는 객체의 참조를 지키는 테스트는 지금도 없습니다. 분리 커밋마다 반환 참조의 동일성을 확인하는 것이 다음 기준입니다. ([#23](https://donghunn-lee-blog.vercel.app/blog/aimtest/23/) · [#24](https://donghunn-lee-blog.vercel.app/blog/aimtest/24/))
 - **게임 단계는 상태 하나로 뒀어야 했습니다.** 지금은 두 boolean에 "복귀 중"이 루프 안의 ref로 숨어 있고, 전환은 effect 실행 순서로 조율됩니다. 결과 화면에서 되살아나던 루프와 복귀 중 Menu 전이의 결함이 전부 이 구조에서 나왔습니다. menu → playing → returning → result를 상태 하나로 두고 루프의 `start` · `stop`을 전환 시점에 직접 부르면, effect 순서에 기대는 자리가 사라집니다. ([#24](https://donghunn-lee-blog.vercel.app/blog/aimtest/24/))
 
 <sub>글 · [#18 프로젝트 회고](https://donghunn-lee-blog.vercel.app/blog/aimtest/18/) · [시리즈 26편](https://donghunn-lee-blog.vercel.app/blog/aimtest/)</sub>
