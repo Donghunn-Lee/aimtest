@@ -300,8 +300,10 @@ api/
 
 코드 작성은 시기마다 다른 AI 도구에 맡겼고, 무엇을 만들지와 방안 채택, 결과 확인은 직접 했습니다.
 
-- **2025년 3월 ~ 2026년 2월**: 처음에는 ChatGPT에 파일을 주고받으며 만들었고, 2025년 10월부터는 Cursor를 함께 썼습니다. AI가 작성한 코드를 실행해 보며 검토하고 고쳤습니다.
+- **2025년 3월 ~ 2026년 2월**: 처음에는 ChatGPT에 파일을 주고받으며 만들었고, 이후 Cursor를 함께 썼습니다. AI가 작성한 코드를 실행해 보며 검토하고 고쳤습니다.
 - **2026년 10 ~ 11월 재정비**: Claude Code에 맡겼습니다. 로컬 규칙 파일(CLAUDE.md)에 아키텍처 원칙 · 컨벤션 · 금지 사항을 적어 리뷰 기준으로 쓰고, 작업은 단계별 지시 파일로 나눠 단계마다 보고를 받아 검토한 뒤 커밋했습니다. 지시와 다르게 처리할 부분은 이유를 먼저 받아 확인했습니다. 측정 스크립트도 Claude Code가 작성했고, 실플레이 측정의 플레이는 직접 했습니다.
+
+각 시기의 코드는 태그로 남겼습니다: [v1.0](https://github.com/Donghunn-Lee/aimtest/tree/v1.0) 첫 개발 · [v2.0-beta](https://github.com/Donghunn-Lee/aimtest/tree/v2.0-beta) 2차 개발 · [v2.0](https://github.com/Donghunn-Lee/aimtest/tree/v2.0) 재정비
 
 <sub>글 · [#08 타겟 생성 로직 리팩토링](https://donghunn-lee-blog.vercel.app/blog/aimtest/08/) · [#20 EC2 + MySQL에서 Vercel + Neon으로](https://donghunn-lee-blog.vercel.app/blog/aimtest/20/)</sub>
 
